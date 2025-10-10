@@ -8,7 +8,72 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *Order) Validate() error {
+func (s *OrderCreateRequest) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.String{
+			MinLength:    36,
+			MinLengthSet: true,
+			MaxLength:    36,
+			MaxLengthSet: true,
+			Email:        false,
+			Hostname:     false,
+			Regex:        nil,
+		}).Validate(string(s.UserUUID)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "user_uuid",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if s.PartUuids == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "part_uuids",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *OrderCreateResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.Float{}).Validate(float64(s.TotalPrice)); err != nil {
+			return errors.Wrap(err, "float")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "total_price",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *OrderGetResponse) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
 	}
@@ -121,69 +186,34 @@ func (s *Order) Validate() error {
 	return nil
 }
 
-func (s *OrderCreateRequest) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.String{
-			MinLength:    36,
-			MinLengthSet: true,
-			MaxLength:    36,
-			MaxLengthSet: true,
-			Email:        false,
-			Hostname:     false,
-			Regex:        nil,
-		}).Validate(string(s.UserUUID)); err != nil {
-			return errors.Wrap(err, "string")
-		}
+func (s OrderGetResponsePaymentMethod) Validate() error {
+	switch s {
+	case "UNSPECIFIED":
 		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "user_uuid",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if s.PartUuids == nil {
-			return errors.New("nil is invalid value")
-		}
+	case "CARD":
 		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "part_uuids",
-			Error: err,
-		})
+	case "SBP":
+		return nil
+	case "CREDIT_CARD":
+		return nil
+	case "INVESTOR_MONEY":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
 	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
-func (s *OrderCreateResponse) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.TotalPrice)); err != nil {
-			return errors.Wrap(err, "float")
-		}
+func (s OrderGetResponseStatus) Validate() error {
+	switch s {
+	case "PAID":
 		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "total_price",
-			Error: err,
-		})
+	case "PENDING_PAYMENT":
+		return nil
+	case "CANCELLED":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
 	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s *OrderPayRequest) Validate() error {
@@ -255,34 +285,4 @@ func (s *OrderPayResponse) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s OrderPaymentMethod) Validate() error {
-	switch s {
-	case "UNSPECIFIED":
-		return nil
-	case "CARD":
-		return nil
-	case "SBP":
-		return nil
-	case "CREDIT_CARD":
-		return nil
-	case "INVESTOR_MONEY":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
-}
-
-func (s OrderStatus) Validate() error {
-	switch s {
-	case "PAID":
-		return nil
-	case "PENDING_PAYMENT":
-		return nil
-	case "CANCELLED":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }

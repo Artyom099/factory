@@ -1,15 +1,24 @@
+parameters:
+  - $ref: ../params/order_uuid.yaml
+
 post:
   summary: Pay order
   operationId: PayOrder
   tags:
     - Order
-  parameters:
-    - name: order_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
+  # parameters:
+  #   - name: order_uuid
+  #     in: path
+  #     required: true
+  #     schema:
+  #       type: string
+  #       format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/order_pay_request.yaml
   responses:
     "200":
       description: Order successfully paid

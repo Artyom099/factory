@@ -1,28 +1,21 @@
+parameters:
+  - $ref: ../params/order_uuid.yaml
+
 post:
   summary: Cancel order
   operationId: CancelOrder
   tags:
     - Order
-  parameters:
-    - name: order_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: ../components/order_pay_request.yaml
+  # parameters:
+  #   - name: order_uuid
+  #     in: path
+  #     required: true
+  #     schema:
+  #       type: string
+  #       format: uuid
   responses:
-    "200":
+    "204":
       description: Order successfully cancelled
-      content:
-        application/json:
-          schema:
-            $ref: ../components/order_pay_response.yaml
     "404":
       description: Data for specified order not found
       content:

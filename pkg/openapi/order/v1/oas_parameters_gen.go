@@ -18,7 +18,6 @@ import (
 
 // CancelOrderParams is parameters of CancelOrder operation.
 type CancelOrderParams struct {
-	// Идентификатор заказа передается в урле запроса.
 	OrderUUID uuid.UUID
 }
 
@@ -84,7 +83,6 @@ func decodeCancelOrderParams(args [1]string, argsEscaped bool, r *http.Request) 
 
 // GetOrderParams is parameters of GetOrder operation.
 type GetOrderParams struct {
-	// Идентификатор заказа передается в урле запроса.
 	OrderUUID uuid.UUID
 }
 
@@ -150,7 +148,6 @@ func decodeGetOrderParams(args [1]string, argsEscaped bool, r *http.Request) (pa
 
 // PayOrderParams is parameters of PayOrder operation.
 type PayOrderParams struct {
-	// Идентификатор заказа передается в урле запроса.
 	OrderUUID uuid.UUID
 }
 

@@ -114,6 +114,21 @@ func (s *Server) handleCancelOrderRequest(args [1]string, argsEscaped bool, w ht
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	request, close, err := s.decodeCancelOrderRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
 	var response CancelOrderRes
 	if m := s.cfg.Middleware; m != nil {
@@ -122,7 +137,7 @@ func (s *Server) handleCancelOrderRequest(args [1]string, argsEscaped bool, w ht
 			OperationName:    CancelOrderOperation,
 			OperationSummary: "Cancel order",
 			OperationID:      "CancelOrder",
-			Body:             nil,
+			Body:             request,
 			Params: middleware.Parameters{
 				{
 					Name: "order_uuid",
@@ -133,7 +148,7 @@ func (s *Server) handleCancelOrderRequest(args [1]string, argsEscaped bool, w ht
 		}
 
 		type (
-			Request  = struct{}
+			Request  = *OrderPayRequest
 			Params   = CancelOrderParams
 			Response = CancelOrderRes
 		)
@@ -146,27 +161,16 @@ func (s *Server) handleCancelOrderRequest(args [1]string, argsEscaped bool, w ht
 			mreq,
 			unpackCancelOrderParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CancelOrder(ctx, params)
+				response, err = s.h.CancelOrder(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CancelOrder(ctx, params)
+		response, err = s.h.CancelOrder(ctx, request, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*GenericErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -303,19 +307,8 @@ func (s *Server) handleCreateOrderRequest(args [0]string, argsEscaped bool, w ht
 		response, err = s.h.CreateOrder(ctx, request)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*GenericErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -332,13 +325,13 @@ func (s *Server) handleCreateOrderRequest(args [0]string, argsEscaped bool, w ht
 //
 // Get order.
 //
-// GET /api/v1/orders/{order_uuid}
+// POST /api/v1/orders/{order_uuid}
 func (s *Server) handleGetOrderRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("GetOrder"),
-		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/api/v1/orders/{order_uuid}"),
 	}
 
@@ -452,19 +445,8 @@ func (s *Server) handleGetOrderRequest(args [1]string, argsEscaped bool, w http.
 		response, err = s.h.GetOrder(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*GenericErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 
@@ -561,21 +543,6 @@ func (s *Server) handlePayOrderRequest(args [1]string, argsEscaped bool, w http.
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodePayOrderRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
 
 	var response PayOrderRes
 	if m := s.cfg.Middleware; m != nil {
@@ -584,7 +551,7 @@ func (s *Server) handlePayOrderRequest(args [1]string, argsEscaped bool, w http.
 			OperationName:    PayOrderOperation,
 			OperationSummary: "Pay order",
 			OperationID:      "PayOrder",
-			Body:             request,
+			Body:             nil,
 			Params: middleware.Parameters{
 				{
 					Name: "order_uuid",
@@ -595,7 +562,7 @@ func (s *Server) handlePayOrderRequest(args [1]string, argsEscaped bool, w http.
 		}
 
 		type (
-			Request  = *OrderPayRequest
+			Request  = struct{}
 			Params   = PayOrderParams
 			Response = PayOrderRes
 		)
@@ -608,27 +575,16 @@ func (s *Server) handlePayOrderRequest(args [1]string, argsEscaped bool, w http.
 			mreq,
 			unpackPayOrderParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.PayOrder(ctx, request, params)
+				response, err = s.h.PayOrder(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.PayOrder(ctx, request, params)
+		response, err = s.h.PayOrder(ctx, params)
 	}
 	if err != nil {
-		if errRes, ok := errors.Into[*GenericErrorStatusCode](err); ok {
-			if err := encodeErrorResponse(errRes, w, span); err != nil {
-				defer recordError("Internal", err)
-			}
-			return
-		}
-		if errors.Is(err, ht.ErrNotImplemented) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
-			defer recordError("Internal", err)
-		}
+		defer recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 

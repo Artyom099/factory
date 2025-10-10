@@ -13,7 +13,7 @@ type Handler interface {
 	// Cancel order.
 	//
 	// POST /api/v1/orders/{order_uuid}/cancel
-	CancelOrder(ctx context.Context, params CancelOrderParams) (CancelOrderRes, error)
+	CancelOrder(ctx context.Context, req *OrderPayRequest, params CancelOrderParams) (CancelOrderRes, error)
 	// CreateOrder implements CreateOrder operation.
 	//
 	// Create order.
@@ -24,18 +24,14 @@ type Handler interface {
 	//
 	// Get order.
 	//
-	// GET /api/v1/orders/{order_uuid}
+	// POST /api/v1/orders/{order_uuid}
 	GetOrder(ctx context.Context, params GetOrderParams) (GetOrderRes, error)
 	// PayOrder implements PayOrder operation.
 	//
 	// Pay order.
 	//
 	// POST /api/v1/orders/{order_uuid}/pay
-	PayOrder(ctx context.Context, req *OrderPayRequest, params PayOrderParams) (PayOrderRes, error)
-	// NewError creates *GenericErrorStatusCode from error returned by handler.
-	//
-	// Used for common default response.
-	NewError(ctx context.Context, err error) *GenericErrorStatusCode
+	PayOrder(ctx context.Context, params PayOrderParams) (PayOrderRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

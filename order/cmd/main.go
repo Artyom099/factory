@@ -8,66 +8,30 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
+	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-
-	partV1 "github.com/Artyom099/shared/pkg/openapi/part/v1"
 )
 
 const (
-	httpPort     = "8080"
-	urlParamCity = "city"
+	httpPort = "8080"
 	// Таймауты для HTTP-сервера
 	readHeaderTimeout = 5 * time.Second
 	shutdownTimeout   = 10 * time.Second
 )
 
-// PartStorage представляет потокобезопасное хранилище данных о деталях
-type PartStorage struct {
-	mu     sync.RWMutex
-	orders map[string]*partV1.Weather
-}
-
-// NewPartStorage создает новое хранилище данных о деталях
-func NewPartStorage() *PartStorage {
-	return &PartStorage{
-		orders: make(map[string]*partV1.Weather),
-	}
-}
-
-func (s *PartStorage) GetOrder(uuid string) *partV1.Weather {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	order, ok := s.orders[uuid]
-	if !ok {
-		return nil
-	}
-
-	return order
-}
-
-// UpdateWeather обновляет данные о погоде для указанного города
-func (s *PartStorage) CreateOrder(city string, weather *weatherV1.Weather) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.weathers[city] = weather
-}
-
 func main() {
-	storage := NewPartStorage()
+	storage := NewOrderStorage()
 
-	// Создаем обработчик API погоды
-	weatherHandler := NewWeatherHandler(storage)
+	// Создаем обработчик API заказов
+	orderHandler := NewOrderHandler(storage)
 
 	// Создаем OpenAPI сервер
-	weatherServer, err := weatherV1.NewServer(weatherHandler)
+	orderServer, err := orderV1.NewServer(orderHandler)
 	if err != nil {
 		log.Fatalf("ошибка создания сервера OpenAPI: %v", err)
 	}
@@ -81,13 +45,8 @@ func main() {
 	r.Use(middleware.Timeout(10 * time.Second))
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	// Определяем маршруты
-	r.Route("/api/v1/orders", func(r chi.Router) {
-		r.Post("/", CreateOrder(storage))                   // создание заказа
-		r.Get("/{order_uuid}/pay", PayOrder(storage))       // оплата заказа
-		r.Put("/{order_uuid}", GetOrder(storage))           // получить заказ по UUID
-		r.Put("/{order_uuid}/cancel", CancelOrder(storage)) // отменить заказ
-	})
+	// Монтируем обработчики OpenAPI
+	r.Mount("/", orderServer)
 
 	// Запускаем HTTP-сервер
 	server := &http.Server{

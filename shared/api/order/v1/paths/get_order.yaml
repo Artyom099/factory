@@ -1,22 +1,25 @@
-post:
+parameters:
+  - $ref: ../params/order_uuid.yaml
+
+get:
   summary: Get order
   operationId: GetOrder
-  parameters:
-    - name: order_uuid
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
   tags:
     - Order
+  # parameters:
+  #   - name: order_uuid
+  #     in: path
+  #     required: true
+  #     schema:
+  #       type: string
+  #       format: uuid
   responses:
     "200":
       description: Order successfully retrieved
       content:
         application/json:
           schema:
-            $ref: ../components/order_get_response.yaml
+            $ref: ../components/order.yaml
     "404":
       description: Data for specified order not found
       content:

@@ -1,0 +1,8 @@
+name: order_uuid
+in: path
+required: true
+description: Идентификатор заказа передается в урле запроса
+schema:
+  type: string
+  format: uuid
+  example: "2522337d-5e0a-4d68-8ca1-7219afac7ddb"

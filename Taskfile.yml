@@ -141,6 +141,18 @@ tasks:
         done
         exit $ERR
 
+  lint:fix:
+    desc: "Чинит все найденные ошибки линтера"
+    vars:
+      MODULES: "{{.MODULES}}"
+      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
+    cmds:
+      - |
+        for mod in {{.MODULES}}; do \
+          echo "🔍 Fixing lint errors in $mod"; \
+          (cd $mod && {{.GOLANGCI_LINT}} run --fix); \
+        done
+
   install-buf:
     desc: "Устанавливает Buf в каталог bin"
     cmds:

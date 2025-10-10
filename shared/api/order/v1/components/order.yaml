@@ -1,3 +1,4 @@
+# todo - непонятно, как к объекту order привязать еще создалние, отмену и оплату
 type: object
 required:
   - order_uuid

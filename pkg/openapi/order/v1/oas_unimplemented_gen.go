@@ -18,7 +18,7 @@ var _ Handler = UnimplementedHandler{}
 // Cancel order.
 //
 // POST /api/v1/orders/{order_uuid}/cancel
-func (UnimplementedHandler) CancelOrder(ctx context.Context, params CancelOrderParams) (r CancelOrderRes, _ error) {
+func (UnimplementedHandler) CancelOrder(ctx context.Context, req *OrderPayRequest, params CancelOrderParams) (r CancelOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -35,7 +35,7 @@ func (UnimplementedHandler) CreateOrder(ctx context.Context, req *OrderCreateReq
 //
 // Get order.
 //
-// GET /api/v1/orders/{order_uuid}
+// POST /api/v1/orders/{order_uuid}
 func (UnimplementedHandler) GetOrder(ctx context.Context, params GetOrderParams) (r GetOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -45,14 +45,6 @@ func (UnimplementedHandler) GetOrder(ctx context.Context, params GetOrderParams)
 // Pay order.
 //
 // POST /api/v1/orders/{order_uuid}/pay
-func (UnimplementedHandler) PayOrder(ctx context.Context, req *OrderPayRequest, params PayOrderParams) (r PayOrderRes, _ error) {
+func (UnimplementedHandler) PayOrder(ctx context.Context, params PayOrderParams) (r PayOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
-}
-
-// NewError creates *GenericErrorStatusCode from error returned by handler.
-//
-// Used for common default response.
-func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *GenericErrorStatusCode) {
-	r = new(GenericErrorStatusCode)
-	return r
 }

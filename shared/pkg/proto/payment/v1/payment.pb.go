@@ -77,7 +77,7 @@ func (PaymentMethod) EnumDescriptor() ([]byte, []int) {
 	return file_payment_v1_payment_proto_rawDescGZIP(), []int{0}
 }
 
-// PayOrderRequest - запрос на оплату заказа
+// PayOrderRequest
 type PayOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderUuid     string                 `protobuf:"bytes,1,opt,name=order_uuid,json=orderUuid,proto3" json:"order_uuid,omitempty"`                                            // [(validate.rules).string.uuid = true]; // UUID заказа
@@ -138,7 +138,7 @@ func (x *PayOrderRequest) GetPaymentMethod() PaymentMethod {
 	return PaymentMethod_PAYMENT_METHOD_UNSPECIFIED
 }
 
-// PayOrderResponse - ответ на запрос на оплату заказа
+// PayOrderResponse
 type PayOrderResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	TransactionUuid string                 `protobuf:"bytes,1,opt,name=transaction_uuid,json=transactionUuid,proto3" json:"transaction_uuid,omitempty"` // [(validate.rules).string.uuid = true]; // UUID платежа
