@@ -6,9 +6,10 @@ import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/Artyom099/factory/shared/pkg/inventory/v1;inventory_v1";
 
-service InventoryV1Service {
+service InventoryService {
     rpc GetPart(GetPartRequest) returns (GetPartResponse) {}
     rpc ListParts(ListPartsRequest) returns (ListPartsResponse) {}
+    rpc CreatePart(CreatePartRequest) returns (CreatePartResponse) {}
 }
 
 // Category of part
@@ -88,4 +89,22 @@ message ListPartsRequest {
 // ListPartsResponse - list
 message ListPartsResponse {
     repeated Part parts = 1;
+}
+
+// CreatePartRequest - create
+message CreatePartRequest {
+    string name = 1; // Название детали
+    string description = 2; // Описание детали
+    double price = 3; // Цена за единицу
+    int64 stock_quantity = 4; // Количество на складе
+    Category category = 5; // [(validate.rules).enum.defined_only = true]; // Категория детали
+    Dimensions dimensions = 6; // Размеры детали
+    Manufacturer manufacturer = 7; // Информация о производителе
+    repeated string tags = 8; // Теги для быстрого поиска
+    map<string, Value> metadata = 9; // Гибкие метаданные
+}
+
+// CreatePartResponse - create
+message CreatePartResponse {
+    string uuid = 1;
 }

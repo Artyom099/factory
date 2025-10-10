@@ -201,8 +201,8 @@ const file_payment_v1_payment_proto_rawDesc = "" +
 	"\x13PAYMENT_METHOD_CARD\x10\x01\x12\x16\n" +
 	"\x12PAYMENT_METHOD_SBP\x10\x02\x12\x1e\n" +
 	"\x1aPAYMENT_METHOD_CREDIT_CARD\x10\x03\x12!\n" +
-	"\x1dPAYMENT_METHOD_INVESTOR_MONEY\x10\x042[\n" +
-	"\x10PaymentV1Service\x12G\n" +
+	"\x1dPAYMENT_METHOD_INVESTOR_MONEY\x10\x042Y\n" +
+	"\x0ePaymentService\x12G\n" +
 	"\bPayOrder\x12\x1b.payment.v1.PayOrderRequest\x1a\x1c.payment.v1.PayOrderResponse\"\x00B?Z=github.com/Artyom099/factory/shared/pkg/payment/v1;payment_v1b\x06proto3"
 
 var (
@@ -226,8 +226,8 @@ var file_payment_v1_payment_proto_goTypes = []any{
 }
 var file_payment_v1_payment_proto_depIdxs = []int32{
 	0, // 0: payment.v1.PayOrderRequest.payment_method:type_name -> payment.v1.PaymentMethod
-	1, // 1: payment.v1.PaymentV1Service.PayOrder:input_type -> payment.v1.PayOrderRequest
-	2, // 2: payment.v1.PaymentV1Service.PayOrder:output_type -> payment.v1.PayOrderResponse
+	1, // 1: payment.v1.PaymentService.PayOrder:input_type -> payment.v1.PayOrderRequest
+	2, // 2: payment.v1.PaymentService.PayOrder:output_type -> payment.v1.PayOrderResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

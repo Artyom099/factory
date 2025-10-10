@@ -18,7 +18,7 @@ import (
 const grpcPort = 50052
 
 type paymentService struct {
-	paymentV1.UnimplementedPaymentV1ServiceServer
+	paymentV1.UnimplementedPaymentServiceServer
 }
 
 func (s *paymentService) PayOrder(_ context.Context, _ *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
@@ -45,13 +45,9 @@ func main() {
 	s := grpc.NewServer()
 
 	service := &paymentService{}
-	paymentV1.RegisterPaymentV1ServiceServer(s, service)
+	paymentV1.RegisterPaymentServiceServer(s, service)
 
 	reflection.Register(s)
-
-	if err := s.Serve(listener); err != nil {
-		log.Printf("failed to serve: %v\n", err)
-	}
 
 	go func() {
 		log.Printf("Payment gRPC server listening on %d\n", grpcPort)

@@ -13,16 +13,18 @@ import (
 
 	"github.com/Artyom099/factory/inventory/internal/utils"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const grpcPort = 50051
 
 type inventoryService struct {
-	inventoryV1.UnimplementedInventoryV1ServiceServer
+	inventoryV1.UnimplementedInventoryServiceServer
 
 	mu    sync.RWMutex
 	parts map[string]*inventoryV1.Part
@@ -95,6 +97,36 @@ func matchPart(p *inventoryV1.Part, f *inventoryV1.PartsFilter) bool {
 	return true
 }
 
+func (s *inventoryService) CreatePart(_ context.Context, req *inventoryV1.CreatePartRequest) (*inventoryV1.CreatePartResponse, error) {
+	p := &inventoryV1.Part{
+		Uuid:        uuid.New().String(),
+		Name:        req.GetName(),
+		Category:    req.GetCategory(),
+		Description: req.GetDescription(),
+		Dimensions: &inventoryV1.Dimensions{
+			Length: req.GetDimensions().GetLength(),
+			Width:  req.GetDimensions().GetWidth(),
+			Height: req.GetDimensions().GetHeight(),
+			Weight: req.GetDimensions().GetWeight(),
+		},
+		Price:         req.GetPrice(),
+		StockQuantity: req.GetStockQuantity(),
+		Manufacturer: &inventoryV1.Manufacturer{
+			Name:    req.GetManufacturer().GetName(),
+			Country: req.GetManufacturer().GetCountry(),
+		},
+		Tags:      req.GetTags(),
+		CreatedAt: timestamppb.Now(),
+		UpdatedAt: nil,
+	}
+
+	s.parts[p.GetUuid()] = p
+
+	return &inventoryV1.CreatePartResponse{
+		Uuid: p.GetUuid(),
+	}, nil
+}
+
 func main() {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {
@@ -115,7 +147,7 @@ func main() {
 		parts: make(map[string]*inventoryV1.Part),
 	}
 
-	inventoryV1.RegisterInventoryV1ServiceServer(s, service)
+	inventoryV1.RegisterInventoryServiceServer(s, service)
 
 	// Включаем рефлексию для отладки
 	reflection.Register(s)

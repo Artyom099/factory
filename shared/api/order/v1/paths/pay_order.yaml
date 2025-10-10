@@ -6,13 +6,6 @@ post:
   operationId: PayOrder
   tags:
     - Order
-  # parameters:
-  #   - name: order_uuid
-  #     in: path
-  #     required: true
-  #     schema:
-  #       type: string
-  #       format: uuid
   requestBody:
     required: true
     content:

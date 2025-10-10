@@ -6,13 +6,6 @@ get:
   operationId: GetOrder
   tags:
     - Order
-  # parameters:
-  #   - name: order_uuid
-  #     in: path
-  #     required: true
-  #     schema:
-  #       type: string
-  #       format: uuid
   responses:
     "200":
       description: Order successfully retrieved

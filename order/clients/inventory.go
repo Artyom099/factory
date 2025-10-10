@@ -10,7 +10,7 @@ import (
 
 const inventoryServerAddress = "localhost:50051"
 
-func CreateInventoryClient() (inventoryV1.InventoryV1ServiceClient, error) {
+func CreateInventoryClient() (inventoryV1.InventoryServiceClient, error) {
 	// ctx := context.Background()
 
 	connection, err := grpc.NewClient(
@@ -28,5 +28,5 @@ func CreateInventoryClient() (inventoryV1.InventoryV1ServiceClient, error) {
 	}()
 
 	// Создаем gRPC клиент
-	return inventoryV1.NewInventoryV1ServiceClient(connection), nil
+	return inventoryV1.NewInventoryServiceClient(connection), nil
 }
