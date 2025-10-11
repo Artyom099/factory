@@ -11,14 +11,15 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/Artyom099/factory/inventory/internal/utils"
-	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/Artyom099/factory/inventory/internal/utils"
+	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
 const grpcPort = 50051

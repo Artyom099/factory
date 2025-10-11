@@ -3,9 +3,10 @@ package clients
 import (
 	"log"
 
-	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
 const inventoryServerAddress = "localhost:50051"
@@ -21,11 +22,6 @@ func CreateInventoryClient() (inventoryV1.InventoryServiceClient, error) {
 		log.Printf("failed to connect: %v\n", err)
 		return nil, err
 	}
-	defer func() {
-		if cerr := connection.Close(); cerr != nil {
-			log.Printf("failed to close connect: %v", cerr)
-		}
-	}()
 
 	// Создаем gRPC клиент
 	return inventoryV1.NewInventoryServiceClient(connection), nil

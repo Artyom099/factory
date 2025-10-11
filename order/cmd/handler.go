@@ -4,11 +4,12 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	"github.com/Artyom099/factory/order/clients"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
-	"github.com/google/uuid"
 )
 
 // OrderHandler реализует интерфейс orderV1.Handler для обработки запросов к API погоды
@@ -97,7 +98,10 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, params *orderV1.OrderCre
 		}, nil
 	}
 
-	return nil, nil
+	return &orderV1.OrderCreateResponse{
+		OrderUUID:  orderUuid,
+		TotalPrice: totalPrice,
+	}, nil
 }
 
 func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orderV1.GetOrderRes, error) {
@@ -113,7 +117,7 @@ func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderPara
 }
 
 func (h *OrderHandler) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
-	// - Находит заказ по `order_uuid`. Если не существует — возвращает 404 Not Found.
+	// Находит заказ по `order_uuid`. Если не существует — возвращает 404 Not Found.
 	order := h.storage.GetOrder(params.OrderUUID.String())
 	if order == nil {
 		return &orderV1.NotFoundError{
