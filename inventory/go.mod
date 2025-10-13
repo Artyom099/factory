@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/envoyproxy/protoc-gen-validate v1.2.1 // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect

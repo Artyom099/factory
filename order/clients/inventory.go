@@ -12,8 +12,6 @@ import (
 const inventoryServerAddress = "localhost:50051"
 
 func CreateInventoryClient() (inventoryV1.InventoryServiceClient, error) {
-	// ctx := context.Background()
-
 	connection, err := grpc.NewClient(
 		inventoryServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -23,6 +21,5 @@ func CreateInventoryClient() (inventoryV1.InventoryServiceClient, error) {
 		return nil, err
 	}
 
-	// Создаем gRPC клиент
 	return inventoryV1.NewInventoryServiceClient(connection), nil
 }

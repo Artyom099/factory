@@ -9,6 +9,7 @@ vars:
   BUF_VERSION: "1.53.0"
   PROTOC_GEN_GO_VERSION: "v1.36.6"
   PROTOC_GEN_GO_GRPC_VERSION: "v1.5.1"
+  PROTOC_GEN_VALIDATE_VERSION: "v1.2.1"
   OGEN_VERSION: "v1.12.0"
   YQ_VERSION: "v4.45.2"
   GRPCURL_VERSION: "v1.9.3"
@@ -22,6 +23,7 @@ vars:
   YQ: "{{.BIN_DIR}}/yq"
   PROTOC_GEN_GO: "{{.BIN_DIR}}/protoc-gen-go"
   PROTOC_GEN_GO_GRPC: "{{.BIN_DIR}}/protoc-gen-go-grpc"
+  PROTOC_GEN_VALIDATE: "{{.BIN_DIR}}/protoc-gen-validate"
   GRPCURL: "{{.BIN_DIR}}/grpcurl"
 
   NODE_MODULES_DIR: "{{.ROOT_DIR}}/node_modules/.bin"
@@ -179,6 +181,19 @@ tasks:
           echo '📦 Installing protoc-gen-go-grpc...'
           GOBIN={{.BIN_DIR}} go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
         }
+        [ -f {{.PROTOC_GEN_VALIDATE}} ] || {
+          echo '📦 Installing protoc-gen-validate...'
+          GOBIN={{.BIN_DIR}} go install github.com/envoyproxy/protoc-gen-validate@{{.PROTOC_GEN_VALIDATE_VERSION}}
+        }
+
+  proto:update-deps:
+    deps: [install-buf]
+    desc: Обновляет зависимости protobuf из удаленных репозиториев (googleapis и т.д.)
+    dir: shared/proto
+    cmds:
+      - |
+        echo "🔄 Обновляем зависимости buf..."
+        {{.BUF}} dep update
 
   proto:gen:
     deps: [install-buf, proto:install-plugins, proto:lint]

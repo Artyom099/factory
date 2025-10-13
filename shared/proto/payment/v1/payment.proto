@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package payment.v1;
 
+import "validate/validate.proto";
+
 option go_package = "github.com/Artyom099/factory/shared/pkg/payment/v1;payment_v1";
 
 service PaymentService {
@@ -19,12 +21,12 @@ enum PaymentMethod {
 
 // PayOrderRequest
 message PayOrderRequest {
-    string order_uuid = 1; // [(validate.rules).string.uuid = true]; // UUID заказа
-    string user_uuid = 2; // [(validate.rules).string.uuid = true]; // UUID пользователя, который инициирует оплату
-    PaymentMethod payment_method = 3; // [(validate.rules).enum.defined_only = true]; // Выбранный способ оплаты
+    string order_uuid = 1 [(validate.rules).string.uuid = true]; // UUID заказа
+    string user_uuid = 2 [(validate.rules).string.uuid = true]; // UUID пользователя, который инициирует оплату
+    PaymentMethod payment_method = 3 [(validate.rules).enum.defined_only = true]; // Выбранный способ оплаты
 }
 
 // PayOrderResponse
 message PayOrderResponse {
-    string transaction_uuid = 1; // [(validate.rules).string.uuid = true]; // UUID платежа
+    string transaction_uuid = 1 [(validate.rules).string.uuid = true]; // UUID платежа
 }

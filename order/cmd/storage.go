@@ -4,31 +4,31 @@ import (
 	"sync"
 
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-// OrderStorage представляет потокобезопасное хранилище данных о заказах
 type OrderStorage struct {
 	mu     sync.RWMutex
 	orders map[string]*orderV1.Order
 }
 
-// NewOrderStorage создает новое хранилище данных о заказах
 func NewOrderStorage() *OrderStorage {
 	return &OrderStorage{
 		orders: make(map[string]*orderV1.Order),
 	}
 }
 
-func (s *OrderStorage) GetOrder(uuid string) *orderV1.Order {
+func (s *OrderStorage) GetOrder(uuid string) (*orderV1.Order, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	order, ok := s.orders[uuid]
 	if !ok {
-		return nil
+		return nil, status.Errorf(codes.NotFound, "order not found")
 	}
 
-	return order
+	return order, nil
 }
 
 func (s *OrderStorage) CreateOrder(order *orderV1.Order) (*orderV1.OrderCreateResponse, error) {
@@ -43,7 +43,7 @@ func (s *OrderStorage) CreateOrder(order *orderV1.Order) (*orderV1.OrderCreateRe
 	}, nil
 }
 
-func (s *OrderStorage) UpdateOrderStatus(uuid string) {
+func (s *OrderStorage) CancelOrder(uuid string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -55,7 +55,7 @@ func (s *OrderStorage) UpdateOrderStatus(uuid string) {
 	order.Status = orderV1.OrderStatusCANCELLED
 }
 
-func (s *OrderStorage) UpdateOrder(uuid string, dto *orderV1.Order) {
+func (s *OrderStorage) SetOrderPaid(uuid string, dto *orderV1.Order) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

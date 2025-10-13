@@ -37,7 +37,6 @@ func (s *inventoryService) GetPart(_ context.Context, req *inventoryV1.GetPartRe
 
 	partUuid := req.GetUuid()
 	part, ok := s.parts[partUuid]
-
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Part with UUID %s not found", partUuid)
 	}
@@ -53,7 +52,6 @@ func (s *inventoryService) ListParts(_ context.Context, req *inventoryV1.ListPar
 
 	filter := req.GetFilter()
 	var result []*inventoryV1.Part
-
 	for _, part := range s.parts {
 		if matchPart(part, filter) {
 			result = append(result, part)

@@ -7,13 +7,13 @@
 package inventory_v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -332,7 +332,7 @@ type Part struct {
 	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`                                                                      // Описание детали
 	Price         float64                `protobuf:"fixed64,4,opt,name=price,proto3" json:"price,omitempty"`                                                                                // Цена за единицу
 	StockQuantity int64                  `protobuf:"varint,5,opt,name=stock_quantity,json=stockQuantity,proto3" json:"stock_quantity,omitempty"`                                            // Количество на складе
-	Category      Category               `protobuf:"varint,6,opt,name=category,proto3,enum=inventory.v1.Category" json:"category,omitempty"`                                                // [(validate.rules).enum.defined_only = true]; // Категория детали
+	Category      Category               `protobuf:"varint,6,opt,name=category,proto3,enum=inventory.v1.Category" json:"category,omitempty"`                                                // Категория детали
 	Dimensions    *Dimensions            `protobuf:"bytes,7,opt,name=dimensions,proto3" json:"dimensions,omitempty"`                                                                        // Размеры детали
 	Manufacturer  *Manufacturer          `protobuf:"bytes,8,opt,name=manufacturer,proto3" json:"manufacturer,omitempty"`                                                                    // Информация о производителе
 	Tags          []string               `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty"`                                                                                    // Теги для быстрого поиска
@@ -462,7 +462,7 @@ type PartsFilter struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
 	Uuids                 []string               `protobuf:"bytes,1,rep,name=uuids,proto3" json:"uuids,omitempty"`                                                              // Список UUID'ов. Пусто — не фильтруем по UUID
 	Names                 []string               `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`                                                              // Список названий. Пусто — не фильтруем по названию
-	Categories            []Category             `protobuf:"varint,3,rep,packed,name=categories,proto3,enum=inventory.v1.Category" json:"categories,omitempty"`                 // [(validate.rules).enum.defined_only = true]; // Список категорий. Пусто — не фильтруем по категории
+	Categories            []Category             `protobuf:"varint,3,rep,packed,name=categories,proto3,enum=inventory.v1.Category" json:"categories,omitempty"`                 // Список категорий. Пусто — не фильтруем по категории
 	ManufacturerCountries []string               `protobuf:"bytes,4,rep,name=manufacturer_countries,json=manufacturerCountries,proto3" json:"manufacturer_countries,omitempty"` // Список стран производителей. Пусто — не фильтруем по стране
 	Tags                  []string               `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`                                                                // Список названий тегов. Пусто — не фильтруем по тегам
 	unknownFields         protoimpl.UnknownFields
@@ -537,7 +537,7 @@ func (x *PartsFilter) GetTags() []string {
 // GetPartRequest - get
 type GetPartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"` // [(validate.rules).string.uuid = true];
+	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -721,7 +721,7 @@ type CreatePartRequest struct {
 	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`                                                                     // Описание детали
 	Price         float64                `protobuf:"fixed64,3,opt,name=price,proto3" json:"price,omitempty"`                                                                               // Цена за единицу
 	StockQuantity int64                  `protobuf:"varint,4,opt,name=stock_quantity,json=stockQuantity,proto3" json:"stock_quantity,omitempty"`                                           // Количество на складе
-	Category      Category               `protobuf:"varint,5,opt,name=category,proto3,enum=inventory.v1.Category" json:"category,omitempty"`                                               // [(validate.rules).enum.defined_only = true]; // Категория детали
+	Category      Category               `protobuf:"varint,5,opt,name=category,proto3,enum=inventory.v1.Category" json:"category,omitempty"`                                               // Категория детали
 	Dimensions    *Dimensions            `protobuf:"bytes,6,opt,name=dimensions,proto3" json:"dimensions,omitempty"`                                                                       // Размеры детали
 	Manufacturer  *Manufacturer          `protobuf:"bytes,7,opt,name=manufacturer,proto3" json:"manufacturer,omitempty"`                                                                   // Информация о производителе
 	Tags          []string               `protobuf:"bytes,8,rep,name=tags,proto3" json:"tags,omitempty"`                                                                                   // Теги для быстрого поиска
@@ -872,7 +872,7 @@ var File_inventory_v1_inventory_proto protoreflect.FileDescriptor
 
 const file_inventory_v1_inventory_proto_rawDesc = "" +
 	"\n" +
-	"\x1cinventory/v1/inventory.proto\x12\finventory.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"j\n" +
+	"\x1cinventory/v1/inventory.proto\x12\finventory.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17validate/validate.proto\"j\n" +
 	"\n" +
 	"Dimensions\x12\x16\n" +
 	"\x06length\x18\x01 \x01(\x01R\x06length\x12\x14\n" +
@@ -890,14 +890,14 @@ const file_inventory_v1_inventory_proto_rawDesc = "" +
 	"\fdouble_value\x18\x03 \x01(\x01H\x00R\vdoubleValue\x12\x1f\n" +
 	"\n" +
 	"bool_value\x18\x04 \x01(\bH\x00R\tboolValueB\x06\n" +
-	"\x04kind\"\xd5\x04\n" +
+	"\x04kind\"\xdf\x04\n" +
 	"\x04Part\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x14\n" +
 	"\x05price\x18\x04 \x01(\x01R\x05price\x12%\n" +
-	"\x0estock_quantity\x18\x05 \x01(\x03R\rstockQuantity\x122\n" +
-	"\bcategory\x18\x06 \x01(\x0e2\x16.inventory.v1.CategoryR\bcategory\x128\n" +
+	"\x0estock_quantity\x18\x05 \x01(\x03R\rstockQuantity\x12<\n" +
+	"\bcategory\x18\x06 \x01(\x0e2\x16.inventory.v1.CategoryB\b\xfaB\x05\x82\x01\x02\x10\x01R\bcategory\x128\n" +
 	"\n" +
 	"dimensions\x18\a \x01(\v2\x18.inventory.v1.DimensionsR\n" +
 	"dimensions\x12>\n" +
@@ -911,29 +911,30 @@ const file_inventory_v1_inventory_proto_rawDesc = "" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x1aP\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12)\n" +
-	"\x05value\x18\x02 \x01(\v2\x13.inventory.v1.ValueR\x05value:\x028\x01\"\xbc\x01\n" +
+	"\x05value\x18\x02 \x01(\v2\x13.inventory.v1.ValueR\x05value:\x028\x01\"\xcb\x01\n" +
 	"\vPartsFilter\x12\x14\n" +
 	"\x05uuids\x18\x01 \x03(\tR\x05uuids\x12\x14\n" +
-	"\x05names\x18\x02 \x03(\tR\x05names\x126\n" +
+	"\x05names\x18\x02 \x03(\tR\x05names\x12E\n" +
 	"\n" +
-	"categories\x18\x03 \x03(\x0e2\x16.inventory.v1.CategoryR\n" +
+	"categories\x18\x03 \x03(\x0e2\x16.inventory.v1.CategoryB\r\xfaB\n" +
+	"\x92\x01\a\"\x05\x82\x01\x02\x10\x01R\n" +
 	"categories\x125\n" +
 	"\x16manufacturer_countries\x18\x04 \x03(\tR\x15manufacturerCountries\x12\x12\n" +
-	"\x04tags\x18\x05 \x03(\tR\x04tags\"$\n" +
-	"\x0eGetPartRequest\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\"9\n" +
+	"\x04tags\x18\x05 \x03(\tR\x04tags\".\n" +
+	"\x0eGetPartRequest\x12\x1c\n" +
+	"\x04uuid\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x04uuid\"9\n" +
 	"\x0fGetPartResponse\x12&\n" +
 	"\x04part\x18\x01 \x01(\v2\x12.inventory.v1.PartR\x04part\"E\n" +
 	"\x10ListPartsRequest\x121\n" +
 	"\x06filter\x18\x01 \x01(\v2\x19.inventory.v1.PartsFilterR\x06filter\"=\n" +
 	"\x11ListPartsResponse\x12(\n" +
-	"\x05parts\x18\x01 \x03(\v2\x12.inventory.v1.PartR\x05parts\"\xe5\x03\n" +
+	"\x05parts\x18\x01 \x03(\v2\x12.inventory.v1.PartR\x05parts\"\xef\x03\n" +
 	"\x11CreatePartRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x14\n" +
 	"\x05price\x18\x03 \x01(\x01R\x05price\x12%\n" +
-	"\x0estock_quantity\x18\x04 \x01(\x03R\rstockQuantity\x122\n" +
-	"\bcategory\x18\x05 \x01(\x0e2\x16.inventory.v1.CategoryR\bcategory\x128\n" +
+	"\x0estock_quantity\x18\x04 \x01(\x03R\rstockQuantity\x12<\n" +
+	"\bcategory\x18\x05 \x01(\x0e2\x16.inventory.v1.CategoryB\b\xfaB\x05\x82\x01\x02\x10\x01R\bcategory\x128\n" +
 	"\n" +
 	"dimensions\x18\x06 \x01(\v2\x18.inventory.v1.DimensionsR\n" +
 	"dimensions\x12>\n" +

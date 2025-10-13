@@ -11,7 +11,9 @@ import (
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
@@ -22,7 +24,20 @@ type paymentService struct {
 	paymentV1.UnimplementedPaymentServiceServer
 }
 
-func (s *paymentService) PayOrder(_ context.Context, _ *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
+func (s *paymentService) PayOrder(_ context.Context, req *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
+	}
+
+	switch req.GetPaymentMethod() {
+	case paymentV1.PaymentMethod_PAYMENT_METHOD_CARD,
+		paymentV1.PaymentMethod_PAYMENT_METHOD_SBP,
+		paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD,
+		paymentV1.PaymentMethod_PAYMENT_METHOD_INVESTOR_MONEY:
+	default:
+		return nil, status.Error(codes.InvalidArgument, "unsupported payment_method")
+	}
+
 	transactionUuid := uuid.New().String()
 
 	log.Printf("Оплата прошла успешно, transaction_uuid: %s", transactionUuid)
@@ -42,7 +57,6 @@ func main() {
 		}
 	}()
 
-	// Создаем gRPC сервер
 	s := grpc.NewServer()
 
 	service := &paymentService{}

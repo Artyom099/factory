@@ -3,6 +3,7 @@ syntax = "proto3";
 package inventory.v1;
 
 import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/Artyom099/factory/shared/pkg/inventory/v1;inventory_v1";
 
@@ -53,7 +54,7 @@ message Part {
     string description = 3; // Описание детали
     double price = 4; // Цена за единицу
     int64 stock_quantity = 5; // Количество на складе
-    Category category = 6; // [(validate.rules).enum.defined_only = true]; // Категория детали
+    Category category = 6 [(validate.rules).enum.defined_only = true]; // Категория детали
     Dimensions dimensions = 7; // Размеры детали
     Manufacturer manufacturer = 8; // Информация о производителе
     repeated string tags = 9; // Теги для быстрого поиска
@@ -66,14 +67,14 @@ message Part {
 message PartsFilter {
     repeated string uuids = 1; // Список UUID'ов. Пусто — не фильтруем по UUID
     repeated string names = 2; // Список названий. Пусто — не фильтруем по названию
-    repeated Category categories = 3; // [(validate.rules).enum.defined_only = true]; // Список категорий. Пусто — не фильтруем по категории
+    repeated Category categories = 3 [(validate.rules).repeated.items.enum.defined_only = true]; // Список категорий. Пусто — не фильтруем по категории
     repeated string manufacturer_countries = 4; // Список стран производителей. Пусто — не фильтруем по стране
     repeated string tags = 5; // Список названий тегов. Пусто — не фильтруем по тегам
 }
 
 // GetPartRequest - get
 message GetPartRequest {
-    string uuid = 1; // [(validate.rules).string.uuid = true];
+    string uuid = 1 [(validate.rules).string.uuid = true];
 }
 
 // GetPartResponse - get
@@ -97,7 +98,7 @@ message CreatePartRequest {
     string description = 2; // Описание детали
     double price = 3; // Цена за единицу
     int64 stock_quantity = 4; // Количество на складе
-    Category category = 5; // [(validate.rules).enum.defined_only = true]; // Категория детали
+    Category category = 5 [(validate.rules).enum.defined_only = true]; // Категория детали
     Dimensions dimensions = 6; // Размеры детали
     Manufacturer manufacturer = 7; // Информация о производителе
     repeated string tags = 8; // Теги для быстрого поиска

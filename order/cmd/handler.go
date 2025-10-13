@@ -2,65 +2,70 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
-	"github.com/Artyom099/factory/order/clients"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
-// OrderHandler реализует интерфейс orderV1.Handler для обработки запросов к API погоды
 type OrderHandler struct {
-	storage *OrderStorage
+	storage         *OrderStorage
+	inventoryClient inventoryV1.InventoryServiceClient
+	paymentClient   paymentV1.PaymentServiceClient
 }
 
-// NewOrderHandler создает новый обработчик запросов к API заказов
-func NewOrderHandler(storage *OrderStorage) *OrderHandler {
+func NewOrderHandler(storage *OrderStorage, inventoryClient inventoryV1.InventoryServiceClient, paymentClient paymentV1.PaymentServiceClient) *OrderHandler {
 	return &OrderHandler{
-		storage: storage,
+		storage:         storage,
+		inventoryClient: inventoryClient,
+		paymentClient:   paymentClient,
 	}
 }
 
 func (h *OrderHandler) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
-	order := h.storage.GetOrder(params.OrderUUID.String())
+	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+	}
+
+	order, err := h.storage.GetOrder(params.OrderUUID.String())
+	if err != nil {
+		return &orderV1.NotFoundError{
+			Code:    404,
+			Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+		}, nil
+	}
 
 	if order.Status == orderV1.OrderStatusPAID {
 		return &orderV1.ConflictError{
 			Code:    409,
-			Message: "Order '" + params.OrderUUID.String() + "' already paid, cannot be cancelled",
+			Message: fmt.Sprintf("Order %s already paid, cannot be cancelled", params.OrderUUID.String()),
 		}, nil
 	}
 
 	if order.Status == orderV1.OrderStatusPENDINGPAYMENT {
-		h.storage.UpdateOrderStatus(params.OrderUUID.String())
+		h.storage.CancelOrder(params.OrderUUID.String())
 	}
 
 	return nil, nil
 }
 
-func (h *OrderHandler) CreateOrder(ctx context.Context, params *orderV1.OrderCreateRequest) (orderV1.CreateOrderRes, error) {
-	// Получает детали через `InventoryService.ListParts`.
-	// Проверяет, что все детали существуют. Если хотя бы одной нет — возвращает ошибку.
-	// Считает `total_price`.
-
-	inventoryClient, err := clients.CreateInventoryClient()
-	if err != nil {
-		return &orderV1.InternalServerError{
-			Code:    500,
-			Message: "Failed to create inventory client",
-		}, err
+func (h *OrderHandler) CreateOrder(ctx context.Context, req *orderV1.OrderCreateRequest) (orderV1.CreateOrderRes, error) {
+	if err := req.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
 	}
 
-	// Вызываем gRPC метод ListParts
-	req := inventoryV1.ListPartsRequest{
+	listPartsReq := inventoryV1.ListPartsRequest{
 		Filter: &inventoryV1.PartsFilter{
-			Uuids: params.GetPartUuids(),
+			Uuids: req.GetPartUuids(),
 		},
 	}
-	parts, err := inventoryClient.ListParts(ctx, &req)
+	parts, err := h.inventoryClient.ListParts(ctx, &listPartsReq)
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
@@ -68,9 +73,9 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, params *orderV1.OrderCre
 		}, err
 	}
 
-	if len(parts.GetParts()) != len(params.GetPartUuids()) {
+	if len(parts.GetParts()) != len(req.GetPartUuids()) {
 		return &orderV1.InternalServerError{
-			Code:    500,
+			Code:    400,
 			Message: "Not all parts exist",
 		}, nil
 	}
@@ -81,11 +86,12 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, params *orderV1.OrderCre
 	}
 
 	orderUuid := uuid.New().String()
+	userUuid := req.GetUserUUID()
 
 	dto := orderV1.Order{
 		OrderUUID:       orderUuid,
 		TotalPrice:      totalPrice,
-		UserUUID:        "UserUUID",
+		UserUUID:        userUuid,
 		TransactionUUID: "",
 		PaymentMethod:   orderV1.OrderPaymentMethodCARD,
 		Status:          orderV1.OrderStatusPENDINGPAYMENT,
@@ -105,11 +111,15 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, params *orderV1.OrderCre
 }
 
 func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orderV1.GetOrderRes, error) {
-	order := h.storage.GetOrder(params.OrderUUID.String())
-	if order == nil {
+	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+	}
+
+	order, err := h.storage.GetOrder(params.OrderUUID.String())
+	if err != nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Data for specified order '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
 		}, nil
 	}
 
@@ -117,53 +127,63 @@ func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderPara
 }
 
 func (h *OrderHandler) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
-	// Находит заказ по `order_uuid`. Если не существует — возвращает 404 Not Found.
-	order := h.storage.GetOrder(params.OrderUUID.String())
-	if order == nil {
+	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+	}
+
+	if err := req.Validate(); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
+	}
+
+	order, err := h.storage.GetOrder(params.OrderUUID.String())
+	if err != nil {
 		return &orderV1.NotFoundError{
 			Code:    404,
-			Message: "Data for specified order '" + params.OrderUUID.String() + "' not found",
+			Message: fmt.Sprintf("Data for specified order %s not found", params.OrderUUID.String()),
 		}, nil
 	}
 
-	// Вызывает `PaymentService.PayOrder`, передаёт `user_uuid`, `order_uuid` и `payment_method`. Получает`transaction_uuid`.
-	paymentClient, err := clients.CreatePaymentClient()
-	if err != nil {
-		return &orderV1.InternalServerError{
-			Code:    500,
-			Message: "Failed to create payment client",
-		}, err
+	if order.Status == orderV1.OrderStatusPAID {
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("Order %s already paid, cannot be paid again", params.OrderUUID.String()),
+		}, nil
+	}
+
+	if order.Status == orderV1.OrderStatusCANCELLED {
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("Order %s cancelled, cannot be paid", params.OrderUUID.String()),
+		}, nil
 	}
 
 	userUuid := uuid.New().String()
 	dto := paymentV1.PayOrderRequest{
 		UserUuid:      userUuid,
 		OrderUuid:     params.OrderUUID.String(),
-		PaymentMethod: convertPaymentMethod(req.GetPaymentMethod()),
+		PaymentMethod: convertPaymentMethodFromOrderToPayment(req.GetPaymentMethod()),
 	}
 
-	res, err := paymentClient.PayOrder(ctx, &dto)
+	res, err := h.paymentClient.PayOrder(ctx, &dto)
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
-			Message: "Failed to pay order",
+			Message: "Failed to pay order im payment service",
 		}, err
 	}
 
-	// Обновляет заказ: статус → `PAID`, сохраняет `transaction_uuid`, `payment_method`
 	updateDto := orderV1.Order{
 		Status:          orderV1.OrderStatusPAID,
 		TransactionUUID: res.TransactionUuid,
 		PaymentMethod:   orderV1.OrderPaymentMethod(req.PaymentMethod),
 	}
-	h.storage.UpdateOrder(params.OrderUUID.String(), &updateDto)
+	h.storage.SetOrderPaid(params.OrderUUID.String(), &updateDto)
 
 	return &orderV1.OrderPayResponse{
 		TransactionUUID: res.GetTransactionUuid(),
 	}, nil
 }
 
-// NewError создает новую ошибку в формате GenericError
 func (h *OrderHandler) NewError(_ context.Context, err error) *orderV1.GenericErrorStatusCode {
 	return &orderV1.GenericErrorStatusCode{
 		StatusCode: http.StatusInternalServerError,
@@ -174,8 +194,7 @@ func (h *OrderHandler) NewError(_ context.Context, err error) *orderV1.GenericEr
 	}
 }
 
-// преобразование метода оплаты из типа order сервиса в тип payment сервиса
-func convertPaymentMethod(method orderV1.OrderPayRequestPaymentMethod) paymentV1.PaymentMethod {
+func convertPaymentMethodFromOrderToPayment(method orderV1.OrderPayRequestPaymentMethod) paymentV1.PaymentMethod {
 	switch method {
 	case orderV1.OrderPayRequestPaymentMethodCARD:
 		return paymentV1.PaymentMethod_PAYMENT_METHOD_CARD

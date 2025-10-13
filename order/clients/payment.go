@@ -12,8 +12,6 @@ import (
 const paymentServerAddress = "localhost:50052"
 
 func CreatePaymentClient() (paymentV1.PaymentServiceClient, error) {
-	// ctx := context.Background()
-
 	connection, err := grpc.NewClient(
 		paymentServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -23,6 +21,5 @@ func CreatePaymentClient() (paymentV1.PaymentServiceClient, error) {
 		return nil, err
 	}
 
-	// Создаем gRPC клиент
 	return paymentV1.NewPaymentServiceClient(connection), nil
 }
