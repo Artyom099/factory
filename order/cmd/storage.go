@@ -3,9 +3,10 @@ package main
 import (
 	"sync"
 
-	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
 type OrderStorage struct {

@@ -14,12 +14,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -38,18 +38,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect inventory: %v", err)
 	}
-	defer func() {
-		_ = inventoryConn.Close()
-	}()
+
 	inventoryClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
 
 	paymentConn, err := grpc.NewClient(paymentServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect payment: %v", err)
 	}
-	defer func() {
-		_ = paymentConn.Close()
-	}()
+
 	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
 
 	orderHandler := NewOrderHandler(storage, inventoryClient, paymentClient)
