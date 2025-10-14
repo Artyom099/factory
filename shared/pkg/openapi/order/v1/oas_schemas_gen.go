@@ -79,6 +79,7 @@ func (s *ConflictError) SetMessage(val string) {
 }
 
 func (*ConflictError) cancelOrderRes() {}
+func (*ConflictError) payOrderRes()    {}
 
 // Ref: #/components/schemas/generic_error
 type GenericError struct {

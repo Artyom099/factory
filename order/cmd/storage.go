@@ -3,9 +3,7 @@ package main
 import (
 	"sync"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
+	"github.com/Artyom099/factory/order/intermal/model"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
@@ -26,7 +24,7 @@ func (s *OrderStorage) GetOrder(uuid string) (*orderV1.Order, error) {
 
 	order, ok := s.orders[uuid]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "order not found")
+		return nil, model.ErrOrderNotFound
 	}
 
 	return order, nil
@@ -56,7 +54,7 @@ func (s *OrderStorage) CancelOrder(uuid string) {
 	order.Status = orderV1.OrderStatusCANCELLED
 }
 
-func (s *OrderStorage) SetOrderPaid(uuid string, dto *orderV1.Order) {
+func (s *OrderStorage) UpdateOrder(uuid string, dto *orderV1.Order) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

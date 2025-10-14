@@ -13,11 +13,10 @@ import (
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/Artyom099/factory/inventory/internal/model"
 	"github.com/Artyom099/factory/inventory/internal/utils"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
@@ -38,7 +37,7 @@ func (s *inventoryService) GetPart(_ context.Context, req *inventoryV1.GetPartRe
 	partUuid := req.GetUuid()
 	part, ok := s.parts[partUuid]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "Part with UUID %s not found", partUuid)
+		return nil, model.ErrPartNotFound
 	}
 
 	return &inventoryV1.GetPartResponse{
@@ -65,25 +64,21 @@ func (s *inventoryService) ListParts(_ context.Context, req *inventoryV1.ListPar
 
 func matchPart(p *inventoryV1.Part, f *inventoryV1.PartsFilter) bool {
 	if f == nil {
-		return true // фильтр пустой → вернуть всё
+		return true
 	}
 
-	// фильтр по UUID
 	if len(f.Uuids) > 0 && !slices.Contains(f.GetUuids(), p.GetUuid()) {
 		return false
 	}
 
-	// фильтр по имени
 	if len(f.Names) > 0 && !utils.ContainsInsensitive(f.GetNames(), p.GetName()) {
 		return false
 	}
 
-	// фильтр по категории
 	if len(f.Categories) > 0 && !slices.Contains(f.GetCategories(), p.GetCategory()) {
 		return false
 	}
 
-	// фильтр по стране
 	if len(f.ManufacturerCountries) > 0 && !utils.ContainsInsensitive(f.GetManufacturerCountries(), p.Manufacturer.GetCountry()) {
 		return false
 	}
@@ -138,17 +133,14 @@ func main() {
 		}
 	}()
 
-	// Создаем gRPC сервер
 	s := grpc.NewServer()
 
-	// Регистрируем наш сервис
 	service := &inventoryService{
 		parts: make(map[string]*inventoryV1.Part),
 	}
 
 	inventoryV1.RegisterInventoryServiceServer(s, service)
 
-	// Включаем рефлексию для отладки
 	reflection.Register(s)
 
 	go func() {

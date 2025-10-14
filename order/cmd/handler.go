@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
+	"github.com/Artyom099/factory/order/intermal/model"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
@@ -30,7 +30,10 @@ func NewOrderHandler(storage *OrderStorage, inventoryClient inventoryV1.Inventor
 
 func (h *OrderHandler) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
 	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+		}, nil
 	}
 
 	order, err := h.storage.GetOrder(params.OrderUUID.String())
@@ -57,7 +60,10 @@ func (h *OrderHandler) CancelOrder(ctx context.Context, params orderV1.CancelOrd
 
 func (h *OrderHandler) CreateOrder(ctx context.Context, req *orderV1.OrderCreateRequest) (orderV1.CreateOrderRes, error) {
 	if err := req.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+		}, nil
 	}
 
 	listPartsReq := inventoryV1.ListPartsRequest{
@@ -69,7 +75,7 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *orderV1.OrderCreate
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
-			Message: "Failed to call ListParts method",
+			Message: "Internal Server Error",
 		}, err
 	}
 
@@ -112,15 +118,24 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *orderV1.OrderCreate
 
 func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orderV1.GetOrderRes, error) {
 	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+		}, nil
 	}
 
 	order, err := h.storage.GetOrder(params.OrderUUID.String())
 	if err != nil {
-		return &orderV1.NotFoundError{
-			Code:    404,
-			Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
-		}, nil
+		if errors.Is(err, model.ErrOrderNotFound) {
+			return &orderV1.NotFoundError{
+				Code:    404,
+				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+			}, nil
+		}
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal Server Error",
+		}, err
 	}
 
 	return order, nil
@@ -128,31 +143,43 @@ func (h *OrderHandler) GetOrder(ctx context.Context, params orderV1.GetOrderPara
 
 func (h *OrderHandler) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
 	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid order_uuid: %v", err)
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+		}, nil
 	}
 
 	if err := req.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
+		return &orderV1.BadRequestError{
+			Code:    400,
+			Message: fmt.Sprintf("validation error: %v", err),
+		}, nil
 	}
 
 	order, err := h.storage.GetOrder(params.OrderUUID.String())
 	if err != nil {
-		return &orderV1.NotFoundError{
-			Code:    404,
-			Message: fmt.Sprintf("Data for specified order %s not found", params.OrderUUID.String()),
-		}, nil
+		if errors.Is(err, model.ErrOrderNotFound) {
+			return &orderV1.NotFoundError{
+				Code:    404,
+				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+			}, nil
+		}
+		return &orderV1.InternalServerError{
+			Code:    500,
+			Message: "Internal Server Error",
+		}, err
 	}
 
 	if order.Status == orderV1.OrderStatusPAID {
-		return &orderV1.BadRequestError{
-			Code:    400,
+		return &orderV1.ConflictError{
+			Code:    409,
 			Message: fmt.Sprintf("Order %s already paid, cannot be paid again", params.OrderUUID.String()),
 		}, nil
 	}
 
 	if order.Status == orderV1.OrderStatusCANCELLED {
-		return &orderV1.BadRequestError{
-			Code:    400,
+		return &orderV1.ConflictError{
+			Code:    409,
 			Message: fmt.Sprintf("Order %s cancelled, cannot be paid", params.OrderUUID.String()),
 		}, nil
 	}
@@ -168,7 +195,7 @@ func (h *OrderHandler) PayOrder(ctx context.Context, req *orderV1.OrderPayReques
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
-			Message: "Failed to pay order im payment service",
+			Message: "Internal Server Error",
 		}, err
 	}
 
@@ -177,7 +204,7 @@ func (h *OrderHandler) PayOrder(ctx context.Context, req *orderV1.OrderPayReques
 		TransactionUUID: res.TransactionUuid,
 		PaymentMethod:   orderV1.OrderPaymentMethod(req.PaymentMethod),
 	}
-	h.storage.SetOrderPaid(params.OrderUUID.String(), &updateDto)
+	h.storage.UpdateOrder(params.OrderUUID.String(), &updateDto)
 
 	return &orderV1.OrderPayResponse{
 		TransactionUUID: res.GetTransactionUuid(),
