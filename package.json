@@ -1,0 +1,8 @@
+{
+  "name": "factory",
+  "description": "redocly - Собирает несколько yaml файлов в один большой OpenAPI-документ",
+  "private": true,
+  "devDependencies": {
+    "@redocly/cli": "^1.34.3"
+  }
+}

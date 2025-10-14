@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+option go_package = "github.com/Artyom099/factory/shared/pkg/inventory/v1;inventory_v1";
+
+service InventoryService {
+    rpc GetPart(GetPartRequest) returns (GetPartResponse) {}
+    rpc ListParts(ListPartsRequest) returns (ListPartsResponse) {}
+    rpc CreatePart(CreatePartRequest) returns (CreatePartResponse) {}
+}
+
+// Category of part
+enum Category {
+  CATEGORY_UNSPECIFIED = 0;
+  CATEGORY_ENGINE = 1;
+  CATEGORY_FUEL = 2;
+  CATEGORY_PORTHOLE = 3;
+  CATEGORY_WING = 4;
+}
+
+// Dimensions of part
+message Dimensions {
+    double length = 1; // Длина детали в см
+    double width = 2; // Ширина детали в см
+    double height = 3; // Высота детали в см
+    double weight = 4; // Вес детали в кг
+}
+
+// Manufacturer of part
+message Manufacturer {
+    string name = 1; // Название производителя
+    string country = 2; // Страна производства
+    string website = 3; // Сайт производителя
+}
+
+// Value of metadata
+message Value {
+    oneof kind {
+        string string_value = 1;
+        int64 int64_value = 2;
+        double double_value = 3;
+        bool bool_value = 4;
+    }
+}
+
+// Part
+message Part {
+    string uuid = 1; // Уникальный идентификатор детали
+    string name = 2; // Название детали
+    string description = 3; // Описание детали
+    double price = 4; // Цена за единицу
+    int64 stock_quantity = 5; // Количество на складе
+    Category category = 6 [(validate.rules).enum.defined_only = true]; // Категория детали
+    Dimensions dimensions = 7; // Размеры детали
+    Manufacturer manufacturer = 8; // Информация о производителе
+    repeated string tags = 9; // Теги для быстрого поиска
+    map<string, Value> metadata = 10; // Гибкие метаданные
+    google.protobuf.Timestamp created_at = 11; // Дата создания
+    google.protobuf.Timestamp updated_at = 12; // Дата обновления
+}
+
+// PartsFilter
+message PartsFilter {
+    repeated string uuids = 1; // Список UUID'ов. Пусто — не фильтруем по UUID
+    repeated string names = 2; // Список названий. Пусто — не фильтруем по названию
+    repeated Category categories = 3 [(validate.rules).repeated.items.enum.defined_only = true]; // Список категорий. Пусто — не фильтруем по категории
+    repeated string manufacturer_countries = 4; // Список стран производителей. Пусто — не фильтруем по стране
+    repeated string tags = 5; // Список названий тегов. Пусто — не фильтруем по тегам
+}
+
+// GetPartRequest - get
+message GetPartRequest {
+    string uuid = 1 [(validate.rules).string.uuid = true];
+}
+
+// GetPartResponse - get
+message GetPartResponse {
+    Part part = 1;
+}
+
+// ListPartsRequest - list
+message ListPartsRequest {
+    PartsFilter filter = 1;
+}
+
+// ListPartsResponse - list
+message ListPartsResponse {
+    repeated Part parts = 1;
+}
+
+// CreatePartRequest - create
+message CreatePartRequest {
+    string name = 1; // Название детали
+    string description = 2; // Описание детали
+    double price = 3; // Цена за единицу
+    int64 stock_quantity = 4; // Количество на складе
+    Category category = 5 [(validate.rules).enum.defined_only = true]; // Категория детали
+    Dimensions dimensions = 6; // Размеры детали
+    Manufacturer manufacturer = 7; // Информация о производителе
+    repeated string tags = 8; // Теги для быстрого поиска
+    map<string, Value> metadata = 9; // Гибкие метаданные
+}
+
+// CreatePartResponse - create
+message CreatePartResponse {
+    string uuid = 1;
+}

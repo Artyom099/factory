@@ -1,0 +1,21 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  user_uuid:
+    type: string
+    description: Индентификатор пользователя
+    minLength: 36
+    maxLength: 36
+    example: "2522337d-5e0a-4d68-8ca1-7219afac7ddb"
+  part_uuids:
+    type: array
+    items:
+      type: string
+    description: Идентификаторы деталей
+    example:
+      [
+        "2522337d-5e0a-4d68-8ca1-7219afac7ddb",
+        "2522337d-5e0a-4d68-8ca1-7219afac7ddb",
+      ]
