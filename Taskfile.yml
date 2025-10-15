@@ -13,6 +13,7 @@ vars:
   OGEN_VERSION: "v1.12.0"
   YQ_VERSION: "v4.45.2"
   GRPCURL_VERSION: "v1.9.3"
+  MOCKERY_VERSION: "v3.5.5"
 
   BIN_DIR: "{{.ROOT_DIR}}/bin"
   GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
@@ -25,6 +26,7 @@ vars:
   PROTOC_GEN_GO_GRPC: "{{.BIN_DIR}}/protoc-gen-go-grpc"
   PROTOC_GEN_VALIDATE: "{{.BIN_DIR}}/protoc-gen-validate"
   GRPCURL: "{{.BIN_DIR}}/grpcurl"
+  MOCKERY: "{{.BIN_DIR}}/mockery"
 
   NODE_MODULES_DIR: "{{.ROOT_DIR}}/node_modules/.bin"
   REDOCLY: "{{.NODE_MODULES_DIR}}/redocly"
@@ -296,6 +298,17 @@ tasks:
         }
     status:
       - test -x {{.GRPCURL}}
+
+  mockery:install:
+    desc: "Устанавливает mockery в ./bin"
+    cmds:
+      - |
+        [ -f {{.MOCKERY}} ] || {
+          echo '📦 Installing mockery...'
+          GOBIN={{.BIN_DIR}} go install github.com/vektra/mockery/v2@{{.MOCKERY_VERSION}}
+        }
+    status:
+      - test -x {{.MOCKERY}}
 
   test-api:
     desc: "🧪 Запуск тестов для проверки API микросервисов"
