@@ -1,7 +1,7 @@
 package converter
 
 import (
-	servModel "github.com/Artyom099/factory/inventory/internal/model"
+	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -117,7 +117,7 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 	return &inventoryV1.ListPartsResponse{Parts: parts}
 }
 
-func PartCreateApiRequestToPartGetServiceRequest(dto *inventoryV1.CreatePartRequest) servModel.PartCreateServiceRequest {
+func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartRequest) servModel.PartCreateServiceRequest {
 	var dims *servModel.Dimensions
 	if d := dto.GetDimensions(); d != nil {
 		dims = &servModel.Dimensions{
@@ -150,6 +150,6 @@ func PartCreateApiRequestToPartGetServiceRequest(dto *inventoryV1.CreatePartRequ
 	}
 }
 
-func PartCreateServiceResponseToPartGetApiResponse(dto servModel.PartCreateServiceResponse) *inventoryV1.CreatePartResponse {
+func PartCreateServiceResponseToPartCreateApiResponse(dto servModel.PartCreateServiceResponse) *inventoryV1.CreatePartResponse {
 	return &inventoryV1.CreatePartResponse{Uuid: dto.Uuid}
 }

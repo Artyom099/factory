@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/Artyom099/factory/payment/internal/converter"
+	"github.com/Artyom099/factory/payment/internal/api/converter"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 

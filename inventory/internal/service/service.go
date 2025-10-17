@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	servModel "github.com/Artyom099/factory/inventory/internal/model"
+	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 type IPartService interface {

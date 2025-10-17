@@ -3,7 +3,7 @@ package v1
 import (
 	"context"
 
-	"github.com/Artyom099/factory/inventory/internal/converter"
+	"github.com/Artyom099/factory/inventory/internal/api/converter"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 

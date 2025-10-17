@@ -1,8 +1,8 @@
 package converter
 
 import (
-	servModel "github.com/Artyom099/factory/inventory/internal/model"
 	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
+	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 // converter service - repo layer

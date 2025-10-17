@@ -1,8 +1,8 @@
 package converter
 
 import (
-	servModel "github.com/Artyom099/factory/payment/internal/model"
 	repoModel "github.com/Artyom099/factory/payment/internal/repository/model"
+	servModel "github.com/Artyom099/factory/payment/internal/service/model"
 )
 
 func PaymentServiceRequestDtoToPaymentRepoRequestDto(dto servModel.PayOrderServiceRequestDto) repoModel.PayOrderRepoRequestDto {

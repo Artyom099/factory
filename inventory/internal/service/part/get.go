@@ -3,8 +3,8 @@ package part
 import (
 	"context"
 
-	servModel "github.com/Artyom099/factory/inventory/internal/model"
 	"github.com/Artyom099/factory/inventory/internal/repository/converter"
+	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 func (s *service) Get(ctx context.Context, dto servModel.PartGetServiceRequest) (servModel.PartGetServiceResponse, error) {

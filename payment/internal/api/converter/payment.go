@@ -1,7 +1,7 @@
 package converter
 
 import (
-	"github.com/Artyom099/factory/payment/internal/model"
+	"github.com/Artyom099/factory/payment/internal/service/model"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
