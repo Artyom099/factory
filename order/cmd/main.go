@@ -18,6 +18,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
+	grpcInventoryV1 "github.com/Artyom099/factory/order/internal/client/grpc/inventory/v1"
+	grpcPaymentV1 "github.com/Artyom099/factory/order/internal/client/grpc/payment/v1"
 	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
 	orderService "github.com/Artyom099/factory/order/internal/service/order"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
@@ -34,22 +36,31 @@ const (
 )
 
 func main() {
-	inventoryConn, err := grpc.NewClient(inventoryServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	inventoryConn, err := grpc.NewClient(
+		inventoryServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("failed to connect inventory: %v", err)
 	}
 
 	inventoryClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
 
-	paymentConn, err := grpc.NewClient(paymentServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	paymentConn, err := grpc.NewClient(
+		paymentServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("failed to connect payment: %v", err)
 	}
 
 	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
 
+	grpcInventoryClient := grpcInventoryV1.NewClient(inventoryClient)
+	grpcPaymentClient := grpcPaymentV1.NewClient(paymentClient)
+
 	repo := orderRepository.NewRepository()
-	service := orderService.NewService(repo, inventoryClient, paymentClient)
+	service := orderService.NewService(repo, grpcInventoryClient, grpcPaymentClient)
 	api := orderApiV1.NewAPI(service)
 
 	orderServer, err := orderV1.NewServer(api)

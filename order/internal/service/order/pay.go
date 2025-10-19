@@ -7,7 +7,6 @@ import (
 
 	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	"github.com/Artyom099/factory/order/internal/service/model"
-	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
 func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) (model.OrderPayServiceResponseDto, error) {
@@ -25,13 +24,7 @@ func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) 
 	}
 
 	userUuid := uuid.New().String()
-	payOrderDto := paymentV1.PayOrderRequest{
-		UserUuid:      userUuid,
-		OrderUuid:     dto.OrderUUID,
-		PaymentMethod: convertPaymentMethodFromOrderToPayment(dto.PaymentMethod),
-	}
-
-	res, err := s.paymentClient.PayOrder(ctx, &payOrderDto)
+	transactionUUID, err := s.paymentClient.PayOrder(ctx, dto.PaymentMethod, dto.OrderUUID, userUuid)
 	if err != nil {
 		return model.OrderPayServiceResponseDto{}, model.ErrInPaymeentService
 	}
@@ -39,7 +32,7 @@ func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) 
 	updateOrderDto := repoModel.OrderUpdateRepoRequestDto{
 		OrderUUID:       dto.OrderUUID,
 		Status:          repoModel.OrderStatusPAID,
-		TransactionUUID: res.TransactionUuid,
+		TransactionUUID: transactionUUID,
 		PaymentMethod:   repoModel.OrderPaymentMethod(dto.PaymentMethod),
 	}
 	_, err = s.orderRepository.Update(ctx, updateOrderDto)
@@ -48,21 +41,6 @@ func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) 
 	}
 
 	return model.OrderPayServiceResponseDto{
-		TransactionUUID: res.TransactionUuid,
+		TransactionUUID: transactionUUID,
 	}, nil
-}
-
-func convertPaymentMethodFromOrderToPayment(method model.OrderPaymentMethod) paymentV1.PaymentMethod {
-	switch method {
-	case model.OrderPaymentMethodCARD:
-		return paymentV1.PaymentMethod_PAYMENT_METHOD_CARD
-	case model.OrderPaymentMethodSBP:
-		return paymentV1.PaymentMethod_PAYMENT_METHOD_SBP
-	case model.OrderPaymentMethodCREDITCARD:
-		return paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD
-	case model.OrderPaymentMethodINVESTORMONEY:
-		return paymentV1.PaymentMethod_PAYMENT_METHOD_INVESTOR_MONEY
-	default:
-		return paymentV1.PaymentMethod_PAYMENT_METHOD_UNSPECIFIED
-	}
 }
