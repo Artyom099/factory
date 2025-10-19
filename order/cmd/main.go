@@ -17,6 +17,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
+	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
+	orderService "github.com/Artyom099/factory/order/internal/service/order"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
@@ -31,9 +34,6 @@ const (
 )
 
 func main() {
-	storage := NewOrderStorage()
-
-	// Create long-lived gRPC clients
 	inventoryConn, err := grpc.NewClient(inventoryServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("failed to connect inventory: %v", err)
@@ -48,9 +48,11 @@ func main() {
 
 	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
 
-	orderHandler := NewOrderHandler(storage, inventoryClient, paymentClient)
+	repo := orderRepository.NewRepository()
+	service := orderService.NewService(repo, inventoryClient, paymentClient)
+	api := orderApiV1.NewAPI(service)
 
-	orderServer, err := orderV1.NewServer(orderHandler)
+	orderServer, err := orderV1.NewServer(api)
 	if err != nil {
 		log.Fatalf("ошибка создания сервера OpenAPI: %v", err)
 	}

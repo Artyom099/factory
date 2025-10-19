@@ -11,8 +11,8 @@ import (
 
 func (r *repository) Create(ctx context.Context, dto repoModel.PartCreateRepoRequest) (string, error) {
 	uuid := uuid.New().String()
-	dto.Part.Uuid = uuid
-	dto.Part.CreatedAt = time.Now()
+	dto.Uuid = uuid
+	dto.CreatedAt = time.Now()
 
 	r.mu.Lock()
 	defer r.mu.Unlock()

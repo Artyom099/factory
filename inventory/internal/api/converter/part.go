@@ -1,9 +1,10 @@
 package converter
 
 import (
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // converter api - service layer
