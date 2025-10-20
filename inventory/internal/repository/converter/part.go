@@ -5,7 +5,7 @@ import (
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-// converter service - repo layer
+// converter service - repo
 
 func PartGetServiceRequestToPartGetRepoRequest(req servModel.PartGetServiceRequest) repoModel.PartGetRepoRequest {
 	return repoModel.PartGetRepoRequest{Uuid: req.Uuid}
@@ -47,7 +47,22 @@ func PartGetRepoResponseToPartGetServiceResponse(dto repoModel.PartGetRepoRespon
 }
 
 func PartListServiceRequestToPartListRepoRequest(dto servModel.PartListServiceRequest) repoModel.PartListRepoRequest {
-	return repoModel.PartListRepoRequest{}
+	categories := []repoModel.Category{}
+	if dto.Filter != nil && len(dto.Filter.Categories) > 0 {
+		for _, c := range dto.Filter.Categories {
+			categories = append(categories, repoModel.Category(c))
+		}
+	}
+
+	return repoModel.PartListRepoRequest{
+		Filter: &repoModel.PartFilterRepo{
+			Uuids:                 dto.Filter.Uuids,
+			Names:                 dto.Filter.Names,
+			Categories:            categories,
+			ManufacturerCountries: dto.Filter.ManufacturerCountries,
+			Tags:                  dto.Filter.Tags,
+		},
+	}
 }
 
 func PartListRepoResponseToPartListServiceResponse(dto repoModel.PartListRepoResponse) servModel.PartListServiceResponse {
@@ -123,8 +138,4 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 			UpdatedAt:     dto.UpdatedAt,
 		},
 	}
-}
-
-func PartCreateRepoResponseToPartCreateServiceResponse(dto repoModel.PartCreateRepoResponse) servModel.PartCreateServiceResponse {
-	return servModel.PartCreateServiceResponse{}
 }

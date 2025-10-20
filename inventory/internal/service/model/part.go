@@ -10,7 +10,7 @@ type PartGetServiceResponse struct {
 }
 
 type PartListServiceRequest struct {
-	Filtet *PartsFilterService
+	Filter *PartsFilterService
 }
 type PartListServiceResponse struct {
 	Parts []Part

@@ -7,7 +7,7 @@ import (
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
-// converter api - service layer
+// converter api - service
 
 func PartGetApiRequestToPartGetServiceRequest(dto *inventoryV1.GetPartRequest) servModel.PartGetServiceRequest {
 	return servModel.PartGetServiceRequest{Uuid: dto.GetUuid()}
@@ -75,7 +75,7 @@ func PartListApiRequestToPartGetServiceRequest(dto *inventoryV1.ListPartsRequest
 		}
 	}
 
-	return servModel.PartListServiceRequest{Filtet: svcFilter}
+	return servModel.PartListServiceRequest{Filter: svcFilter}
 }
 
 func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceResponse) *inventoryV1.ListPartsResponse {
