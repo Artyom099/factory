@@ -128,7 +128,6 @@ func (s *ServiceSuite) TestPayPaymentClientError() {
 
 	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
 	s.paymentClient.On("PayOrder", s.ctx, serviceRequestDto.PaymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, repoErr)
-	// s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(repoModel.OrderUpdateRepoResponseDto{}, repoErr)
 
 	res, err := s.service.Pay(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
