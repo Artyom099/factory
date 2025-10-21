@@ -3,30 +3,27 @@ package order
 import (
 	"context"
 
-	"github.com/google/uuid"
-
 	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) (model.OrderPayServiceResponseDto, error) {
+func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) (string, error) {
 	order, err := s.orderRepository.Get(ctx, dto.OrderUUID)
 	if err != nil {
-		return model.OrderPayServiceResponseDto{}, model.ErrOrderNotFound
+		return "", model.ErrOrderNotFound
 	}
 
 	if model.OrderStatus(order.Status) == model.OrderStatusPAID {
-		return model.OrderPayServiceResponseDto{}, model.ErrOrderAlreadyPaid
+		return "", model.ErrOrderAlreadyPaid
 	}
 
 	if model.OrderStatus(order.Status) == model.OrderStatusCANCELLED {
-		return model.OrderPayServiceResponseDto{}, model.ErrOrderCancelled
+		return "", model.ErrOrderCancelled
 	}
 
-	userUuid := uuid.New().String()
-	transactionUUID, err := s.paymentClient.PayOrder(ctx, dto.PaymentMethod, dto.OrderUUID, userUuid)
+	transactionUUID, err := s.paymentClient.PayOrder(ctx, dto.PaymentMethod, dto.OrderUUID, order.UserUUID)
 	if err != nil {
-		return model.OrderPayServiceResponseDto{}, model.ErrInPaymeentService
+		return "", model.ErrInPaymeentService
 	}
 
 	updateOrderDto := repoModel.OrderUpdateRepoRequestDto{
@@ -37,10 +34,8 @@ func (s *service) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) 
 	}
 	_, err = s.orderRepository.Update(ctx, updateOrderDto)
 	if err != nil {
-		return model.OrderPayServiceResponseDto{}, model.ErrUpdateOrder
+		return "", model.ErrUpdateOrder
 	}
 
-	return model.OrderPayServiceResponseDto{
-		TransactionUUID: transactionUUID,
-	}, nil
+	return transactionUUID, nil
 }

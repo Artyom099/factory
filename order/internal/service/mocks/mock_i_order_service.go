@@ -22,9 +22,9 @@ func (_m *IOrderService) EXPECT() *IOrderService_Expecter {
 	return &IOrderService_Expecter{mock: &_m.Mock}
 }
 
-// Cancel provides a mock function with given fields: ctx, dto
-func (_m *IOrderService) Cancel(ctx context.Context, dto model.OrderCancelServiceRequestDto) (model.OrderCancelServiceResponseDto, error) {
-	ret := _m.Called(ctx, dto)
+// Cancel provides a mock function with given fields: ctx, orderUuid
+func (_m *IOrderService) Cancel(ctx context.Context, orderUuid string) (model.OrderCancelServiceResponseDto, error) {
+	ret := _m.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Cancel")
@@ -32,17 +32,17 @@ func (_m *IOrderService) Cancel(ctx context.Context, dto model.OrderCancelServic
 
 	var r0 model.OrderCancelServiceResponseDto
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.OrderCancelServiceRequestDto) (model.OrderCancelServiceResponseDto, error)); ok {
-		return rf(ctx, dto)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.OrderCancelServiceResponseDto, error)); ok {
+		return rf(ctx, orderUuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.OrderCancelServiceRequestDto) model.OrderCancelServiceResponseDto); ok {
-		r0 = rf(ctx, dto)
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.OrderCancelServiceResponseDto); ok {
+		r0 = rf(ctx, orderUuid)
 	} else {
 		r0 = ret.Get(0).(model.OrderCancelServiceResponseDto)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.OrderCancelServiceRequestDto) error); ok {
-		r1 = rf(ctx, dto)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, orderUuid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -57,14 +57,14 @@ type IOrderService_Cancel_Call struct {
 
 // Cancel is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.OrderCancelServiceRequestDto
-func (_e *IOrderService_Expecter) Cancel(ctx interface{}, dto interface{}) *IOrderService_Cancel_Call {
-	return &IOrderService_Cancel_Call{Call: _e.mock.On("Cancel", ctx, dto)}
+//   - orderUuid string
+func (_e *IOrderService_Expecter) Cancel(ctx interface{}, orderUuid interface{}) *IOrderService_Cancel_Call {
+	return &IOrderService_Cancel_Call{Call: _e.mock.On("Cancel", ctx, orderUuid)}
 }
 
-func (_c *IOrderService_Cancel_Call) Run(run func(ctx context.Context, dto model.OrderCancelServiceRequestDto)) *IOrderService_Cancel_Call {
+func (_c *IOrderService_Cancel_Call) Run(run func(ctx context.Context, orderUuid string)) *IOrderService_Cancel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.OrderCancelServiceRequestDto))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -74,7 +74,7 @@ func (_c *IOrderService_Cancel_Call) Return(_a0 model.OrderCancelServiceResponse
 	return _c
 }
 
-func (_c *IOrderService_Cancel_Call) RunAndReturn(run func(context.Context, model.OrderCancelServiceRequestDto) (model.OrderCancelServiceResponseDto, error)) *IOrderService_Cancel_Call {
+func (_c *IOrderService_Cancel_Call) RunAndReturn(run func(context.Context, string) (model.OrderCancelServiceResponseDto, error)) *IOrderService_Cancel_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -194,22 +194,22 @@ func (_c *IOrderService_Get_Call) RunAndReturn(run func(context.Context, model.O
 }
 
 // Pay provides a mock function with given fields: ctx, dto
-func (_m *IOrderService) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) (model.OrderPayServiceResponseDto, error) {
+func (_m *IOrderService) Pay(ctx context.Context, dto model.OrderPayServiceRequestDto) (string, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Pay")
 	}
 
-	var r0 model.OrderPayServiceResponseDto
+	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.OrderPayServiceRequestDto) (model.OrderPayServiceResponseDto, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.OrderPayServiceRequestDto) (string, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.OrderPayServiceRequestDto) model.OrderPayServiceResponseDto); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.OrderPayServiceRequestDto) string); ok {
 		r0 = rf(ctx, dto)
 	} else {
-		r0 = ret.Get(0).(model.OrderPayServiceResponseDto)
+		r0 = ret.Get(0).(string)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, model.OrderPayServiceRequestDto) error); ok {
@@ -240,12 +240,12 @@ func (_c *IOrderService_Pay_Call) Run(run func(ctx context.Context, dto model.Or
 	return _c
 }
 
-func (_c *IOrderService_Pay_Call) Return(_a0 model.OrderPayServiceResponseDto, _a1 error) *IOrderService_Pay_Call {
+func (_c *IOrderService_Pay_Call) Return(_a0 string, _a1 error) *IOrderService_Pay_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IOrderService_Pay_Call) RunAndReturn(run func(context.Context, model.OrderPayServiceRequestDto) (model.OrderPayServiceResponseDto, error)) *IOrderService_Pay_Call {
+func (_c *IOrderService_Pay_Call) RunAndReturn(run func(context.Context, model.OrderPayServiceRequestDto) (string, error)) *IOrderService_Pay_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -37,6 +37,11 @@ func PartGetServiceResponseToPartGetApiResponse(dto servModel.PartGetServiceResp
 		}
 	}
 
+	metadata := make(map[string]*inventoryV1.Value, len(dto.Part.Metadata))
+	for k, v := range dto.Part.Metadata {
+		metadata[k] = valueServModelToProto(v)
+	}
+
 	part := &inventoryV1.Part{
 		Uuid:          dto.Part.Uuid,
 		Name:          dto.Part.Name,
@@ -47,6 +52,7 @@ func PartGetServiceResponseToPartGetApiResponse(dto servModel.PartGetServiceResp
 		Dimensions:    dims,
 		Manufacturer:  manuf,
 		Tags:          dto.Part.Tags,
+		Metadata:      metadata,
 		CreatedAt:     timestamppb.New(dto.Part.CreatedAt),
 		UpdatedAt:     timestamppb.New(dto.Part.UpdatedAt),
 	}
@@ -100,6 +106,11 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 			}
 		}
 
+		metadata := make(map[string]*inventoryV1.Value, len(p.Metadata))
+		for k, v := range p.Metadata {
+			metadata[k] = valueServModelToProto(v)
+		}
+
 		parts = append(parts, &inventoryV1.Part{
 			Uuid:          p.Uuid,
 			Name:          p.Name,
@@ -110,6 +121,7 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 			Dimensions:    dims,
 			Manufacturer:  manuf,
 			Tags:          p.Tags,
+			Metadata:      metadata,
 			CreatedAt:     timestamppb.New(p.CreatedAt),
 			UpdatedAt:     timestamppb.New(p.UpdatedAt),
 		})
@@ -138,6 +150,11 @@ func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartR
 		}
 	}
 
+	metadata := make(map[string]*servModel.Value, len(dto.GetMetadata()))
+	for k, v := range dto.GetMetadata() {
+		metadata[k] = valueProtoToServModel(v)
+	}
+
 	return servModel.PartCreateServiceRequest{
 		Name:          dto.GetName(),
 		Description:   dto.GetDescription(),
@@ -147,10 +164,50 @@ func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartR
 		Dimensions:    dims,
 		Manufacturer:  manuf,
 		Tags:          dto.GetTags(),
-		// Metadata      map[string]*Value
+		Metadata:      metadata,
 	}
 }
 
 func PartCreateServiceResponseToPartCreateApiResponse(dto servModel.PartCreateServiceResponse) *inventoryV1.CreatePartResponse {
 	return &inventoryV1.CreatePartResponse{Uuid: dto.Uuid}
+}
+
+func valueProtoToServModel(v *inventoryV1.Value) *servModel.Value {
+	if v == nil {
+		return nil
+	}
+
+	switch kind := v.Kind.(type) {
+	case *inventoryV1.Value_StringValue:
+		return &servModel.Value{StringValue: &kind.StringValue}
+	case *inventoryV1.Value_Int64Value:
+		return &servModel.Value{Int64Value: &kind.Int64Value}
+	case *inventoryV1.Value_DoubleValue:
+		return &servModel.Value{DoubleValue: &kind.DoubleValue}
+	case *inventoryV1.Value_BoolValue:
+		return &servModel.Value{BoolValue: &kind.BoolValue}
+	default:
+		return nil
+	}
+}
+
+func valueServModelToProto(v *servModel.Value) *inventoryV1.Value {
+	if v == nil {
+		return nil
+	}
+
+	if v.StringValue != nil {
+		return &inventoryV1.Value{Kind: &inventoryV1.Value_StringValue{StringValue: *v.StringValue}}
+	}
+	if v.Int64Value != nil {
+		return &inventoryV1.Value{Kind: &inventoryV1.Value_Int64Value{Int64Value: *v.Int64Value}}
+	}
+	if v.DoubleValue != nil {
+		return &inventoryV1.Value{Kind: &inventoryV1.Value_DoubleValue{DoubleValue: *v.DoubleValue}}
+	}
+	if v.BoolValue != nil {
+		return &inventoryV1.Value{Kind: &inventoryV1.Value_BoolValue{BoolValue: *v.BoolValue}}
+	}
+
+	return nil
 }

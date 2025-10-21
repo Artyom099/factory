@@ -5,6 +5,7 @@ import "time"
 type PartGetRepoRequest struct {
 	Uuid string
 }
+
 type PartGetRepoResponse struct {
 	Part Part
 }
@@ -12,6 +13,7 @@ type PartGetRepoResponse struct {
 type PartListRepoRequest struct {
 	Filter *PartFilterRepo
 }
+
 type PartListRepoResponse struct {
 	Parts []Part
 }
@@ -27,6 +29,7 @@ type PartFilterRepo struct {
 type PartCreateRepoRequest struct {
 	Part
 }
+
 type PartCreateRepoResponse struct {
 	Uuid string
 }
@@ -54,6 +57,13 @@ type Manufacturer struct {
 	Website string
 }
 
+type Value struct {
+	StringValue *string
+	Int64Value  *int64
+	DoubleValue *float64
+	BoolValue   *bool
+}
+
 type Part struct {
 	Uuid          string
 	Name          string
@@ -64,7 +74,7 @@ type Part struct {
 	Dimensions    *Dimensions
 	Manufacturer  *Manufacturer
 	Tags          []string
-	// Metadata      map[string]*Value
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Metadata      map[string]*Value
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }

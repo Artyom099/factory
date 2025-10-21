@@ -32,10 +32,8 @@ func OrderCreateApiRequestDtoToOrderCreateServiceRequestDto(dto *apiModel.OrderC
 	}
 }
 
-func OrderCancelApiRequestDtoToOrderCancelServiceRequestDto(dto apiModel.CancelOrderParams) servModel.OrderCancelServiceRequestDto {
-	return servModel.OrderCancelServiceRequestDto{
-		OrderUUID: dto.OrderUUID.String(),
-	}
+func OrderCancelApiRequestDtoToOrderCancelServiceRequestDto(dto apiModel.CancelOrderParams) string {
+	return dto.OrderUUID.String()
 }
 
 func OrderPayApiRequestDtoToOrderPayServiceRequestDto(

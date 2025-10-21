@@ -6,8 +6,8 @@ import (
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (s *service) Cancel(ctx context.Context, dto model.OrderCancelServiceRequestDto) (model.OrderCancelServiceResponseDto, error) {
-	order, err := s.orderRepository.Get(ctx, dto.OrderUUID)
+func (s *service) Cancel(ctx context.Context, orderUUID string) (model.OrderCancelServiceResponseDto, error) {
+	order, err := s.orderRepository.Get(ctx, orderUUID)
 	if err != nil {
 		return model.OrderCancelServiceResponseDto{}, model.ErrOrderNotFound
 	}
@@ -17,7 +17,7 @@ func (s *service) Cancel(ctx context.Context, dto model.OrderCancelServiceReques
 	}
 
 	if model.OrderStatus(order.Status) == model.OrderStatusPENDINGPAYMENT {
-		_, err := s.orderRepository.Cancel(ctx, dto.OrderUUID)
+		_, err := s.orderRepository.Cancel(ctx, orderUUID)
 		if err != nil {
 			return model.OrderCancelServiceResponseDto{}, err
 		}

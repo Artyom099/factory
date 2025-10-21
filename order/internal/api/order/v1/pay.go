@@ -27,7 +27,7 @@ func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params
 		}, nil
 	}
 
-	_, err := a.orderService.Pay(ctx, converter.OrderPayApiRequestDtoToOrderPayServiceRequestDto(params, req))
+	transactionUUID, err := a.orderService.Pay(ctx, converter.OrderPayApiRequestDtoToOrderPayServiceRequestDto(params, req))
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{
@@ -54,5 +54,7 @@ func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params
 		}, err
 	}
 
-	return &orderV1.OrderPayResponse{}, nil
+	return &orderV1.OrderPayResponse{
+		TransactionUUID: transactionUUID,
+	}, nil
 }

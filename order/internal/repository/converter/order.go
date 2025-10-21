@@ -16,12 +16,6 @@ func OrderCreateServiceRequestDtoToOrderCreateRepoRequestDto(
 	}
 }
 
-func OrderGetServiceRequestDtoToOrderGetRepoRequestDto(dto servModel.OrderGetServiceRequestDto) repoModel.OrderGetRepoRequestDto {
-	return repoModel.OrderGetRepoRequestDto{
-		OrderUUID: dto.OrderUUID,
-	}
-}
-
 func OrderGetRepoResponseDtoToOrderGetServiceResponseDto(dto repoModel.OrderGetRepoResponseDto) servModel.OrderGetServiceResponseDto {
 	return servModel.OrderGetServiceResponseDto{
 		OrderUUID:       dto.OrderUUID,

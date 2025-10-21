@@ -6,10 +6,6 @@ type OrderCreateRepoRequestDto struct {
 	TotalPrice float32
 }
 
-type OrderGetRepoRequestDto struct {
-	OrderUUID string
-}
-
 type OrderGetRepoResponseDto struct {
 	OrderUUID       string
 	UserUUID        string
@@ -28,6 +24,7 @@ type OrderUpdateRepoRequestDto struct {
 	TransactionUUID string
 	PaymentMethod   OrderPaymentMethod
 }
+
 type OrderUpdateRepoResponseDto struct{}
 
 type OrderPaymentMethod string

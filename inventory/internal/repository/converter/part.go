@@ -31,6 +31,11 @@ func PartGetRepoResponseToPartGetServiceResponse(dto repoModel.PartGetRepoRespon
 		}
 	}
 
+	metadata := make(map[string]*servModel.Value, len(dto.Part.Metadata))
+	for k, v := range dto.Part.Metadata {
+		metadata[k] = valueRepoModelToServModel(v)
+	}
+
 	return servModel.PartGetServiceResponse{
 		Part: servModel.Part{
 			Uuid:          dto.Part.Uuid,
@@ -42,6 +47,7 @@ func PartGetRepoResponseToPartGetServiceResponse(dto repoModel.PartGetRepoRespon
 			Dimensions:    dims,
 			Manufacturer:  manuf,
 			Tags:          dto.Part.Tags,
+			Metadata:      metadata,
 		},
 	}
 }
@@ -67,38 +73,44 @@ func PartListServiceRequestToPartListRepoRequest(dto servModel.PartListServiceRe
 
 func PartListRepoResponseToPartListServiceResponse(dto repoModel.PartListRepoResponse) servModel.PartListServiceResponse {
 	parts := make([]servModel.Part, 0, len(dto.Parts))
-	for _, rp := range dto.Parts {
+	for _, p := range dto.Parts {
 		var dims *servModel.Dimensions
-		if rp.Dimensions != nil {
+		if p.Dimensions != nil {
 			dims = &servModel.Dimensions{
-				Length: rp.Dimensions.Length,
-				Width:  rp.Dimensions.Width,
-				Height: rp.Dimensions.Height,
-				Weight: rp.Dimensions.Weight,
+				Length: p.Dimensions.Length,
+				Width:  p.Dimensions.Width,
+				Height: p.Dimensions.Height,
+				Weight: p.Dimensions.Weight,
 			}
 		}
 
 		var manuf *servModel.Manufacturer
-		if rp.Manufacturer != nil {
+		if p.Manufacturer != nil {
 			manuf = &servModel.Manufacturer{
-				Name:    rp.Manufacturer.Name,
-				Country: rp.Manufacturer.Country,
-				Website: rp.Manufacturer.Website,
+				Name:    p.Manufacturer.Name,
+				Country: p.Manufacturer.Country,
+				Website: p.Manufacturer.Website,
 			}
 		}
 
+		metadata := make(map[string]*servModel.Value, len(p.Metadata))
+		for k, v := range p.Metadata {
+			metadata[k] = valueRepoModelToServModel(v)
+		}
+
 		parts = append(parts, servModel.Part{
-			Uuid:          rp.Uuid,
-			Name:          rp.Name,
-			Description:   rp.Description,
-			Price:         rp.Price,
-			StockQuantity: rp.StockQuantity,
-			Category:      servModel.Category(rp.Category),
+			Uuid:          p.Uuid,
+			Name:          p.Name,
+			Description:   p.Description,
+			Price:         p.Price,
+			StockQuantity: p.StockQuantity,
+			Category:      servModel.Category(p.Category),
 			Dimensions:    dims,
 			Manufacturer:  manuf,
-			Tags:          rp.Tags,
-			CreatedAt:     rp.CreatedAt,
-			UpdatedAt:     rp.UpdatedAt,
+			Tags:          p.Tags,
+			CreatedAt:     p.CreatedAt,
+			UpdatedAt:     p.UpdatedAt,
+			Metadata:      metadata,
 		})
 	}
 	return servModel.PartListServiceResponse{Parts: parts}
@@ -138,4 +150,25 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 			UpdatedAt:     dto.UpdatedAt,
 		},
 	}
+}
+
+func valueRepoModelToServModel(v *repoModel.Value) *servModel.Value {
+	if v == nil {
+		return nil
+	}
+
+	if v.StringValue != nil {
+		return &servModel.Value{StringValue: v.StringValue}
+	}
+	if v.Int64Value != nil {
+		return &servModel.Value{Int64Value: v.Int64Value}
+	}
+	if v.DoubleValue != nil {
+		return &servModel.Value{DoubleValue: v.DoubleValue}
+	}
+	if v.BoolValue != nil {
+		return &servModel.Value{BoolValue: v.BoolValue}
+	}
+
+	return nil
 }
