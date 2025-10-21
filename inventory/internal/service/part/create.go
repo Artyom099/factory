@@ -8,10 +8,10 @@ import (
 )
 
 func (s *service) Create(ctx context.Context, dto servModel.PartCreateServiceRequest) (string, error) {
-	uuid, err := s.partRepository.Create(ctx, converter.PartCreateServiceRequestToPartCreateRepoRequest(dto))
+	partUUID, err := s.partRepository.Create(ctx, converter.PartCreateServiceRequestToPartCreateRepoRequest(dto))
 	if err != nil {
 		return "", err
 	}
 
-	return uuid, nil
+	return partUUID, nil
 }

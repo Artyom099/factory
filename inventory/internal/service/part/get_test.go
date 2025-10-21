@@ -26,6 +26,10 @@ func (s *ServiceSuite) TestGetSuccess() {
 		tags          = []string{gofakeit.Word(), gofakeit.Word()}
 		createdAt     = time.Now()
 		updatedAt     = time.Now()
+		stringValue   = gofakeit.Word()
+		metadata      = map[string]*repoModel.Value{
+			"key1": {StringValue: &stringValue},
+		}
 
 		serviceRequestDto = model.PartGetServiceRequest{
 			Uuid: partUUID,
@@ -53,8 +57,8 @@ func (s *ServiceSuite) TestGetSuccess() {
 					Name:    manufName,
 					Country: manufCountry,
 				},
-				Tags: tags,
-				// Metadata      map[string]*Value
+				Tags:      tags,
+				Metadata:  metadata,
 				CreatedAt: createdAt,
 				UpdatedAt: updatedAt,
 			},

@@ -136,6 +136,11 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 		}
 	}
 
+	metadata := make(map[string]*repoModel.Value, len(dto.Metadata))
+	for k, v := range dto.Metadata {
+		metadata[k] = valueServModelToRepoModel(v)
+	}
+
 	return repoModel.PartCreateRepoRequest{
 		Part: repoModel.Part{
 			Name:          dto.Name,
@@ -148,6 +153,7 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 			Tags:          dto.Tags,
 			CreatedAt:     dto.CreatedAt,
 			UpdatedAt:     dto.UpdatedAt,
+			Metadata:      metadata,
 		},
 	}
 }
@@ -168,6 +174,27 @@ func valueRepoModelToServModel(v *repoModel.Value) *servModel.Value {
 	}
 	if v.BoolValue != nil {
 		return &servModel.Value{BoolValue: v.BoolValue}
+	}
+
+	return nil
+}
+
+func valueServModelToRepoModel(v *servModel.Value) *repoModel.Value {
+	if v == nil {
+		return nil
+	}
+
+	if v.StringValue != nil {
+		return &repoModel.Value{StringValue: v.StringValue}
+	}
+	if v.Int64Value != nil {
+		return &repoModel.Value{Int64Value: v.Int64Value}
+	}
+	if v.DoubleValue != nil {
+		return &repoModel.Value{DoubleValue: v.DoubleValue}
+	}
+	if v.BoolValue != nil {
+		return &repoModel.Value{BoolValue: v.BoolValue}
 	}
 
 	return nil

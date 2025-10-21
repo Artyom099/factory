@@ -13,7 +13,7 @@ func (s *ServiceSuite) TestCreateSuccess() {
 	var (
 		name          = gofakeit.Name()
 		description   = gofakeit.BeerAlcohol()
-		expectedUUID  = gofakeit.UUID()
+		partUUID      = gofakeit.UUID()
 		price         = float64(gofakeit.Number(100, 1000))
 		stockQuantity = int64(gofakeit.Number(1, 100))
 		category      = gofakeit.Number(1, 5)
@@ -26,6 +26,13 @@ func (s *ServiceSuite) TestCreateSuccess() {
 		tags          = []string{gofakeit.Word(), gofakeit.Word()}
 		createdAt     = time.Now()
 		updatedAt     = time.Now()
+		stringValue   = gofakeit.Word()
+		metadata      = map[string]*model.Value{
+			"key1": {StringValue: &stringValue},
+		}
+		repoMetadata = map[string]*repoModel.Value{
+			"key1": {StringValue: &stringValue},
+		}
 
 		serviceRequestDto = model.PartCreateServiceRequest{
 			Name:          name,
@@ -43,8 +50,8 @@ func (s *ServiceSuite) TestCreateSuccess() {
 				Name:    manufName,
 				Country: manufCountry,
 			},
-			Tags: tags,
-			// Metadata      map[string]*Value
+			Tags:      tags,
+			Metadata:  metadata,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
@@ -66,19 +73,19 @@ func (s *ServiceSuite) TestCreateSuccess() {
 					Name:    manufName,
 					Country: manufCountry,
 				},
-				Tags: tags,
-				// Metadata      map[string]*Value
+				Tags:      tags,
+				Metadata:  repoMetadata,
 				CreatedAt: createdAt,
 				UpdatedAt: updatedAt,
 			},
 		}
 	)
 
-	s.partRepository.On("Create", s.ctx, repoRequestDto).Return(expectedUUID, nil)
+	s.partRepository.On("Create", s.ctx, repoRequestDto).Return(partUUID, nil)
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
-	s.Require().Equal(expectedUUID, uuid)
+	s.Require().Equal(partUUID, uuid)
 }
 
 func (s *ServiceSuite) TestCreateRepoError() {
@@ -98,6 +105,13 @@ func (s *ServiceSuite) TestCreateRepoError() {
 		tags          = []string{gofakeit.Word(), gofakeit.Word()}
 		createdAt     = time.Now()
 		updatedAt     = time.Now()
+		stringValue   = gofakeit.Word()
+		metadata      = map[string]*model.Value{
+			"key1": {StringValue: &stringValue},
+		}
+		repoMetadata = map[string]*repoModel.Value{
+			"key1": {StringValue: &stringValue},
+		}
 
 		serviceRequestDto = model.PartCreateServiceRequest{
 			Name:          name,
@@ -115,8 +129,8 @@ func (s *ServiceSuite) TestCreateRepoError() {
 				Name:    manufName,
 				Country: manufCountry,
 			},
-			Tags: tags,
-			// Metadata      map[string]*Value
+			Tags:      tags,
+			Metadata:  metadata,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
@@ -138,8 +152,8 @@ func (s *ServiceSuite) TestCreateRepoError() {
 					Name:    manufName,
 					Country: manufCountry,
 				},
-				Tags: tags,
-				// Metadata      map[string]*Value
+				Tags:      tags,
+				Metadata:  repoMetadata,
 				CreatedAt: createdAt,
 				UpdatedAt: updatedAt,
 			},
