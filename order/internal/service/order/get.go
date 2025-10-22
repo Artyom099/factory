@@ -9,14 +9,14 @@ import (
 	servModel "github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (s *service) Get(ctx context.Context, dto servModel.OrderGetServiceRequestDto) (servModel.OrderGetServiceResponseDto, error) {
-	res, err := s.orderRepository.Get(ctx, dto.OrderUUID)
+func (s *service) Get(ctx context.Context, orderUUID string) (servModel.Order, error) {
+	res, err := s.orderRepository.Get(ctx, orderUUID)
 	if err != nil {
 		if errors.Is(err, repoModel.ErrOrderNotFound) {
-			return servModel.OrderGetServiceResponseDto{}, servModel.ErrOrderNotFound
+			return servModel.Order{}, servModel.ErrOrderNotFound
 		}
-		return servModel.OrderGetServiceResponseDto{}, err
+		return servModel.Order{}, err
 	}
 
-	return converter.OrderGetRepoResponseDtoToOrderGetServiceResponseDto(res), nil
+	return converter.RepoToModelOrder(res), nil
 }

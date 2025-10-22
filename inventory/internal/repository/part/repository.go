@@ -11,11 +11,11 @@ var _ def.IPartRepository = (*repository)(nil)
 
 type repository struct {
 	mu   sync.RWMutex
-	data map[string]repoModel.Part
+	data map[string]repoModel.RepoPart
 }
 
 func NewRepository() *repository {
 	return &repository{
-		data: make(map[string]repoModel.Part),
+		data: make(map[string]repoModel.RepoPart),
 	}
 }

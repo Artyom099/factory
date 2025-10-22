@@ -5,15 +5,7 @@ import (
 	apiModel "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
-// api - service
-
-func OrderGetApiRequestDtoToOrderGetServiceRequestDto(dto apiModel.GetOrderParams) servModel.OrderGetServiceRequestDto {
-	return servModel.OrderGetServiceRequestDto{
-		OrderUUID: dto.OrderUUID.String(),
-	}
-}
-
-func OrderGetServiceResponseDtoToOrderGetApiResponseDto(dto servModel.OrderGetServiceResponseDto) *apiModel.Order {
+func ModelToApiOrder(dto servModel.Order) *apiModel.Order {
 	return &apiModel.Order{
 		OrderUUID:       dto.OrderUUID,
 		UserUUID:        dto.UserUUID,
@@ -25,22 +17,18 @@ func OrderGetServiceResponseDtoToOrderGetApiResponseDto(dto servModel.OrderGetSe
 	}
 }
 
-func OrderCreateApiRequestDtoToOrderCreateServiceRequestDto(dto *apiModel.OrderCreateRequest) servModel.OrderCreateServiceRequestDto {
-	return servModel.OrderCreateServiceRequestDto{
+func ApiToModelOrder(dto *apiModel.OrderCreateRequest) servModel.Order {
+	return servModel.Order{
 		UserUUID:  dto.UserUUID,
 		PartUuids: dto.PartUuids,
 	}
 }
 
-func OrderCancelApiRequestDtoToOrderCancelServiceRequestDto(dto apiModel.CancelOrderParams) string {
-	return dto.OrderUUID.String()
-}
-
-func OrderPayApiRequestDtoToOrderPayServiceRequestDto(
+func ParamsAndReqToModelOrder(
 	param apiModel.PayOrderParams,
 	req *apiModel.OrderPayRequest,
-) servModel.OrderPayServiceRequestDto {
-	return servModel.OrderPayServiceRequestDto{
+) servModel.Order {
+	return servModel.Order{
 		OrderUUID:     param.OrderUUID.String(),
 		PaymentMethod: servModel.OrderPaymentMethod(req.PaymentMethod),
 	}

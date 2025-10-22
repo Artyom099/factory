@@ -22,8 +22,8 @@ func PartFilterToProto(filter model.ListPartsFilter) *inventoryV1.PartsFilter {
 	}
 }
 
-func PartFilterToModel(parts []*inventoryV1.Part) model.ListPartsResponseDto {
-	outParts := make([]*model.Part, 0, len(parts))
+func PartFilterToModel(parts []*inventoryV1.Part) []model.Part {
+	outParts := make([]model.Part, 0, len(parts))
 	for _, part := range parts {
 		var createdAt, updatedAt time.Time
 		if ts := part.GetCreatedAt(); ts != nil {
@@ -52,7 +52,7 @@ func PartFilterToModel(parts []*inventoryV1.Part) model.ListPartsResponseDto {
 			}
 		}
 
-		outParts = append(outParts, &model.Part{
+		outParts = append(outParts, model.Part{
 			Uuid:          part.GetUuid(),
 			Name:          part.GetName(),
 			Description:   part.GetDescription(),
@@ -67,7 +67,5 @@ func PartFilterToModel(parts []*inventoryV1.Part) model.ListPartsResponseDto {
 		})
 	}
 
-	return model.ListPartsResponseDto{
-		Parts: outParts,
-	}
+	return outParts
 }

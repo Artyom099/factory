@@ -34,7 +34,7 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			"key1": {StringValue: &stringValue},
 		}
 
-		serviceRequestDto = model.PartCreateServiceRequest{
+		serviceRequestDto = model.Part{
 			Name:          name,
 			Description:   description,
 			Price:         price,
@@ -56,28 +56,26 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			UpdatedAt: updatedAt,
 		}
 
-		repoRequestDto = repoModel.PartCreateRepoRequest{
-			Part: repoModel.Part{
-				Name:          name,
-				Description:   description,
-				Price:         price,
-				StockQuantity: stockQuantity,
-				Category:      repoModel.Category(category),
-				Dimensions: &repoModel.Dimensions{
-					Width:  width,
-					Height: height,
-					Length: length,
-					Weight: weight,
-				},
-				Manufacturer: &repoModel.Manufacturer{
-					Name:    manufName,
-					Country: manufCountry,
-				},
-				Tags:      tags,
-				Metadata:  repoMetadata,
-				CreatedAt: createdAt,
-				UpdatedAt: updatedAt,
+		repoRequestDto = repoModel.RepoPart{
+			Name:          name,
+			Description:   description,
+			Price:         price,
+			StockQuantity: stockQuantity,
+			Category:      repoModel.Category(category),
+			Dimensions: &repoModel.Dimensions{
+				Width:  width,
+				Height: height,
+				Length: length,
+				Weight: weight,
 			},
+			Manufacturer: &repoModel.Manufacturer{
+				Name:    manufName,
+				Country: manufCountry,
+			},
+			Tags:      tags,
+			Metadata:  repoMetadata,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 	)
 
@@ -113,7 +111,7 @@ func (s *ServiceSuite) TestCreateRepoError() {
 			"key1": {StringValue: &stringValue},
 		}
 
-		serviceRequestDto = model.PartCreateServiceRequest{
+		serviceRequestDto = model.Part{
 			Name:          name,
 			Description:   description,
 			Price:         price,
@@ -135,28 +133,26 @@ func (s *ServiceSuite) TestCreateRepoError() {
 			UpdatedAt: updatedAt,
 		}
 
-		repoRequestDto = repoModel.PartCreateRepoRequest{
-			Part: repoModel.Part{
-				Name:          name,
-				Description:   description,
-				Price:         price,
-				StockQuantity: stockQuantity,
-				Category:      repoModel.Category(category),
-				Dimensions: &repoModel.Dimensions{
-					Width:  width,
-					Height: height,
-					Length: length,
-					Weight: weight,
-				},
-				Manufacturer: &repoModel.Manufacturer{
-					Name:    manufName,
-					Country: manufCountry,
-				},
-				Tags:      tags,
-				Metadata:  repoMetadata,
-				CreatedAt: createdAt,
-				UpdatedAt: updatedAt,
+		repoRequestDto = repoModel.RepoPart{
+			Name:          name,
+			Description:   description,
+			Price:         price,
+			StockQuantity: stockQuantity,
+			Category:      repoModel.Category(category),
+			Dimensions: &repoModel.Dimensions{
+				Width:  width,
+				Height: height,
+				Length: length,
+				Weight: weight,
 			},
+			Manufacturer: &repoModel.Manufacturer{
+				Name:    manufName,
+				Country: manufCountry,
+			},
+			Tags:      tags,
+			Metadata:  repoMetadata,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 	)
 

@@ -23,7 +23,7 @@ func (_m *IPartService) EXPECT() *IPartService_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, dto
-func (_m *IPartService) Create(ctx context.Context, dto model.PartCreateServiceRequest) (string, error) {
+func (_m *IPartService) Create(ctx context.Context, dto model.Part) (string, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -32,16 +32,16 @@ func (_m *IPartService) Create(ctx context.Context, dto model.PartCreateServiceR
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartCreateServiceRequest) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Part) (string, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartCreateServiceRequest) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Part) string); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.PartCreateServiceRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.Part) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -57,14 +57,14 @@ type IPartService_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.PartCreateServiceRequest
+//   - dto model.Part
 func (_e *IPartService_Expecter) Create(ctx interface{}, dto interface{}) *IPartService_Create_Call {
 	return &IPartService_Create_Call{Call: _e.mock.On("Create", ctx, dto)}
 }
 
-func (_c *IPartService_Create_Call) Run(run func(ctx context.Context, dto model.PartCreateServiceRequest)) *IPartService_Create_Call {
+func (_c *IPartService_Create_Call) Run(run func(ctx context.Context, dto model.Part)) *IPartService_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.PartCreateServiceRequest))
+		run(args[0].(context.Context), args[1].(model.Part))
 	})
 	return _c
 }
@@ -74,32 +74,32 @@ func (_c *IPartService_Create_Call) Return(_a0 string, _a1 error) *IPartService_
 	return _c
 }
 
-func (_c *IPartService_Create_Call) RunAndReturn(run func(context.Context, model.PartCreateServiceRequest) (string, error)) *IPartService_Create_Call {
+func (_c *IPartService_Create_Call) RunAndReturn(run func(context.Context, model.Part) (string, error)) *IPartService_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Get provides a mock function with given fields: ctx, dto
-func (_m *IPartService) Get(ctx context.Context, dto model.PartGetServiceRequest) (model.PartGetServiceResponse, error) {
-	ret := _m.Called(ctx, dto)
+// Get provides a mock function with given fields: ctx, uuid
+func (_m *IPartService) Get(ctx context.Context, uuid string) (model.Part, error) {
+	ret := _m.Called(ctx, uuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 model.PartGetServiceResponse
+	var r0 model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartGetServiceRequest) (model.PartGetServiceResponse, error)); ok {
-		return rf(ctx, dto)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.Part, error)); ok {
+		return rf(ctx, uuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartGetServiceRequest) model.PartGetServiceResponse); ok {
-		r0 = rf(ctx, dto)
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.Part); ok {
+		r0 = rf(ctx, uuid)
 	} else {
-		r0 = ret.Get(0).(model.PartGetServiceResponse)
+		r0 = ret.Get(0).(model.Part)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.PartGetServiceRequest) error); ok {
-		r1 = rf(ctx, dto)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, uuid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -114,48 +114,50 @@ type IPartService_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.PartGetServiceRequest
-func (_e *IPartService_Expecter) Get(ctx interface{}, dto interface{}) *IPartService_Get_Call {
-	return &IPartService_Get_Call{Call: _e.mock.On("Get", ctx, dto)}
+//   - uuid string
+func (_e *IPartService_Expecter) Get(ctx interface{}, uuid interface{}) *IPartService_Get_Call {
+	return &IPartService_Get_Call{Call: _e.mock.On("Get", ctx, uuid)}
 }
 
-func (_c *IPartService_Get_Call) Run(run func(ctx context.Context, dto model.PartGetServiceRequest)) *IPartService_Get_Call {
+func (_c *IPartService_Get_Call) Run(run func(ctx context.Context, uuid string)) *IPartService_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.PartGetServiceRequest))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
 
-func (_c *IPartService_Get_Call) Return(_a0 model.PartGetServiceResponse, _a1 error) *IPartService_Get_Call {
+func (_c *IPartService_Get_Call) Return(_a0 model.Part, _a1 error) *IPartService_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IPartService_Get_Call) RunAndReturn(run func(context.Context, model.PartGetServiceRequest) (model.PartGetServiceResponse, error)) *IPartService_Get_Call {
+func (_c *IPartService_Get_Call) RunAndReturn(run func(context.Context, string) (model.Part, error)) *IPartService_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: ctx, dto
-func (_m *IPartService) List(ctx context.Context, dto model.PartListServiceRequest) (model.PartListServiceResponse, error) {
+func (_m *IPartService) List(ctx context.Context, dto model.ModelPartFilter) ([]model.Part, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 model.PartListServiceResponse
+	var r0 []model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartListServiceRequest) (model.PartListServiceResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.ModelPartFilter) ([]model.Part, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.PartListServiceRequest) model.PartListServiceResponse); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.ModelPartFilter) []model.Part); ok {
 		r0 = rf(ctx, dto)
 	} else {
-		r0 = ret.Get(0).(model.PartListServiceResponse)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Part)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.PartListServiceRequest) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.ModelPartFilter) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -171,24 +173,24 @@ type IPartService_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.PartListServiceRequest
+//   - dto model.ModelPartFilter
 func (_e *IPartService_Expecter) List(ctx interface{}, dto interface{}) *IPartService_List_Call {
 	return &IPartService_List_Call{Call: _e.mock.On("List", ctx, dto)}
 }
 
-func (_c *IPartService_List_Call) Run(run func(ctx context.Context, dto model.PartListServiceRequest)) *IPartService_List_Call {
+func (_c *IPartService_List_Call) Run(run func(ctx context.Context, dto model.ModelPartFilter)) *IPartService_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.PartListServiceRequest))
+		run(args[0].(context.Context), args[1].(model.ModelPartFilter))
 	})
 	return _c
 }
 
-func (_c *IPartService_List_Call) Return(_a0 model.PartListServiceResponse, _a1 error) *IPartService_List_Call {
+func (_c *IPartService_List_Call) Return(_a0 []model.Part, _a1 error) *IPartService_List_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IPartService_List_Call) RunAndReturn(run func(context.Context, model.PartListServiceRequest) (model.PartListServiceResponse, error)) *IPartService_List_Call {
+func (_c *IPartService_List_Call) RunAndReturn(run func(context.Context, model.ModelPartFilter) ([]model.Part, error)) *IPartService_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

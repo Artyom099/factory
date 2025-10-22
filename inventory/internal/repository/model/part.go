@@ -2,36 +2,12 @@ package model
 
 import "time"
 
-type PartGetRepoRequest struct {
-	Uuid string
-}
-
-type PartGetRepoResponse struct {
-	Part Part
-}
-
-type PartListRepoRequest struct {
-	Filter *PartFilterRepo
-}
-
-type PartListRepoResponse struct {
-	Parts []Part
-}
-
-type PartFilterRepo struct {
+type RepoPartFilter struct {
 	Uuids                 []string
 	Names                 []string
 	Categories            []Category
 	ManufacturerCountries []string
 	Tags                  []string
-}
-
-type PartCreateRepoRequest struct {
-	Part
-}
-
-type PartCreateRepoResponse struct {
-	Uuid string
 }
 
 type Category int32
@@ -64,7 +40,7 @@ type Value struct {
 	BoolValue   *bool
 }
 
-type Part struct {
+type RepoPart struct {
 	Uuid          string
 	Name          string
 	Description   string

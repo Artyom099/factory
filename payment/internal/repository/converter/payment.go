@@ -5,7 +5,7 @@ import (
 	servModel "github.com/Artyom099/factory/payment/internal/service/model"
 )
 
-func PaymentServiceRequestDtoToPaymentRepoRequestDto(dto servModel.PayOrderServiceRequestDto) repoModel.PayOrderRepoRequestDto {
+func PaymentServiceRequestDtoToPaymentRepoRequestDto(dto servModel.Payment) repoModel.PayOrderRepoRequestDto {
 	return repoModel.PayOrderRepoRequestDto{
 		OrderUuid:     dto.OrderUuid,
 		UserUuid:      dto.UserUuid,

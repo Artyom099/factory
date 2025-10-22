@@ -1,12 +1,6 @@
 package model
 
-type OrderCreateRepoRequestDto struct {
-	UserUUID   string
-	PartUuids  []string
-	TotalPrice float32
-}
-
-type OrderGetRepoResponseDto struct {
+type RepoOrder struct {
 	OrderUUID       string
 	UserUUID        string
 	PartUuids       []string
@@ -15,17 +9,6 @@ type OrderGetRepoResponseDto struct {
 	PaymentMethod   OrderPaymentMethod
 	Status          OrderStatus
 }
-
-type OrderCancelRepoResponseDto struct{}
-
-type OrderUpdateRepoRequestDto struct {
-	OrderUUID       string
-	Status          OrderStatus
-	TransactionUUID string
-	PaymentMethod   OrderPaymentMethod
-}
-
-type OrderUpdateRepoResponseDto struct{}
 
 type OrderPaymentMethod string
 

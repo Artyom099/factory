@@ -13,19 +13,20 @@ import (
 )
 
 func (a *api) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orderV1.GetOrderRes, error) {
-	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+	orderUUID, err := uuid.Parse(params.OrderUUID.String())
+	if err != nil {
 		return &orderV1.BadRequestError{
 			Code:    400,
 			Message: fmt.Sprintf("Invalid order_uuid: %v", err),
 		}, nil
 	}
 
-	res, err := a.orderService.Get(ctx, converter.OrderGetApiRequestDtoToOrderGetServiceRequestDto(params))
+	res, err := a.orderService.Get(ctx, orderUUID.String())
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s not found", orderUUID.String()),
 			}, nil
 		}
 		return &orderV1.InternalServerError{
@@ -34,5 +35,5 @@ func (a *api) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orde
 		}, err
 	}
 
-	return converter.OrderGetServiceResponseDtoToOrderGetApiResponseDto(res), nil
+	return converter.ModelToApiOrder(res), nil
 }

@@ -13,17 +13,17 @@ func (s *ServiceSuite) TestCreateSuccess() {
 		partUuid1 = gofakeit.UUID()
 		partUuid2 = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderCreateServiceRequestDto{
+		serviceRequestDto = model.Order{
 			UserUUID:  gofakeit.UUID(),
 			PartUuids: []string{partUuid1, partUuid2},
 		}
 
-		serviceResponseDto = model.OrderCreateServiceResponseDto{
+		serviceResponseDto = model.Order{
 			OrderUUID:  orderUuid,
 			TotalPrice: 100.0,
 		}
 
-		repoRequestDto = repoModel.OrderCreateRepoRequestDto{
+		repoRequestDto = repoModel.RepoOrder{
 			UserUUID:   serviceRequestDto.UserUUID,
 			PartUuids:  serviceRequestDto.PartUuids,
 			TotalPrice: 100,
@@ -33,11 +33,9 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			Uuids: repoRequestDto.PartUuids,
 		}
 
-		listPartsResponseDto = model.ListPartsResponseDto{
-			Parts: []*model.Part{
-				{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
-				{Uuid: partUuid2, Name: gofakeit.Name(), Price: 60.0},
-			},
+		listPartsResponseDto = []model.Part{
+			{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
+			{Uuid: partUuid2, Name: gofakeit.Name(), Price: 60.0},
 		}
 	)
 
@@ -55,12 +53,12 @@ func (s *ServiceSuite) TestCreateRepoError() {
 		partUuid1 = gofakeit.UUID()
 		partUuid2 = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderCreateServiceRequestDto{
+		serviceRequestDto = model.Order{
 			UserUUID:  gofakeit.UUID(),
 			PartUuids: []string{partUuid1, partUuid2},
 		}
 
-		repoRequestDto = repoModel.OrderCreateRepoRequestDto{
+		repoRequestDto = repoModel.RepoOrder{
 			UserUUID:   serviceRequestDto.UserUUID,
 			PartUuids:  serviceRequestDto.PartUuids,
 			TotalPrice: 100,
@@ -70,11 +68,9 @@ func (s *ServiceSuite) TestCreateRepoError() {
 			Uuids: repoRequestDto.PartUuids,
 		}
 
-		listPartsResponseDto = model.ListPartsResponseDto{
-			Parts: []*model.Part{
-				{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
-				{Uuid: partUuid2, Name: gofakeit.Name(), Price: 60.0},
-			},
+		listPartsResponseDto = []model.Part{
+			{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
+			{Uuid: partUuid2, Name: gofakeit.Name(), Price: 60.0},
 		}
 	)
 
@@ -92,7 +88,7 @@ func (s *ServiceSuite) TestCreateINotAllPartsExistInInventoryServiceError() {
 		partUuid1 = gofakeit.UUID()
 		partUuid2 = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderCreateServiceRequestDto{
+		serviceRequestDto = model.Order{
 			UserUUID:  gofakeit.UUID(),
 			PartUuids: []string{partUuid1, partUuid2},
 		}
@@ -101,10 +97,8 @@ func (s *ServiceSuite) TestCreateINotAllPartsExistInInventoryServiceError() {
 			Uuids: serviceRequestDto.PartUuids,
 		}
 
-		listPartsResponseDto = model.ListPartsResponseDto{
-			Parts: []*model.Part{
-				{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
-			},
+		listPartsResponseDto = []model.Part{
+			{Uuid: partUuid1, Name: gofakeit.Name(), Price: 40.0},
 		}
 	)
 
@@ -123,7 +117,7 @@ func (s *ServiceSuite) TestCreateInventoryServiceInternalError() {
 		partUuid1 = gofakeit.UUID()
 		partUuid2 = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderCreateServiceRequestDto{
+		serviceRequestDto = model.Order{
 			UserUUID:  gofakeit.UUID(),
 			PartUuids: []string{partUuid1, partUuid2},
 		}
@@ -133,7 +127,7 @@ func (s *ServiceSuite) TestCreateInventoryServiceInternalError() {
 		}
 	)
 
-	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return(model.ListPartsResponseDto{}, inventoryServiceErr)
+	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return([]model.Part{}, inventoryServiceErr)
 
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

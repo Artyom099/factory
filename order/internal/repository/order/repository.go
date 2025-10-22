@@ -11,11 +11,11 @@ var _ def.IOrderRepository = (*repository)(nil)
 
 type repository struct {
 	mu   sync.RWMutex
-	data map[string]*repoModel.OrderGetRepoResponseDto
+	data map[string]*repoModel.RepoOrder
 }
 
 func NewRepository() *repository {
 	return &repository{
-		data: make(map[string]*repoModel.OrderGetRepoResponseDto),
+		data: make(map[string]*repoModel.RepoOrder),
 	}
 }

@@ -24,22 +24,24 @@ func (_m *IInventoryClient) EXPECT() *IInventoryClient_Expecter {
 }
 
 // ListParts provides a mock function with given fields: ctx, filter
-func (_m *IInventoryClient) ListParts(ctx context.Context, filter model.ListPartsFilter) (model.ListPartsResponseDto, error) {
+func (_m *IInventoryClient) ListParts(ctx context.Context, filter model.ListPartsFilter) ([]model.Part, error) {
 	ret := _m.Called(ctx, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListParts")
 	}
 
-	var r0 model.ListPartsResponseDto
+	var r0 []model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.ListPartsFilter) (model.ListPartsResponseDto, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.ListPartsFilter) ([]model.Part, error)); ok {
 		return rf(ctx, filter)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.ListPartsFilter) model.ListPartsResponseDto); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.ListPartsFilter) []model.Part); ok {
 		r0 = rf(ctx, filter)
 	} else {
-		r0 = ret.Get(0).(model.ListPartsResponseDto)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Part)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, model.ListPartsFilter) error); ok {
@@ -70,12 +72,12 @@ func (_c *IInventoryClient_ListParts_Call) Run(run func(ctx context.Context, fil
 	return _c
 }
 
-func (_c *IInventoryClient_ListParts_Call) Return(_a0 model.ListPartsResponseDto, _a1 error) *IInventoryClient_ListParts_Call {
+func (_c *IInventoryClient_ListParts_Call) Return(_a0 []model.Part, _a1 error) *IInventoryClient_ListParts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IInventoryClient_ListParts_Call) RunAndReturn(run func(context.Context, model.ListPartsFilter) (model.ListPartsResponseDto, error)) *IInventoryClient_ListParts_Call {
+func (_c *IInventoryClient_ListParts_Call) RunAndReturn(run func(context.Context, model.ListPartsFilter) ([]model.Part, error)) *IInventoryClient_ListParts_Call {
 	_c.Call.Return(run)
 	return _c
 }

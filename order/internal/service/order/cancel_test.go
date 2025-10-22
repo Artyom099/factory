@@ -11,7 +11,7 @@ func (s *ServiceSuite) TestCancelSuccess() {
 	var (
 		orderUUID = gofakeit.UUID()
 
-		getRepoResponseDto = repoModel.OrderGetRepoResponseDto{
+		getRepoResponseDto = repoModel.RepoOrder{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -23,11 +23,10 @@ func (s *ServiceSuite) TestCancelSuccess() {
 	)
 
 	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
-	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(repoModel.OrderCancelRepoResponseDto{}, nil)
+	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(nil)
 
-	res, err := s.service.Cancel(s.ctx, orderUUID)
+	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().NoError(err)
-	s.Require().Equal(res, model.OrderCancelServiceResponseDto{})
 }
 
 func (s *ServiceSuite) TestCancelRepoCancelError() {
@@ -35,7 +34,7 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 		orderUUID = gofakeit.UUID()
 		repoErr   = gofakeit.Error()
 
-		getRepoResponseDto = repoModel.OrderGetRepoResponseDto{
+		getRepoResponseDto = repoModel.RepoOrder{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -47,11 +46,10 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 	)
 
 	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
-	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(repoModel.OrderCancelRepoResponseDto{}, repoErr)
+	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(repoErr)
 
-	res, err := s.service.Cancel(s.ctx, orderUUID)
+	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().Empty(res)
 	s.Require().ErrorIs(err, repoErr)
 }
 
@@ -59,7 +57,7 @@ func (s *ServiceSuite) TestCancelConflictError() {
 	var (
 		orderUUID = gofakeit.UUID()
 
-		getRepoResponseDto = repoModel.OrderGetRepoResponseDto{
+		getRepoResponseDto = repoModel.RepoOrder{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -72,9 +70,8 @@ func (s *ServiceSuite) TestCancelConflictError() {
 
 	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
 
-	res, err := s.service.Cancel(s.ctx, orderUUID)
+	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().Empty(res)
 	s.Require().ErrorIs(err, model.ErrConflict)
 }
 
@@ -84,10 +81,9 @@ func (s *ServiceSuite) TestCancelRepoGetError() {
 		repoErr   = gofakeit.Error()
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoModel.OrderGetRepoResponseDto{}, repoErr)
+	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoModel.RepoOrder{}, repoErr)
 
-	res, err := s.service.Cancel(s.ctx, orderUUID)
+	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrOrderNotFound)
+	s.Require().ErrorIs(err, repoErr)
 }

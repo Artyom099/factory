@@ -2,26 +2,34 @@ package order
 
 import (
 	"context"
+	"errors"
 
+	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (s *service) Cancel(ctx context.Context, orderUUID string) (model.OrderCancelServiceResponseDto, error) {
+func (s *service) Cancel(ctx context.Context, orderUUID string) error {
 	order, err := s.orderRepository.Get(ctx, orderUUID)
 	if err != nil {
-		return model.OrderCancelServiceResponseDto{}, model.ErrOrderNotFound
+		if errors.Is(err, repoModel.ErrOrderNotFound) {
+			return model.ErrOrderNotFound
+		}
+		return err
 	}
 
-	if model.OrderStatus(order.Status) == model.OrderStatusPAID {
-		return model.OrderCancelServiceResponseDto{}, model.ErrConflict
+	if model.OrderStatus(order.Status) == model.OrderStatusPAID || model.OrderStatus(order.Status) == model.OrderStatusCANCELLED {
+		return model.ErrConflict
 	}
 
 	if model.OrderStatus(order.Status) == model.OrderStatusPENDINGPAYMENT {
-		_, err := s.orderRepository.Cancel(ctx, orderUUID)
+		err := s.orderRepository.Cancel(ctx, orderUUID)
 		if err != nil {
-			return model.OrderCancelServiceResponseDto{}, err
+			if errors.Is(err, repoModel.ErrOrderNotFound) {
+				return model.ErrOrderNotFound
+			}
+			return err
 		}
 	}
 
-	return model.OrderCancelServiceResponseDto{}, nil
+	return nil
 }

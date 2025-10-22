@@ -7,8 +7,8 @@ import (
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func (s *service) Create(ctx context.Context, dto servModel.PartCreateServiceRequest) (string, error) {
-	partUUID, err := s.partRepository.Create(ctx, converter.PartCreateServiceRequestToPartCreateRepoRequest(dto))
+func (s *service) Create(ctx context.Context, dto servModel.Part) (string, error) {
+	partUUID, err := s.partRepository.Create(ctx, converter.ModelToRepoPart(dto))
 	if err != nil {
 		return "", err
 	}

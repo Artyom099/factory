@@ -2,23 +2,7 @@ package model
 
 import "time"
 
-type PartGetServiceRequest struct {
-	Uuid string
-}
-
-type PartGetServiceResponse struct {
-	Part Part
-}
-
-type PartListServiceRequest struct {
-	Filter *PartsFilterService
-}
-
-type PartListServiceResponse struct {
-	Parts []Part
-}
-
-type PartsFilterService struct {
+type ModelPartFilter struct {
 	Uuids                 []string
 	Names                 []string
 	Categories            []Category
@@ -31,24 +15,6 @@ type Value struct {
 	Int64Value  *int64
 	DoubleValue *float64
 	BoolValue   *bool
-}
-
-type PartCreateServiceRequest struct {
-	Name          string
-	Description   string
-	Price         float64
-	StockQuantity int64
-	Category      Category
-	Dimensions    *Dimensions
-	Manufacturer  *Manufacturer
-	Tags          []string
-	Metadata      map[string]*Value
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-}
-
-type PartCreateServiceResponse struct {
-	Uuid string
 }
 
 type Category int32

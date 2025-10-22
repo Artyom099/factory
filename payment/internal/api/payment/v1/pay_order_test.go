@@ -18,7 +18,7 @@ func (s *APISuite) TestPayOrderSuccess() {
 			PaymentMethod: paymentV1.PaymentMethod(gofakeit.Number(1, 4)),
 		}
 
-		expectedModelInfo = converter.PayOrderApiRequestToPayOrderServiceRequest(apiRequestDto)
+		expectedModelInfo = converter.ToModelPayment(apiRequestDto)
 	)
 
 	s.paymentService.On("PayOrder", s.ctx, expectedModelInfo).Return(transactionUUID, nil)
@@ -39,7 +39,7 @@ func (s *APISuite) TestPayOrderServiceError() {
 			PaymentMethod: paymentV1.PaymentMethod(gofakeit.Number(1, 4)),
 		}
 
-		expectedModelInfo = converter.PayOrderApiRequestToPayOrderServiceRequest(apiRequestDto)
+		expectedModelInfo = converter.ToModelPayment(apiRequestDto)
 	)
 
 	s.paymentService.On("PayOrder", s.ctx, expectedModelInfo).Return("", serviceErr)

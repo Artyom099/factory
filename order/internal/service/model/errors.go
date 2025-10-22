@@ -2,18 +2,20 @@ package model
 
 import "errors"
 
-var ErrOrderNotFound = errors.New("order not found")
+var (
+	ErrOrderNotFound = errors.New("order not found")
 
-var ErrConflict = errors.New("conflict")
+	ErrConflict = errors.New("conflict")
 
-var ErrNotAllPartsExist = errors.New("not all parts exist")
+	ErrNotAllPartsExist = errors.New("not all parts exist")
 
-var ErrListPartsError = errors.New("list parts error")
+	ErrListPartsError = errors.New("list parts error")
 
-var ErrOrderAlreadyPaid = errors.New("order already paid")
+	ErrOrderAlreadyPaid = errors.New("order already paid")
 
-var ErrOrderCancelled = errors.New("order cancelled")
+	ErrOrderCancelled = errors.New("order cancelled")
 
-var ErrInPaymeentService = errors.New("order cancelled")
+	ErrInPaymeentService = errors.New("payment service error")
 
-var ErrUpdateOrder = errors.New("update order error")
+	ErrUpdateOrder = errors.New("update order error")
+)

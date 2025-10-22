@@ -13,7 +13,8 @@ import (
 )
 
 func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params orderV1.PayOrderParams) (orderV1.PayOrderRes, error) {
-	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+	orderUUID, err := uuid.Parse(params.OrderUUID.String())
+	if err != nil {
 		return &orderV1.BadRequestError{
 			Code:    400,
 			Message: fmt.Sprintf("invalid order_uuid: %v", err),
@@ -27,24 +28,24 @@ func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params
 		}, nil
 	}
 
-	transactionUUID, err := a.orderService.Pay(ctx, converter.OrderPayApiRequestDtoToOrderPayServiceRequestDto(params, req))
+	transactionUUID, err := a.orderService.Pay(ctx, converter.ParamsAndReqToModelOrder(params, req))
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s not found", orderUUID.String()),
 			}, nil
 		}
 		if errors.Is(err, model.ErrOrderAlreadyPaid) {
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order %s already paid", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s already paid", orderUUID.String()),
 			}, nil
 		}
 		if errors.Is(err, model.ErrOrderCancelled) {
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order %s cancelled", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s cancelled", orderUUID.String()),
 			}, nil
 		}
 

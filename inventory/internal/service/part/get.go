@@ -2,16 +2,21 @@ package part
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Artyom099/factory/inventory/internal/repository/converter"
+	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func (s *service) Get(ctx context.Context, dto servModel.PartGetServiceRequest) (servModel.PartGetServiceResponse, error) {
-	res, err := s.partRepository.Get(ctx, converter.PartGetServiceRequestToPartGetRepoRequest(dto))
+func (s *service) Get(ctx context.Context, uuid string) (servModel.Part, error) {
+	res, err := s.partRepository.Get(ctx, uuid)
 	if err != nil {
-		return servModel.PartGetServiceResponse{}, err
+		if errors.Is(err, repoModel.ErrPartNotFound) {
+			return servModel.Part{}, servModel.ErrPartNotFound
+		}
+		return servModel.Part{}, err
 	}
 
-	return converter.PartGetRepoResponseToPartGetServiceResponse(res), nil
+	return converter.RepoToModelPart(res), nil
 }

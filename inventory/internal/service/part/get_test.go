@@ -6,7 +6,6 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 
 	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
-	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 func (s *ServiceSuite) TestGetSuccess() {
@@ -31,55 +30,45 @@ func (s *ServiceSuite) TestGetSuccess() {
 			"key1": {StringValue: &stringValue},
 		}
 
-		serviceRequestDto = model.PartGetServiceRequest{
-			Uuid: partUUID,
-		}
-
-		repoRequestDto = repoModel.PartGetRepoRequest{
-			Uuid: partUUID,
-		}
-
-		repoResponseDto = repoModel.PartGetRepoResponse{
-			Part: repoModel.Part{
-				Uuid:          partUUID,
-				Name:          name,
-				Description:   description,
-				Price:         price,
-				StockQuantity: stockQuantity,
-				Category:      repoModel.Category(category),
-				Dimensions: &repoModel.Dimensions{
-					Width:  width,
-					Height: height,
-					Length: length,
-					Weight: weight,
-				},
-				Manufacturer: &repoModel.Manufacturer{
-					Name:    manufName,
-					Country: manufCountry,
-				},
-				Tags:      tags,
-				Metadata:  metadata,
-				CreatedAt: createdAt,
-				UpdatedAt: updatedAt,
+		repoResponseDto = repoModel.RepoPart{
+			Uuid:          partUUID,
+			Name:          name,
+			Description:   description,
+			Price:         price,
+			StockQuantity: stockQuantity,
+			Category:      repoModel.Category(category),
+			Dimensions: &repoModel.Dimensions{
+				Width:  width,
+				Height: height,
+				Length: length,
+				Weight: weight,
 			},
+			Manufacturer: &repoModel.Manufacturer{
+				Name:    manufName,
+				Country: manufCountry,
+			},
+			Tags:      tags,
+			Metadata:  metadata,
+			CreatedAt: createdAt,
+			UpdatedAt: updatedAt,
 		}
 	)
 
-	s.partRepository.On("Get", s.ctx, repoRequestDto).Return(repoResponseDto, nil)
+	s.partRepository.On("Get", s.ctx, partUUID).Return(repoResponseDto, nil)
 
-	res, err := s.service.Get(s.ctx, serviceRequestDto)
+	res, err := s.service.Get(s.ctx, partUUID)
 	s.Require().NoError(err)
-	s.Require().Equal(partUUID, res.Part.Uuid)
-	s.Require().Equal(name, res.Part.Name)
-	s.Require().Equal(description, res.Part.Description)
-	s.Require().Equal(price, res.Part.Price)
-	s.Require().Equal(stockQuantity, res.Part.StockQuantity)
-	s.Require().Equal(category, int(res.Part.Category))
-	s.Require().Equal(width, res.Part.Dimensions.Width)
-	s.Require().Equal(height, res.Part.Dimensions.Height)
-	s.Require().Equal(length, res.Part.Dimensions.Length)
-	s.Require().Equal(weight, res.Part.Dimensions.Weight)
-	s.Require().Equal(manufName, res.Part.Manufacturer.Name)
-	s.Require().Equal(manufCountry, res.Part.Manufacturer.Country)
-	s.Require().Equal(tags, res.Part.Tags)
+	s.Require().Equal(partUUID, res.Uuid)
+	s.Require().Equal(name, res.Name)
+	s.Require().Equal(description, res.Description)
+	s.Require().Equal(price, res.Price)
+	s.Require().Equal(stockQuantity, res.StockQuantity)
+	s.Require().Equal(category, int(res.Category))
+	s.Require().Equal(width, res.Dimensions.Width)
+	s.Require().Equal(height, res.Dimensions.Height)
+	s.Require().Equal(length, res.Dimensions.Length)
+	s.Require().Equal(weight, res.Dimensions.Weight)
+	s.Require().Equal(manufName, res.Manufacturer.Name)
+	s.Require().Equal(manufCountry, res.Manufacturer.Country)
+	s.Require().Equal(tags, res.Tags)
 }

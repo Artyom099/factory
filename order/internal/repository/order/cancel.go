@@ -6,16 +6,16 @@ import (
 	"github.com/Artyom099/factory/order/internal/repository/model"
 )
 
-func (r *repository) Cancel(ctx context.Context, orderUuid string) (model.OrderCancelRepoResponseDto, error) {
+func (r *repository) Cancel(ctx context.Context, orderUuid string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	order, ok := r.data[orderUuid]
 	if !ok {
-		return model.OrderCancelRepoResponseDto{}, model.ErrOrderNotFound
+		return model.ErrOrderNotFound
 	}
 
 	order.Status = model.OrderStatusCANCELLED
 
-	return model.OrderCancelRepoResponseDto{}, nil
+	return nil
 }

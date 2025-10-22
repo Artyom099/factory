@@ -2,11 +2,13 @@ package v1
 
 import (
 	"context"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/Artyom099/factory/payment/internal/api/converter"
+	"github.com/Artyom099/factory/payment/internal/service/model"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
@@ -15,17 +17,11 @@ func (a *api) PayOrder(ctx context.Context, req *paymentV1.PayOrderRequest) (*pa
 		return &paymentV1.PayOrderResponse{}, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
 	}
 
-	switch req.GetPaymentMethod() {
-	case paymentV1.PaymentMethod_PAYMENT_METHOD_CARD,
-		paymentV1.PaymentMethod_PAYMENT_METHOD_SBP,
-		paymentV1.PaymentMethod_PAYMENT_METHOD_CREDIT_CARD,
-		paymentV1.PaymentMethod_PAYMENT_METHOD_INVESTOR_MONEY:
-	default:
-		return &paymentV1.PayOrderResponse{}, status.Error(codes.InvalidArgument, "unsupported payment_method")
-	}
-
-	transactionUuid, err := a.paymentService.PayOrder(ctx, converter.PayOrderApiRequestToPayOrderServiceRequest(req))
+	transactionUuid, err := a.paymentService.PayOrder(ctx, converter.ToModelPayment(req))
 	if err != nil {
+		if errors.Is(err, model.ErrInvalidPaymentMethod) {
+			return nil, status.Error(codes.InvalidArgument, "unsupported payment method")
+		}
 		return nil, err
 	}
 

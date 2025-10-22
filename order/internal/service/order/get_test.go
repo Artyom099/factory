@@ -11,11 +11,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 	var (
 		orderUUID = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderGetServiceRequestDto{
-			OrderUUID: orderUUID,
-		}
-
-		repoResponseDto = repoModel.OrderGetRepoResponseDto{
+		repoResponseDto = repoModel.RepoOrder{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -25,7 +21,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 			Status:          repoModel.OrderStatusPENDINGPAYMENT,
 		}
 
-		serviceResponseDto = model.OrderGetServiceResponseDto{
+		serviceResponseDto = model.Order{
 			OrderUUID:       orderUUID,
 			UserUUID:        repoResponseDto.UserUUID,
 			PartUuids:       repoResponseDto.PartUuids,
@@ -38,7 +34,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 
 	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoResponseDto, nil)
 
-	res, err := s.service.Get(s.ctx, serviceRequestDto)
+	res, err := s.service.Get(s.ctx, orderUUID)
 	s.Require().NoError(err)
 	s.Require().Equal(res, serviceResponseDto)
 }
@@ -47,15 +43,11 @@ func (s *ServiceSuite) TestGetRepoError() {
 	var (
 		repoErr   = gofakeit.Error()
 		orderUUID = gofakeit.UUID()
-
-		serviceRequestDto = model.OrderGetServiceRequestDto{
-			OrderUUID: orderUUID,
-		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoModel.OrderGetRepoResponseDto{}, repoErr)
+	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoModel.RepoOrder{}, repoErr)
 
-	res, err := s.service.Get(s.ctx, serviceRequestDto)
+	res, err := s.service.Get(s.ctx, orderUUID)
 	s.Require().Error(err)
 	s.Require().Empty(res)
 	s.Require().ErrorIs(err, repoErr)

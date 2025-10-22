@@ -8,7 +8,7 @@ import (
 )
 
 func (a *api) CreatePart(ctx context.Context, req *inventoryV1.CreatePartRequest) (*inventoryV1.CreatePartResponse, error) {
-	uuid, err := a.partService.Create(ctx, converter.PartCreateApiRequestToPartCreateServiceRequest(req))
+	uuid, err := a.partService.Create(ctx, converter.ApiToModelPart(req))
 	if err != nil {
 		return nil, err
 	}

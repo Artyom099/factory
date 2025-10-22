@@ -7,7 +7,7 @@ import (
 )
 
 type IPartRepository interface {
-	Get(ctx context.Context, dto model.PartGetRepoRequest) (model.PartGetRepoResponse, error)
-	List(ctx context.Context, dto model.PartListRepoRequest) (model.PartListRepoResponse, error)
-	Create(ctx context.Context, dto model.PartCreateRepoRequest) (string, error)
+	Get(ctx context.Context, uuid string) (model.RepoPart, error)
+	List(ctx context.Context, dto model.RepoPartFilter) ([]model.RepoPart, error)
+	Create(ctx context.Context, dto model.RepoPart) (string, error)
 }

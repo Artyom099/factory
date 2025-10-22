@@ -5,19 +5,19 @@ import (
 	servModel "github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func OrderCreateServiceRequestDtoToOrderCreateRepoRequestDto(
-	dto servModel.OrderCreateServiceRequestDto,
+func ModelToRepoOrder(
+	dto servModel.Order,
 	totalPrice float32,
-) repoModel.OrderCreateRepoRequestDto {
-	return repoModel.OrderCreateRepoRequestDto{
+) repoModel.RepoOrder {
+	return repoModel.RepoOrder{
 		UserUUID:   dto.UserUUID,
 		PartUuids:  dto.PartUuids,
 		TotalPrice: totalPrice,
 	}
 }
 
-func OrderGetRepoResponseDtoToOrderGetServiceResponseDto(dto repoModel.OrderGetRepoResponseDto) servModel.OrderGetServiceResponseDto {
-	return servModel.OrderGetServiceResponseDto{
+func RepoToModelOrder(dto repoModel.RepoOrder) servModel.Order {
+	return servModel.Order{
 		OrderUUID:       dto.OrderUUID,
 		UserUUID:        dto.UserUUID,
 		PartUuids:       dto.PartUuids,

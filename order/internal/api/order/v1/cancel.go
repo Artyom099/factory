@@ -7,31 +7,31 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Artyom099/factory/order/internal/api/converter"
 	"github.com/Artyom099/factory/order/internal/service/model"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
 func (a *api) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
-	if _, err := uuid.Parse(params.OrderUUID.String()); err != nil {
+	orderUUID, err := uuid.Parse(params.OrderUUID.String())
+	if err != nil {
 		return &orderV1.BadRequestError{
 			Code:    400,
 			Message: fmt.Sprintf("Invalid order_uuid: %v", err),
 		}, nil
 	}
 
-	_, err := a.orderService.Cancel(ctx, converter.OrderCancelApiRequestDtoToOrderCancelServiceRequestDto(params))
+	err = a.orderService.Cancel(ctx, orderUUID.String())
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{
 				Code:    404,
-				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s not found", orderUUID.String()),
 			}, nil
 		}
 		if errors.Is(err, model.ErrConflict) {
 			return &orderV1.ConflictError{
 				Code:    409,
-				Message: fmt.Sprintf("Order %s not found", params.OrderUUID.String()),
+				Message: fmt.Sprintf("Order %s paid or already cancelled", orderUUID.String()),
 			}, nil
 		}
 

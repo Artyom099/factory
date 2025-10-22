@@ -8,23 +8,23 @@ import (
 	"github.com/Artyom099/factory/inventory/internal/utils"
 )
 
-func (r *repository) List(ctx context.Context, dto model.PartListRepoRequest) (model.PartListRepoResponse, error) {
+func (r *repository) List(ctx context.Context, dto model.RepoPartFilter) ([]model.RepoPart, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	filter := dto.Filter
-	var parts []model.Part
+	filter := dto
+	var parts []model.RepoPart
 	for _, part := range r.data {
 		if matchPart(part, filter) {
 			parts = append(parts, part)
 		}
 	}
 
-	return model.PartListRepoResponse{Parts: parts}, nil
+	return parts, nil
 }
 
-func matchPart(p model.Part, f *model.PartFilterRepo) bool {
-	if f == nil {
+func matchPart(p model.RepoPart, f model.RepoPartFilter) bool {
+	if len(f.Categories) == 0 && len(f.ManufacturerCountries) == 0 && len(f.Names) == 0 && len(f.Tags) == 0 && len(f.Uuids) == 0 {
 		return true
 	}
 

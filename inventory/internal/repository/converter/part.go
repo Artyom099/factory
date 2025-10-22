@@ -5,78 +5,68 @@ import (
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-// converter service - repo
-
-func PartGetServiceRequestToPartGetRepoRequest(req servModel.PartGetServiceRequest) repoModel.PartGetRepoRequest {
-	return repoModel.PartGetRepoRequest{Uuid: req.Uuid}
-}
-
-func PartGetRepoResponseToPartGetServiceResponse(dto repoModel.PartGetRepoResponse) servModel.PartGetServiceResponse {
-	var dims *servModel.Dimensions
-	if dto.Part.Dimensions != nil {
-		dims = &servModel.Dimensions{
-			Length: dto.Part.Dimensions.Length,
-			Width:  dto.Part.Dimensions.Width,
-			Height: dto.Part.Dimensions.Height,
-			Weight: dto.Part.Dimensions.Weight,
+func RepoToModelPart(dto repoModel.RepoPart) servModel.Part {
+	var dimensionModel servModel.Dimensions
+	if dto.Dimensions != nil {
+		dimensionModel = servModel.Dimensions{
+			Length: dto.Dimensions.Length,
+			Width:  dto.Dimensions.Width,
+			Height: dto.Dimensions.Height,
+			Weight: dto.Dimensions.Weight,
 		}
 	}
 
-	var manuf *servModel.Manufacturer
-	if dto.Part.Manufacturer != nil {
-		manuf = &servModel.Manufacturer{
-			Name:    dto.Part.Manufacturer.Name,
-			Country: dto.Part.Manufacturer.Country,
-			Website: dto.Part.Manufacturer.Website,
+	var manufacturerModel servModel.Manufacturer
+	if dto.Manufacturer != nil {
+		manufacturerModel = servModel.Manufacturer{
+			Name:    dto.Manufacturer.Name,
+			Country: dto.Manufacturer.Country,
+			Website: dto.Manufacturer.Website,
 		}
 	}
 
-	metadata := make(map[string]*servModel.Value, len(dto.Part.Metadata))
-	for k, v := range dto.Part.Metadata {
+	metadata := make(map[string]*servModel.Value, len(dto.Metadata))
+	for k, v := range dto.Metadata {
 		metadata[k] = valueRepoModelToServModel(v)
 	}
 
-	return servModel.PartGetServiceResponse{
-		Part: servModel.Part{
-			Uuid:          dto.Part.Uuid,
-			Name:          dto.Part.Name,
-			Description:   dto.Part.Description,
-			Price:         dto.Part.Price,
-			StockQuantity: dto.Part.StockQuantity,
-			Category:      servModel.Category(dto.Part.Category),
-			Dimensions:    dims,
-			Manufacturer:  manuf,
-			Tags:          dto.Part.Tags,
-			Metadata:      metadata,
-		},
+	return servModel.Part{
+		Uuid:          dto.Uuid,
+		Name:          dto.Name,
+		Description:   dto.Description,
+		Price:         dto.Price,
+		StockQuantity: dto.StockQuantity,
+		Category:      servModel.Category(dto.Category),
+		Dimensions:    &dimensionModel,
+		Manufacturer:  &manufacturerModel,
+		Tags:          dto.Tags,
+		Metadata:      metadata,
 	}
 }
 
-func PartListServiceRequestToPartListRepoRequest(dto servModel.PartListServiceRequest) repoModel.PartListRepoRequest {
+func ModelToRepoPartFilter(dto servModel.ModelPartFilter) repoModel.RepoPartFilter {
 	categories := []repoModel.Category{}
-	if dto.Filter != nil && len(dto.Filter.Categories) > 0 {
-		for _, c := range dto.Filter.Categories {
+	if len(dto.Categories) > 0 {
+		for _, c := range dto.Categories {
 			categories = append(categories, repoModel.Category(c))
 		}
 	}
 
-	return repoModel.PartListRepoRequest{
-		Filter: &repoModel.PartFilterRepo{
-			Uuids:                 dto.Filter.Uuids,
-			Names:                 dto.Filter.Names,
-			Categories:            categories,
-			ManufacturerCountries: dto.Filter.ManufacturerCountries,
-			Tags:                  dto.Filter.Tags,
-		},
+	return repoModel.RepoPartFilter{
+		Uuids:                 dto.Uuids,
+		Names:                 dto.Names,
+		Categories:            categories,
+		ManufacturerCountries: dto.ManufacturerCountries,
+		Tags:                  dto.Tags,
 	}
 }
 
-func PartListRepoResponseToPartListServiceResponse(dto repoModel.PartListRepoResponse) servModel.PartListServiceResponse {
-	parts := make([]servModel.Part, 0, len(dto.Parts))
-	for _, p := range dto.Parts {
-		var dims *servModel.Dimensions
+func RepoToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
+	parts := make([]servModel.Part, 0, len(dto))
+	for _, p := range dto {
+		var dimensionModel servModel.Dimensions
 		if p.Dimensions != nil {
-			dims = &servModel.Dimensions{
+			dimensionModel = servModel.Dimensions{
 				Length: p.Dimensions.Length,
 				Width:  p.Dimensions.Width,
 				Height: p.Dimensions.Height,
@@ -84,9 +74,9 @@ func PartListRepoResponseToPartListServiceResponse(dto repoModel.PartListRepoRes
 			}
 		}
 
-		var manuf *servModel.Manufacturer
+		var manufacturerModel servModel.Manufacturer
 		if p.Manufacturer != nil {
-			manuf = &servModel.Manufacturer{
+			manufacturerModel = servModel.Manufacturer{
 				Name:    p.Manufacturer.Name,
 				Country: p.Manufacturer.Country,
 				Website: p.Manufacturer.Website,
@@ -105,21 +95,22 @@ func PartListRepoResponseToPartListServiceResponse(dto repoModel.PartListRepoRes
 			Price:         p.Price,
 			StockQuantity: p.StockQuantity,
 			Category:      servModel.Category(p.Category),
-			Dimensions:    dims,
-			Manufacturer:  manuf,
+			Dimensions:    &dimensionModel,
+			Manufacturer:  &manufacturerModel,
 			Tags:          p.Tags,
 			CreatedAt:     p.CreatedAt,
 			UpdatedAt:     p.UpdatedAt,
 			Metadata:      metadata,
 		})
 	}
-	return servModel.PartListServiceResponse{Parts: parts}
+
+	return parts
 }
 
-func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateServiceRequest) repoModel.PartCreateRepoRequest {
-	var dims *repoModel.Dimensions
+func ModelToRepoPart(dto servModel.Part) repoModel.RepoPart {
+	var dimensionModel repoModel.Dimensions
 	if dto.Dimensions != nil {
-		dims = &repoModel.Dimensions{
+		dimensionModel = repoModel.Dimensions{
 			Length: dto.Dimensions.Length,
 			Width:  dto.Dimensions.Width,
 			Height: dto.Dimensions.Height,
@@ -127,9 +118,9 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 		}
 	}
 
-	var manuf *repoModel.Manufacturer
+	var manufacturerModel repoModel.Manufacturer
 	if dto.Manufacturer != nil {
-		manuf = &repoModel.Manufacturer{
+		manufacturerModel = repoModel.Manufacturer{
 			Name:    dto.Manufacturer.Name,
 			Country: dto.Manufacturer.Country,
 			Website: dto.Manufacturer.Website,
@@ -141,20 +132,18 @@ func PartCreateServiceRequestToPartCreateRepoRequest(dto servModel.PartCreateSer
 		metadata[k] = valueServModelToRepoModel(v)
 	}
 
-	return repoModel.PartCreateRepoRequest{
-		Part: repoModel.Part{
-			Name:          dto.Name,
-			Description:   dto.Description,
-			Price:         dto.Price,
-			StockQuantity: dto.StockQuantity,
-			Category:      repoModel.Category(dto.Category),
-			Dimensions:    dims,
-			Manufacturer:  manuf,
-			Tags:          dto.Tags,
-			CreatedAt:     dto.CreatedAt,
-			UpdatedAt:     dto.UpdatedAt,
-			Metadata:      metadata,
-		},
+	return repoModel.RepoPart{
+		Name:          dto.Name,
+		Description:   dto.Description,
+		Price:         dto.Price,
+		StockQuantity: dto.StockQuantity,
+		Category:      repoModel.Category(dto.Category),
+		Dimensions:    &dimensionModel,
+		Manufacturer:  &manufacturerModel,
+		Tags:          dto.Tags,
+		CreatedAt:     dto.CreatedAt,
+		UpdatedAt:     dto.UpdatedAt,
+		Metadata:      metadata,
 	}
 }
 

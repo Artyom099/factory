@@ -2,21 +2,7 @@ package model
 
 import "time"
 
-type OrderCreateServiceRequestDto struct {
-	UserUUID  string
-	PartUuids []string
-}
-
-type OrderCreateServiceResponseDto struct {
-	OrderUUID  string
-	TotalPrice float32
-}
-
-type OrderGetServiceRequestDto struct {
-	OrderUUID string
-}
-
-type OrderGetServiceResponseDto struct {
+type Order struct {
 	OrderUUID       string
 	UserUUID        string
 	PartUuids       []string
@@ -26,23 +12,12 @@ type OrderGetServiceResponseDto struct {
 	Status          OrderStatus
 }
 
-type OrderCancelServiceResponseDto struct{}
-
-type OrderPayServiceRequestDto struct {
-	OrderUUID     string
-	PaymentMethod OrderPaymentMethod
-}
-
 type ListPartsFilter struct {
 	Uuids                 []string
 	Names                 []string
 	Categories            []Category
 	ManufacturerCountries []string
 	Tags                  []string
-}
-
-type ListPartsResponseDto struct {
-	Parts []*Part
 }
 
 type Value struct {

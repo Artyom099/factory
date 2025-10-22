@@ -11,7 +11,7 @@ func (s *ServiceSuite) TestPaySuccess() {
 	var (
 		orderUuid = gofakeit.UUID()
 
-		getRepoRequestDto = repoModel.OrderGetRepoResponseDto{
+		getRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -21,14 +21,14 @@ func (s *ServiceSuite) TestPaySuccess() {
 			Status:          repoModel.OrderStatusPENDINGPAYMENT,
 		}
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 
 		transactionUUID = gofakeit.UUID()
 
-		updateRepoRequestDto = repoModel.OrderUpdateRepoRequestDto{
+		updateRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			Status:          repoModel.OrderStatusPAID,
 			TransactionUUID: transactionUUID,
@@ -38,7 +38,7 @@ func (s *ServiceSuite) TestPaySuccess() {
 
 	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
 	s.paymentClient.On("PayOrder", s.ctx, serviceRequestDto.PaymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
-	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(repoModel.OrderUpdateRepoResponseDto{}, nil)
+	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(nil)
 
 	res, err := s.service.Pay(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -50,7 +50,7 @@ func (s *ServiceSuite) TestPayRepoUpdateError() {
 		repoErr   = gofakeit.Error()
 		orderUuid = gofakeit.UUID()
 
-		getRepoRequestDto = repoModel.OrderGetRepoResponseDto{
+		getRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -60,14 +60,14 @@ func (s *ServiceSuite) TestPayRepoUpdateError() {
 			Status:          repoModel.OrderStatusPENDINGPAYMENT,
 		}
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 
 		transactionUUID = gofakeit.UUID()
 
-		updateRepoRequestDto = repoModel.OrderUpdateRepoRequestDto{
+		updateRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			Status:          repoModel.OrderStatusPAID,
 			TransactionUUID: transactionUUID,
@@ -77,7 +77,7 @@ func (s *ServiceSuite) TestPayRepoUpdateError() {
 
 	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
 	s.paymentClient.On("PayOrder", s.ctx, serviceRequestDto.PaymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
-	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(repoModel.OrderUpdateRepoResponseDto{}, repoErr)
+	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(repoErr)
 
 	res, err := s.service.Pay(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
@@ -90,18 +90,18 @@ func (s *ServiceSuite) TestPayRepoGetError() {
 		repoErr   = gofakeit.Error()
 		orderUuid = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(repoModel.OrderGetRepoResponseDto{}, repoErr)
+	s.orderRepository.On("Get", s.ctx, orderUuid).Return(repoModel.RepoOrder{}, repoErr)
 
 	res, err := s.service.Pay(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrOrderNotFound)
+	s.Require().ErrorIs(err, repoErr)
 }
 
 func (s *ServiceSuite) TestPayPaymentClientError() {
@@ -110,12 +110,12 @@ func (s *ServiceSuite) TestPayPaymentClientError() {
 		orderUuid       = gofakeit.UUID()
 		transactionUUID = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 
-		getRepoRequestDto = repoModel.OrderGetRepoResponseDto{
+		getRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -139,12 +139,12 @@ func (s *ServiceSuite) TestPayInvalidStatusPaidError() {
 	var (
 		orderUuid = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 
-		getRepoRequestDto = repoModel.OrderGetRepoResponseDto{
+		getRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
@@ -167,12 +167,12 @@ func (s *ServiceSuite) TestPayInvalidStatusCancelledError() {
 	var (
 		orderUuid = gofakeit.UUID()
 
-		serviceRequestDto = model.OrderPayServiceRequestDto{
+		serviceRequestDto = model.Order{
 			OrderUUID:     orderUuid,
 			PaymentMethod: model.OrderPaymentMethodSBP,
 		}
 
-		getRepoRequestDto = repoModel.OrderGetRepoResponseDto{
+		getRepoRequestDto = repoModel.RepoOrder{
 			OrderUUID:       orderUuid,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},

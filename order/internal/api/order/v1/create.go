@@ -16,7 +16,7 @@ func (a *api) CreateOrder(ctx context.Context, req *orderV1.OrderCreateRequest) 
 		}, nil
 	}
 
-	res, err := a.orderService.Create(ctx, converter.OrderCreateApiRequestDtoToOrderCreateServiceRequestDto(req))
+	res, err := a.orderService.Create(ctx, converter.ApiToModelOrder(req))
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,

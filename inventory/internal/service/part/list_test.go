@@ -18,31 +18,25 @@ func (s *ServiceSuite) TestListSuccess() {
 		price1       = float64(gofakeit.Number(100, 1000))
 		price2       = float64(gofakeit.Number(100, 1000))
 
-		serviceRequestDto = model.PartListServiceRequest{
-			Filter: &model.PartsFilterService{
-				Uuids:                 []string{uuid1, uuid2},
-				Names:                 []string{},
-				Categories:            []model.Category{},
-				ManufacturerCountries: []string{},
-				Tags:                  []string{},
-			},
+		serviceRequestDto = model.ModelPartFilter{
+			Uuids:                 []string{uuid1, uuid2},
+			Names:                 []string{},
+			Categories:            []model.Category{},
+			ManufacturerCountries: []string{},
+			Tags:                  []string{},
 		}
 
-		repoRequestDto = repoModel.PartListRepoRequest{
-			Filter: &repoModel.PartFilterRepo{
-				Uuids:                 []string{uuid1, uuid2},
-				Names:                 []string{},
-				Categories:            []repoModel.Category{},
-				ManufacturerCountries: []string{},
-				Tags:                  []string{},
-			},
+		repoRequestDto = repoModel.RepoPartFilter{
+			Uuids:                 []string{uuid1, uuid2},
+			Names:                 []string{},
+			Categories:            []repoModel.Category{},
+			ManufacturerCountries: []string{},
+			Tags:                  []string{},
 		}
 
-		repoResponseDto = repoModel.PartListRepoResponse{
-			Parts: []repoModel.Part{
-				{Uuid: uuid1, Name: name1, Description: description1, Price: price1},
-				{Uuid: uuid2, Name: name2, Description: description2, Price: price2},
-			},
+		repoResponseDto = []repoModel.RepoPart{
+			{Uuid: uuid1, Name: name1, Description: description1, Price: price1},
+			{Uuid: uuid2, Name: name2, Description: description2, Price: price2},
 		}
 	)
 
@@ -50,7 +44,7 @@ func (s *ServiceSuite) TestListSuccess() {
 
 	res, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
-	s.Require().Equal(len(res.Parts), 2)
+	s.Require().Equal(len(res), 2)
 }
 
 func (s *ServiceSuite) TestListRepoError() {
@@ -59,28 +53,24 @@ func (s *ServiceSuite) TestListRepoError() {
 		uuid1   = gofakeit.UUID()
 		uuid2   = gofakeit.UUID()
 
-		serviceRequestDto = model.PartListServiceRequest{
-			Filter: &model.PartsFilterService{
-				Uuids:                 []string{uuid1, uuid2},
-				Names:                 []string{},
-				Categories:            []model.Category{},
-				ManufacturerCountries: []string{},
-				Tags:                  []string{},
-			},
+		serviceRequestDto = model.ModelPartFilter{
+			Uuids:                 []string{uuid1, uuid2},
+			Names:                 []string{},
+			Categories:            []model.Category{},
+			ManufacturerCountries: []string{},
+			Tags:                  []string{},
 		}
 
-		repoRequestDto = repoModel.PartListRepoRequest{
-			Filter: &repoModel.PartFilterRepo{
-				Uuids:                 []string{uuid1, uuid2},
-				Names:                 []string{},
-				Categories:            []repoModel.Category{},
-				ManufacturerCountries: []string{},
-				Tags:                  []string{},
-			},
+		repoRequestDto = repoModel.RepoPartFilter{
+			Uuids:                 []string{uuid1, uuid2},
+			Names:                 []string{},
+			Categories:            []repoModel.Category{},
+			ManufacturerCountries: []string{},
+			Tags:                  []string{},
 		}
 	)
 
-	s.partRepository.On("List", s.ctx, repoRequestDto).Return(repoModel.PartListRepoResponse{}, repoErr)
+	s.partRepository.On("List", s.ctx, repoRequestDto).Return([]repoModel.RepoPart{}, repoErr)
 
 	_, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

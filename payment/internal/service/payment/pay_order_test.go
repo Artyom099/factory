@@ -15,7 +15,7 @@ func (s *ServiceSuite) TestPayOrderSuccess() {
 		paymentMethod     = model.PaymentMethod(gofakeit.Number(1, 4))
 		repoPaymentMethod = repoModel.PaymentMethod(paymentMethod)
 
-		serviceRequestDto = model.PayOrderServiceRequestDto{
+		serviceRequestDto = model.Payment{
 			OrderUuid:     orderUuid,
 			UserUuid:      userUuid,
 			PaymentMethod: paymentMethod,
@@ -43,7 +43,7 @@ func (s *ServiceSuite) TestPayOrderRepoError() {
 		paymentMethod     = model.PaymentMethod(gofakeit.Number(1, 4))
 		repoPaymentMethod = repoModel.PaymentMethod(paymentMethod)
 
-		serviceRequestDto = model.PayOrderServiceRequestDto{
+		serviceRequestDto = model.Payment{
 			OrderUuid:     orderUuid,
 			UserUuid:      userUuid,
 			PaymentMethod: paymentMethod,

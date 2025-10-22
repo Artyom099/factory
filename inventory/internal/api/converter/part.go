@@ -7,66 +7,60 @@ import (
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
-// converter api - service
-
-func PartGetApiRequestToPartGetServiceRequest(dto *inventoryV1.GetPartRequest) servModel.PartGetServiceRequest {
-	return servModel.PartGetServiceRequest{Uuid: dto.GetUuid()}
-}
-
-func PartGetServiceResponseToPartGetApiResponse(dto servModel.PartGetServiceResponse) *inventoryV1.GetPartResponse {
-	if dto.Part.Uuid == "" {
+func ModelToApiPart(dto servModel.Part) *inventoryV1.GetPartResponse {
+	if dto.Uuid == "" {
 		return nil
 	}
 
-	var dims *inventoryV1.Dimensions
-	if dto.Part.Dimensions != nil {
-		dims = &inventoryV1.Dimensions{
-			Length: dto.Part.Dimensions.Length,
-			Width:  dto.Part.Dimensions.Width,
-			Height: dto.Part.Dimensions.Height,
-			Weight: dto.Part.Dimensions.Weight,
+	var dimensionApi inventoryV1.Dimensions
+	if dto.Dimensions != nil {
+		dimensionApi = inventoryV1.Dimensions{
+			Length: dto.Dimensions.Length,
+			Width:  dto.Dimensions.Width,
+			Height: dto.Dimensions.Height,
+			Weight: dto.Dimensions.Weight,
 		}
 	}
 
-	var manuf *inventoryV1.Manufacturer
-	if dto.Part.Manufacturer != nil {
-		manuf = &inventoryV1.Manufacturer{
-			Name:    dto.Part.Manufacturer.Name,
-			Country: dto.Part.Manufacturer.Country,
-			Website: dto.Part.Manufacturer.Website,
+	var manufacturerApi inventoryV1.Manufacturer
+	if dto.Manufacturer != nil {
+		manufacturerApi = inventoryV1.Manufacturer{
+			Name:    dto.Manufacturer.Name,
+			Country: dto.Manufacturer.Country,
+			Website: dto.Manufacturer.Website,
 		}
 	}
 
-	metadata := make(map[string]*inventoryV1.Value, len(dto.Part.Metadata))
-	for k, v := range dto.Part.Metadata {
+	metadata := make(map[string]*inventoryV1.Value, len(dto.Metadata))
+	for k, v := range dto.Metadata {
 		metadata[k] = valueServModelToProto(v)
 	}
 
 	part := &inventoryV1.Part{
-		Uuid:          dto.Part.Uuid,
-		Name:          dto.Part.Name,
-		Description:   dto.Part.Description,
-		Price:         dto.Part.Price,
-		StockQuantity: dto.Part.StockQuantity,
-		Category:      inventoryV1.Category(dto.Part.Category),
-		Dimensions:    dims,
-		Manufacturer:  manuf,
-		Tags:          dto.Part.Tags,
+		Uuid:          dto.Uuid,
+		Name:          dto.Name,
+		Description:   dto.Description,
+		Price:         dto.Price,
+		StockQuantity: dto.StockQuantity,
+		Category:      inventoryV1.Category(dto.Category),
+		Dimensions:    &dimensionApi,
+		Manufacturer:  &manufacturerApi,
+		Tags:          dto.Tags,
 		Metadata:      metadata,
-		CreatedAt:     timestamppb.New(dto.Part.CreatedAt),
-		UpdatedAt:     timestamppb.New(dto.Part.UpdatedAt),
+		CreatedAt:     timestamppb.New(dto.CreatedAt),
+		UpdatedAt:     timestamppb.New(dto.UpdatedAt),
 	}
 
 	return &inventoryV1.GetPartResponse{Part: part}
 }
 
-func PartListApiRequestToPartGetServiceRequest(dto *inventoryV1.ListPartsRequest) servModel.PartListServiceRequest {
+func ApiToModelPartFilter(dto *inventoryV1.ListPartsRequest) servModel.ModelPartFilter {
 	if dto == nil || dto.GetFilter() == nil {
-		return servModel.PartListServiceRequest{}
+		return servModel.ModelPartFilter{}
 	}
 
 	f := dto.GetFilter()
-	svcFilter := &servModel.PartsFilterService{
+	filter := servModel.ModelPartFilter{
 		Uuids:                 f.GetUuids(),
 		Names:                 f.GetNames(),
 		Categories:            nil,
@@ -75,21 +69,21 @@ func PartListApiRequestToPartGetServiceRequest(dto *inventoryV1.ListPartsRequest
 	}
 
 	if len(f.GetCategories()) > 0 {
-		svcFilter.Categories = make([]servModel.Category, 0, len(f.GetCategories()))
+		filter.Categories = make([]servModel.Category, 0, len(f.GetCategories()))
 		for _, c := range f.GetCategories() {
-			svcFilter.Categories = append(svcFilter.Categories, servModel.Category(c))
+			filter.Categories = append(filter.Categories, servModel.Category(c))
 		}
 	}
 
-	return servModel.PartListServiceRequest{Filter: svcFilter}
+	return filter
 }
 
-func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceResponse) *inventoryV1.ListPartsResponse {
-	parts := make([]*inventoryV1.Part, 0, len(dto.Parts))
-	for _, p := range dto.Parts {
-		var dims *inventoryV1.Dimensions
+func ModelToApiListParts(dto []servModel.Part) *inventoryV1.ListPartsResponse {
+	parts := make([]*inventoryV1.Part, 0, len(dto))
+	for _, p := range dto {
+		var dimensionApi inventoryV1.Dimensions
 		if p.Dimensions != nil {
-			dims = &inventoryV1.Dimensions{
+			dimensionApi = inventoryV1.Dimensions{
 				Length: p.Dimensions.Length,
 				Width:  p.Dimensions.Width,
 				Height: p.Dimensions.Height,
@@ -97,9 +91,9 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 			}
 		}
 
-		var manuf *inventoryV1.Manufacturer
+		var manufacturerApi inventoryV1.Manufacturer
 		if p.Manufacturer != nil {
-			manuf = &inventoryV1.Manufacturer{
+			manufacturerApi = inventoryV1.Manufacturer{
 				Name:    p.Manufacturer.Name,
 				Country: p.Manufacturer.Country,
 				Website: p.Manufacturer.Website,
@@ -118,8 +112,8 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 			Price:         p.Price,
 			StockQuantity: p.StockQuantity,
 			Category:      inventoryV1.Category(p.Category),
-			Dimensions:    dims,
-			Manufacturer:  manuf,
+			Dimensions:    &dimensionApi,
+			Manufacturer:  &manufacturerApi,
 			Tags:          p.Tags,
 			Metadata:      metadata,
 			CreatedAt:     timestamppb.New(p.CreatedAt),
@@ -130,10 +124,10 @@ func PartListServiceResponseToPartGetApiResponse(dto servModel.PartListServiceRe
 	return &inventoryV1.ListPartsResponse{Parts: parts}
 }
 
-func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartRequest) servModel.PartCreateServiceRequest {
-	var dims *servModel.Dimensions
+func ApiToModelPart(dto *inventoryV1.CreatePartRequest) servModel.Part {
+	var dimensionsModel servModel.Dimensions
 	if d := dto.GetDimensions(); d != nil {
-		dims = &servModel.Dimensions{
+		dimensionsModel = servModel.Dimensions{
 			Length: d.Length,
 			Width:  d.Width,
 			Height: d.Height,
@@ -141,9 +135,9 @@ func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartR
 		}
 	}
 
-	var manuf *servModel.Manufacturer
+	var manufacturerModel servModel.Manufacturer
 	if m := dto.GetManufacturer(); m != nil {
-		manuf = &servModel.Manufacturer{
+		manufacturerModel = servModel.Manufacturer{
 			Name:    m.Name,
 			Country: m.Country,
 			Website: m.Website,
@@ -155,21 +149,17 @@ func PartCreateApiRequestToPartCreateServiceRequest(dto *inventoryV1.CreatePartR
 		metadata[k] = valueProtoToServModel(v)
 	}
 
-	return servModel.PartCreateServiceRequest{
+	return servModel.Part{
 		Name:          dto.GetName(),
 		Description:   dto.GetDescription(),
 		Price:         dto.GetPrice(),
 		StockQuantity: dto.GetStockQuantity(),
 		Category:      servModel.Category(dto.GetCategory()),
-		Dimensions:    dims,
-		Manufacturer:  manuf,
+		Dimensions:    &dimensionsModel,
+		Manufacturer:  &manufacturerModel,
 		Tags:          dto.GetTags(),
 		Metadata:      metadata,
 	}
-}
-
-func PartCreateServiceResponseToPartCreateApiResponse(dto servModel.PartCreateServiceResponse) *inventoryV1.CreatePartResponse {
-	return &inventoryV1.CreatePartResponse{Uuid: dto.Uuid}
 }
 
 func valueProtoToServModel(v *inventoryV1.Value) *servModel.Value {

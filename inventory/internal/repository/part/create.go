@@ -9,7 +9,7 @@ import (
 	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 )
 
-func (r *repository) Create(ctx context.Context, dto repoModel.PartCreateRepoRequest) (string, error) {
+func (r *repository) Create(ctx context.Context, dto repoModel.RepoPart) (string, error) {
 	uuid := uuid.New().String()
 	dto.Uuid = uuid
 	dto.CreatedAt = time.Now()
@@ -17,7 +17,7 @@ func (r *repository) Create(ctx context.Context, dto repoModel.PartCreateRepoReq
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.data[uuid] = dto.Part
+	r.data[uuid] = dto
 
 	return uuid, nil
 }

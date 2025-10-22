@@ -7,5 +7,5 @@ import (
 )
 
 type IPaymentService interface {
-	PayOrder(ctx context.Context, dto model.PayOrderServiceRequestDto) (string, error)
+	PayOrder(ctx context.Context, dto model.Payment) (string, error)
 }

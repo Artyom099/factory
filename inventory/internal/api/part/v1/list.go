@@ -8,10 +8,10 @@ import (
 )
 
 func (a *api) ListParts(ctx context.Context, req *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
-	res, err := a.partService.List(ctx, converter.PartListApiRequestToPartGetServiceRequest(req))
+	res, err := a.partService.List(ctx, converter.ApiToModelPartFilter(req))
 	if err != nil {
 		return &inventoryV1.ListPartsResponse{}, err
 	}
 
-	return converter.PartListServiceResponseToPartGetApiResponse(res), nil
+	return converter.ModelToApiListParts(res), nil
 }

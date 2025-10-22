@@ -6,14 +6,14 @@ import (
 	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 )
 
-func (r *repository) Get(ctx context.Context, dto repoModel.PartGetRepoRequest) (repoModel.PartGetRepoResponse, error) {
+func (r *repository) Get(ctx context.Context, uuid string) (repoModel.RepoPart, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	part, ok := r.data[dto.Uuid]
+	part, ok := r.data[uuid]
 	if !ok {
-		return repoModel.PartGetRepoResponse{}, repoModel.ErrPartNotFound
+		return repoModel.RepoPart{}, repoModel.ErrPartNotFound
 	}
 
-	return repoModel.PartGetRepoResponse{Part: part}, nil
+	return repoModel.RepoPart(part), nil
 }

@@ -7,11 +7,11 @@ import (
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func (s *service) List(ctx context.Context, dto servModel.PartListServiceRequest) (servModel.PartListServiceResponse, error) {
-	res, err := s.partRepository.List(ctx, converter.PartListServiceRequestToPartListRepoRequest(dto))
+func (s *service) List(ctx context.Context, dto servModel.ModelPartFilter) ([]servModel.Part, error) {
+	res, err := s.partRepository.List(ctx, converter.ModelToRepoPartFilter(dto))
 	if err != nil {
-		return servModel.PartListServiceResponse{}, err
+		return []servModel.Part{}, err
 	}
 
-	return converter.PartListRepoResponseToPartListServiceResponse(res), nil
+	return converter.RepoToModelListParts(res), nil
 }

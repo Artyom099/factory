@@ -7,29 +7,29 @@ import (
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (s *service) Create(ctx context.Context, dto model.OrderCreateServiceRequestDto) (model.OrderCreateServiceResponseDto, error) {
+func (s *service) Create(ctx context.Context, dto model.Order) (model.Order, error) {
 	parts, err := s.inventoryClient.ListParts(ctx, model.ListPartsFilter{
 		Uuids: dto.PartUuids,
 	})
 	if err != nil {
-		return model.OrderCreateServiceResponseDto{}, model.ErrListPartsError
+		return model.Order{}, model.ErrListPartsError
 	}
 
-	if len(parts.Parts) != len(dto.PartUuids) {
-		return model.OrderCreateServiceResponseDto{}, model.ErrNotAllPartsExist
+	if len(parts) != len(dto.PartUuids) {
+		return model.Order{}, model.ErrNotAllPartsExist
 	}
 
 	var totalPrice float32
-	for _, part := range parts.Parts {
+	for _, part := range parts {
 		totalPrice += float32(part.Price)
 	}
 
-	orderUuid, err := s.orderRepository.Create(ctx, converter.OrderCreateServiceRequestDtoToOrderCreateRepoRequestDto(dto, totalPrice))
+	orderUuid, err := s.orderRepository.Create(ctx, converter.ModelToRepoOrder(dto, totalPrice))
 	if err != nil {
-		return model.OrderCreateServiceResponseDto{}, err
+		return model.Order{}, err
 	}
 
-	return model.OrderCreateServiceResponseDto{
+	return model.Order{
 		OrderUUID:  orderUuid,
 		TotalPrice: totalPrice,
 	}, nil
