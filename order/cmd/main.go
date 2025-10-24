@@ -17,6 +17,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
+	grpcInventoryV1 "github.com/Artyom099/factory/order/internal/client/grpc/inventory/v1"
+	grpcPaymentV1 "github.com/Artyom099/factory/order/internal/client/grpc/payment/v1"
+	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
+	orderService "github.com/Artyom099/factory/order/internal/service/order"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
@@ -31,26 +36,34 @@ const (
 )
 
 func main() {
-	storage := NewOrderStorage()
-
-	// Create long-lived gRPC clients
-	inventoryConn, err := grpc.NewClient(inventoryServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	inventoryConn, err := grpc.NewClient(
+		inventoryServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("failed to connect inventory: %v", err)
 	}
 
 	inventoryClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
 
-	paymentConn, err := grpc.NewClient(paymentServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	paymentConn, err := grpc.NewClient(
+		paymentServerAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		log.Fatalf("failed to connect payment: %v", err)
 	}
 
 	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
 
-	orderHandler := NewOrderHandler(storage, inventoryClient, paymentClient)
+	grpcInventoryClient := grpcInventoryV1.NewClient(inventoryClient)
+	grpcPaymentClient := grpcPaymentV1.NewClient(paymentClient)
 
-	orderServer, err := orderV1.NewServer(orderHandler)
+	repo := orderRepository.NewRepository()
+	service := orderService.NewService(repo, grpcInventoryClient, grpcPaymentClient)
+	api := orderApiV1.NewAPI(service)
+
+	orderServer, err := orderV1.NewServer(api)
 	if err != nil {
 		log.Fatalf("ошибка создания сервера OpenAPI: %v", err)
 	}
