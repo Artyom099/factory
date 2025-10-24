@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/Artyom099/factory/order/internal/repository/model"
+	model "github.com/Artyom099/factory/order/internal/service/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -70,7 +70,7 @@ func (_c *IOrderRepository_Cancel_Call) RunAndReturn(run func(context.Context, s
 }
 
 // Create provides a mock function with given fields: ctx, dto
-func (_m *IOrderRepository) Create(ctx context.Context, dto model.RepoOrder) (string, error) {
+func (_m *IOrderRepository) Create(ctx context.Context, dto model.Order) (string, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -79,16 +79,16 @@ func (_m *IOrderRepository) Create(ctx context.Context, dto model.RepoOrder) (st
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoOrder) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Order) (string, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoOrder) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Order) string); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.RepoOrder) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.Order) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -104,14 +104,14 @@ type IOrderRepository_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.RepoOrder
+//   - dto model.Order
 func (_e *IOrderRepository_Expecter) Create(ctx interface{}, dto interface{}) *IOrderRepository_Create_Call {
 	return &IOrderRepository_Create_Call{Call: _e.mock.On("Create", ctx, dto)}
 }
 
-func (_c *IOrderRepository_Create_Call) Run(run func(ctx context.Context, dto model.RepoOrder)) *IOrderRepository_Create_Call {
+func (_c *IOrderRepository_Create_Call) Run(run func(ctx context.Context, dto model.Order)) *IOrderRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.RepoOrder))
+		run(args[0].(context.Context), args[1].(model.Order))
 	})
 	return _c
 }
@@ -121,28 +121,28 @@ func (_c *IOrderRepository_Create_Call) Return(_a0 string, _a1 error) *IOrderRep
 	return _c
 }
 
-func (_c *IOrderRepository_Create_Call) RunAndReturn(run func(context.Context, model.RepoOrder) (string, error)) *IOrderRepository_Create_Call {
+func (_c *IOrderRepository_Create_Call) RunAndReturn(run func(context.Context, model.Order) (string, error)) *IOrderRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function with given fields: ctx, orderUuid
-func (_m *IOrderRepository) Get(ctx context.Context, orderUuid string) (model.RepoOrder, error) {
+func (_m *IOrderRepository) Get(ctx context.Context, orderUuid string) (model.Order, error) {
 	ret := _m.Called(ctx, orderUuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 model.RepoOrder
+	var r0 model.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (model.RepoOrder, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.Order, error)); ok {
 		return rf(ctx, orderUuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) model.RepoOrder); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.Order); ok {
 		r0 = rf(ctx, orderUuid)
 	} else {
-		r0 = ret.Get(0).(model.RepoOrder)
+		r0 = ret.Get(0).(model.Order)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -173,18 +173,18 @@ func (_c *IOrderRepository_Get_Call) Run(run func(ctx context.Context, orderUuid
 	return _c
 }
 
-func (_c *IOrderRepository_Get_Call) Return(_a0 model.RepoOrder, _a1 error) *IOrderRepository_Get_Call {
+func (_c *IOrderRepository_Get_Call) Return(_a0 model.Order, _a1 error) *IOrderRepository_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IOrderRepository_Get_Call) RunAndReturn(run func(context.Context, string) (model.RepoOrder, error)) *IOrderRepository_Get_Call {
+func (_c *IOrderRepository_Get_Call) RunAndReturn(run func(context.Context, string) (model.Order, error)) *IOrderRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function with given fields: ctx, dto
-func (_m *IOrderRepository) Update(ctx context.Context, dto model.RepoOrder) error {
+func (_m *IOrderRepository) Update(ctx context.Context, dto model.Order) error {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -192,7 +192,7 @@ func (_m *IOrderRepository) Update(ctx context.Context, dto model.RepoOrder) err
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoOrder) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Order) error); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		r0 = ret.Error(0)
@@ -208,14 +208,14 @@ type IOrderRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.RepoOrder
+//   - dto model.Order
 func (_e *IOrderRepository_Expecter) Update(ctx interface{}, dto interface{}) *IOrderRepository_Update_Call {
 	return &IOrderRepository_Update_Call{Call: _e.mock.On("Update", ctx, dto)}
 }
 
-func (_c *IOrderRepository_Update_Call) Run(run func(ctx context.Context, dto model.RepoOrder)) *IOrderRepository_Update_Call {
+func (_c *IOrderRepository_Update_Call) Run(run func(ctx context.Context, dto model.Order)) *IOrderRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.RepoOrder))
+		run(args[0].(context.Context), args[1].(model.Order))
 	})
 	return _c
 }
@@ -225,7 +225,7 @@ func (_c *IOrderRepository_Update_Call) Return(_a0 error) *IOrderRepository_Upda
 	return _c
 }
 
-func (_c *IOrderRepository_Update_Call) RunAndReturn(run func(context.Context, model.RepoOrder) error) *IOrderRepository_Update_Call {
+func (_c *IOrderRepository_Update_Call) RunAndReturn(run func(context.Context, model.Order) error) *IOrderRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

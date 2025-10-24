@@ -5,19 +5,17 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Artyom099/factory/order/internal/repository/model"
+	"github.com/Artyom099/factory/order/internal/repository/converter"
+	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
+	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (r *repository) Create(ctx context.Context, dto model.RepoOrder) (string, error) {
+func (r *repository) Create(ctx context.Context, dto model.Order) (string, error) {
 	orderUuid := uuid.New().String()
 
-	order := model.RepoOrder{
-		OrderUUID:  orderUuid,
-		UserUUID:   dto.UserUUID,
-		PartUuids:  dto.PartUuids,
-		TotalPrice: dto.TotalPrice,
-		Status:     model.OrderStatus("PENDING_PAYMENT"),
-	}
+	order := converter.ToRepoOrder(dto)
+	order.OrderUUID = orderUuid
+	order.Status = repoModel.OrderStatusPENDINGPAYMENT
 
 	r.mu.Lock()
 	defer r.mu.Unlock()

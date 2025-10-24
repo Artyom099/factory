@@ -3,10 +3,11 @@ package order
 import (
 	"context"
 
-	"github.com/Artyom099/factory/order/internal/repository/model"
+	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
+	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
-func (r *repository) Update(ctx context.Context, dto model.RepoOrder) error {
+func (r *repository) Update(ctx context.Context, dto model.Order) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -15,9 +16,9 @@ func (r *repository) Update(ctx context.Context, dto model.RepoOrder) error {
 		return model.ErrOrderNotFound
 	}
 
-	order.Status = dto.Status
 	order.TransactionUUID = dto.TransactionUUID
-	order.PaymentMethod = dto.PaymentMethod
+	order.Status = repoModel.OrderStatus(dto.Status)
+	order.PaymentMethod = repoModel.OrderPaymentMethod(dto.PaymentMethod)
 
 	return nil
 }

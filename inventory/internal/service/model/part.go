@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type ModelPartFilter struct {
+type PartFilter struct {
 	Uuids                 []string
 	Names                 []string
 	Categories            []Category

@@ -12,11 +12,11 @@ func (a *api) CreateOrder(ctx context.Context, req *orderV1.OrderCreateRequest) 
 	if err := req.Validate(); err != nil {
 		return &orderV1.BadRequestError{
 			Code:    400,
-			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+			Message: fmt.Sprintf("validation error: %v", err),
 		}, nil
 	}
 
-	res, err := a.orderService.Create(ctx, converter.ApiToModelOrder(req))
+	res, err := a.orderService.Create(ctx, converter.ToModelOrder(req))
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,

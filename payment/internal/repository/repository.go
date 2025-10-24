@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/Artyom099/factory/payment/internal/repository/model"
+	"github.com/Artyom099/factory/payment/internal/service/model"
 )
 
 type IPaymentRepository interface {
-	PayOrder(ctx context.Context, dto model.PayOrderRepoRequestDto) (string, error)
+	PayOrder(ctx context.Context, dto model.Payment) (string, error)
 }

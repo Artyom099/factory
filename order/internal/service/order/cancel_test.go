@@ -3,7 +3,6 @@ package order
 import (
 	"github.com/brianvoe/gofakeit/v6"
 
-	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
@@ -11,14 +10,14 @@ func (s *ServiceSuite) TestCancelSuccess() {
 	var (
 		orderUUID = gofakeit.UUID()
 
-		getRepoResponseDto = repoModel.RepoOrder{
+		getRepoResponseDto = model.Order{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
 			TotalPrice:      float32(gofakeit.Float32()),
 			TransactionUUID: gofakeit.UUID(),
-			PaymentMethod:   repoModel.OrderPaymentMethodUNSPECIFIED,
-			Status:          repoModel.OrderStatusPENDINGPAYMENT,
+			PaymentMethod:   model.OrderPaymentMethodUNSPECIFIED,
+			Status:          model.OrderStatusPENDINGPAYMENT,
 		}
 	)
 
@@ -34,14 +33,14 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 		orderUUID = gofakeit.UUID()
 		repoErr   = gofakeit.Error()
 
-		getRepoResponseDto = repoModel.RepoOrder{
+		getRepoResponseDto = model.Order{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
 			TotalPrice:      float32(gofakeit.Float32()),
 			TransactionUUID: gofakeit.UUID(),
-			PaymentMethod:   repoModel.OrderPaymentMethodUNSPECIFIED,
-			Status:          repoModel.OrderStatusPENDINGPAYMENT,
+			PaymentMethod:   model.OrderPaymentMethodUNSPECIFIED,
+			Status:          model.OrderStatusPENDINGPAYMENT,
 		}
 	)
 
@@ -50,21 +49,21 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, repoErr)
+	s.Require().ErrorIs(err, model.ErrInternalError)
 }
 
 func (s *ServiceSuite) TestCancelConflictError() {
 	var (
 		orderUUID = gofakeit.UUID()
 
-		getRepoResponseDto = repoModel.RepoOrder{
+		getRepoResponseDto = model.Order{
 			OrderUUID:       orderUUID,
 			UserUUID:        gofakeit.UUID(),
 			PartUuids:       []string{gofakeit.UUID(), gofakeit.UUID()},
 			TotalPrice:      float32(gofakeit.Float32()),
 			TransactionUUID: gofakeit.UUID(),
-			PaymentMethod:   repoModel.OrderPaymentMethodUNSPECIFIED,
-			Status:          repoModel.OrderStatusPAID,
+			PaymentMethod:   model.OrderPaymentMethodUNSPECIFIED,
+			Status:          model.OrderStatusPAID,
 		}
 	)
 
@@ -81,9 +80,9 @@ func (s *ServiceSuite) TestCancelRepoGetError() {
 		repoErr   = gofakeit.Error()
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(repoModel.RepoOrder{}, repoErr)
+	s.orderRepository.On("Get", s.ctx, orderUUID).Return(model.Order{}, repoErr)
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, repoErr)
+	s.Require().ErrorIs(err, model.ErrInternalError)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 
-	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
@@ -30,9 +29,6 @@ func (s *ServiceSuite) TestCreateSuccess() {
 		metadata      = map[string]*model.Value{
 			"key1": {StringValue: &stringValue},
 		}
-		repoMetadata = map[string]*repoModel.Value{
-			"key1": {StringValue: &stringValue},
-		}
 
 		serviceRequestDto = model.Part{
 			Name:          name,
@@ -55,31 +51,9 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
-
-		repoRequestDto = repoModel.RepoPart{
-			Name:          name,
-			Description:   description,
-			Price:         price,
-			StockQuantity: stockQuantity,
-			Category:      repoModel.Category(category),
-			Dimensions: &repoModel.Dimensions{
-				Width:  width,
-				Height: height,
-				Length: length,
-				Weight: weight,
-			},
-			Manufacturer: &repoModel.Manufacturer{
-				Name:    manufName,
-				Country: manufCountry,
-			},
-			Tags:      tags,
-			Metadata:  repoMetadata,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
-		}
 	)
 
-	s.partRepository.On("Create", s.ctx, repoRequestDto).Return(partUUID, nil)
+	s.partRepository.On("Create", s.ctx, serviceRequestDto).Return(partUUID, nil)
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -107,9 +81,6 @@ func (s *ServiceSuite) TestCreateRepoError() {
 		metadata      = map[string]*model.Value{
 			"key1": {StringValue: &stringValue},
 		}
-		repoMetadata = map[string]*repoModel.Value{
-			"key1": {StringValue: &stringValue},
-		}
 
 		serviceRequestDto = model.Part{
 			Name:          name,
@@ -132,34 +103,12 @@ func (s *ServiceSuite) TestCreateRepoError() {
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
 		}
-
-		repoRequestDto = repoModel.RepoPart{
-			Name:          name,
-			Description:   description,
-			Price:         price,
-			StockQuantity: stockQuantity,
-			Category:      repoModel.Category(category),
-			Dimensions: &repoModel.Dimensions{
-				Width:  width,
-				Height: height,
-				Length: length,
-				Weight: weight,
-			},
-			Manufacturer: &repoModel.Manufacturer{
-				Name:    manufName,
-				Country: manufCountry,
-			},
-			Tags:      tags,
-			Metadata:  repoMetadata,
-			CreatedAt: createdAt,
-			UpdatedAt: updatedAt,
-		}
 	)
 
-	s.partRepository.On("Create", s.ctx, repoRequestDto).Return("", repoErr)
+	s.partRepository.On("Create", s.ctx, serviceRequestDto).Return("", repoErr)
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, repoErr)
+	s.Require().ErrorIs(err, model.ErrInternalError)
 	s.Require().Empty(uuid)
 }

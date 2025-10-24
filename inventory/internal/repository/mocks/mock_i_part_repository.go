@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/Artyom099/factory/inventory/internal/repository/model"
+	model "github.com/Artyom099/factory/inventory/internal/service/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,7 +23,7 @@ func (_m *IPartRepository) EXPECT() *IPartRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, dto
-func (_m *IPartRepository) Create(ctx context.Context, dto model.RepoPart) (string, error) {
+func (_m *IPartRepository) Create(ctx context.Context, dto model.Part) (string, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -32,16 +32,16 @@ func (_m *IPartRepository) Create(ctx context.Context, dto model.RepoPart) (stri
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoPart) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Part) (string, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoPart) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Part) string); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.RepoPart) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.Part) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -57,14 +57,14 @@ type IPartRepository_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.RepoPart
+//   - dto model.Part
 func (_e *IPartRepository_Expecter) Create(ctx interface{}, dto interface{}) *IPartRepository_Create_Call {
 	return &IPartRepository_Create_Call{Call: _e.mock.On("Create", ctx, dto)}
 }
 
-func (_c *IPartRepository_Create_Call) Run(run func(ctx context.Context, dto model.RepoPart)) *IPartRepository_Create_Call {
+func (_c *IPartRepository_Create_Call) Run(run func(ctx context.Context, dto model.Part)) *IPartRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.RepoPart))
+		run(args[0].(context.Context), args[1].(model.Part))
 	})
 	return _c
 }
@@ -74,28 +74,28 @@ func (_c *IPartRepository_Create_Call) Return(_a0 string, _a1 error) *IPartRepos
 	return _c
 }
 
-func (_c *IPartRepository_Create_Call) RunAndReturn(run func(context.Context, model.RepoPart) (string, error)) *IPartRepository_Create_Call {
+func (_c *IPartRepository_Create_Call) RunAndReturn(run func(context.Context, model.Part) (string, error)) *IPartRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Get provides a mock function with given fields: ctx, uuid
-func (_m *IPartRepository) Get(ctx context.Context, uuid string) (model.RepoPart, error) {
+func (_m *IPartRepository) Get(ctx context.Context, uuid string) (model.Part, error) {
 	ret := _m.Called(ctx, uuid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 model.RepoPart
+	var r0 model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (model.RepoPart, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.Part, error)); ok {
 		return rf(ctx, uuid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) model.RepoPart); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.Part); ok {
 		r0 = rf(ctx, uuid)
 	} else {
-		r0 = ret.Get(0).(model.RepoPart)
+		r0 = ret.Get(0).(model.Part)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -126,38 +126,38 @@ func (_c *IPartRepository_Get_Call) Run(run func(ctx context.Context, uuid strin
 	return _c
 }
 
-func (_c *IPartRepository_Get_Call) Return(_a0 model.RepoPart, _a1 error) *IPartRepository_Get_Call {
+func (_c *IPartRepository_Get_Call) Return(_a0 model.Part, _a1 error) *IPartRepository_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IPartRepository_Get_Call) RunAndReturn(run func(context.Context, string) (model.RepoPart, error)) *IPartRepository_Get_Call {
+func (_c *IPartRepository_Get_Call) RunAndReturn(run func(context.Context, string) (model.Part, error)) *IPartRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: ctx, dto
-func (_m *IPartRepository) List(ctx context.Context, dto model.RepoPartFilter) ([]model.RepoPart, error) {
+func (_m *IPartRepository) List(ctx context.Context, dto model.PartFilter) ([]model.Part, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []model.RepoPart
+	var r0 []model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoPartFilter) ([]model.RepoPart, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.PartFilter) ([]model.Part, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.RepoPartFilter) []model.RepoPart); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.PartFilter) []model.Part); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.RepoPart)
+			r0 = ret.Get(0).([]model.Part)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.RepoPartFilter) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.PartFilter) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -173,24 +173,24 @@ type IPartRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.RepoPartFilter
+//   - dto model.PartFilter
 func (_e *IPartRepository_Expecter) List(ctx interface{}, dto interface{}) *IPartRepository_List_Call {
 	return &IPartRepository_List_Call{Call: _e.mock.On("List", ctx, dto)}
 }
 
-func (_c *IPartRepository_List_Call) Run(run func(ctx context.Context, dto model.RepoPartFilter)) *IPartRepository_List_Call {
+func (_c *IPartRepository_List_Call) Run(run func(ctx context.Context, dto model.PartFilter)) *IPartRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.RepoPartFilter))
+		run(args[0].(context.Context), args[1].(model.PartFilter))
 	})
 	return _c
 }
 
-func (_c *IPartRepository_List_Call) Return(_a0 []model.RepoPart, _a1 error) *IPartRepository_List_Call {
+func (_c *IPartRepository_List_Call) Return(_a0 []model.Part, _a1 error) *IPartRepository_List_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *IPartRepository_List_Call) RunAndReturn(run func(context.Context, model.RepoPartFilter) ([]model.RepoPart, error)) *IPartRepository_List_Call {
+func (_c *IPartRepository_List_Call) RunAndReturn(run func(context.Context, model.PartFilter) ([]model.Part, error)) *IPartRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

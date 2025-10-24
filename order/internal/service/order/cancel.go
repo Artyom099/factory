@@ -14,20 +14,20 @@ func (s *service) Cancel(ctx context.Context, orderUUID string) error {
 		if errors.Is(err, repoModel.ErrOrderNotFound) {
 			return model.ErrOrderNotFound
 		}
-		return err
+		return model.ErrInternalError
 	}
 
-	if model.OrderStatus(order.Status) == model.OrderStatusPAID || model.OrderStatus(order.Status) == model.OrderStatusCANCELLED {
+	if order.Status == model.OrderStatusPAID || order.Status == model.OrderStatusCANCELLED {
 		return model.ErrConflict
 	}
 
-	if model.OrderStatus(order.Status) == model.OrderStatusPENDINGPAYMENT {
+	if order.Status == model.OrderStatusPENDINGPAYMENT {
 		err := s.orderRepository.Cancel(ctx, orderUUID)
 		if err != nil {
 			if errors.Is(err, repoModel.ErrOrderNotFound) {
 				return model.ErrOrderNotFound
 			}
-			return err
+			return model.ErrInternalError
 		}
 	}
 

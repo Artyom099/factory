@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Artyom099/factory/order/internal/repository/converter"
 	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	servModel "github.com/Artyom099/factory/order/internal/service/model"
 )
@@ -15,8 +14,8 @@ func (s *service) Get(ctx context.Context, orderUUID string) (servModel.Order, e
 		if errors.Is(err, repoModel.ErrOrderNotFound) {
 			return servModel.Order{}, servModel.ErrOrderNotFound
 		}
-		return servModel.Order{}, err
+		return servModel.Order{}, servModel.ErrInternalError
 	}
 
-	return converter.RepoToModelOrder(res), nil
+	return res, nil
 }

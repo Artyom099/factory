@@ -3,7 +3,6 @@ package order
 import (
 	"github.com/brianvoe/gofakeit/v6"
 
-	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
@@ -23,7 +22,7 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			TotalPrice: 100.0,
 		}
 
-		repoRequestDto = repoModel.RepoOrder{
+		repoRequestDto = model.Order{
 			UserUUID:   serviceRequestDto.UserUUID,
 			PartUuids:  serviceRequestDto.PartUuids,
 			TotalPrice: 100,
@@ -58,7 +57,7 @@ func (s *ServiceSuite) TestCreateRepoError() {
 			PartUuids: []string{partUuid1, partUuid2},
 		}
 
-		repoRequestDto = repoModel.RepoOrder{
+		repoRequestDto = model.Order{
 			UserUUID:   serviceRequestDto.UserUUID,
 			PartUuids:  serviceRequestDto.PartUuids,
 			TotalPrice: 100,
@@ -80,7 +79,7 @@ func (s *ServiceSuite) TestCreateRepoError() {
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, repoErr)
+	s.Require().ErrorIs(err, model.ErrInternalError)
 }
 
 func (s *ServiceSuite) TestCreateINotAllPartsExistInInventoryServiceError() {

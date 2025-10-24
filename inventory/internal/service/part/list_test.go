@@ -3,7 +3,6 @@ package part
 import (
 	"github.com/brianvoe/gofakeit/v6"
 
-	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
@@ -18,7 +17,7 @@ func (s *ServiceSuite) TestListSuccess() {
 		price1       = float64(gofakeit.Number(100, 1000))
 		price2       = float64(gofakeit.Number(100, 1000))
 
-		serviceRequestDto = model.ModelPartFilter{
+		serviceRequestDto = model.PartFilter{
 			Uuids:                 []string{uuid1, uuid2},
 			Names:                 []string{},
 			Categories:            []model.Category{},
@@ -26,21 +25,13 @@ func (s *ServiceSuite) TestListSuccess() {
 			Tags:                  []string{},
 		}
 
-		repoRequestDto = repoModel.RepoPartFilter{
-			Uuids:                 []string{uuid1, uuid2},
-			Names:                 []string{},
-			Categories:            []repoModel.Category{},
-			ManufacturerCountries: []string{},
-			Tags:                  []string{},
-		}
-
-		repoResponseDto = []repoModel.RepoPart{
+		repoResponseDto = []model.Part{
 			{Uuid: uuid1, Name: name1, Description: description1, Price: price1},
 			{Uuid: uuid2, Name: name2, Description: description2, Price: price2},
 		}
 	)
 
-	s.partRepository.On("List", s.ctx, repoRequestDto).Return(repoResponseDto, nil)
+	s.partRepository.On("List", s.ctx, serviceRequestDto).Return(repoResponseDto, nil)
 
 	res, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -53,26 +44,18 @@ func (s *ServiceSuite) TestListRepoError() {
 		uuid1   = gofakeit.UUID()
 		uuid2   = gofakeit.UUID()
 
-		serviceRequestDto = model.ModelPartFilter{
+		serviceRequestDto = model.PartFilter{
 			Uuids:                 []string{uuid1, uuid2},
 			Names:                 []string{},
 			Categories:            []model.Category{},
 			ManufacturerCountries: []string{},
 			Tags:                  []string{},
 		}
-
-		repoRequestDto = repoModel.RepoPartFilter{
-			Uuids:                 []string{uuid1, uuid2},
-			Names:                 []string{},
-			Categories:            []repoModel.Category{},
-			ManufacturerCountries: []string{},
-			Tags:                  []string{},
-		}
 	)
 
-	s.partRepository.On("List", s.ctx, repoRequestDto).Return([]repoModel.RepoPart{}, repoErr)
+	s.partRepository.On("List", s.ctx, serviceRequestDto).Return([]model.Part{}, repoErr)
 
 	_, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, repoErr)
+	s.Require().ErrorIs(err, model.ErrInternalError)
 }

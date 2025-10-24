@@ -137,7 +137,7 @@ func (_c *IPartService_Get_Call) RunAndReturn(run func(context.Context, string) 
 }
 
 // List provides a mock function with given fields: ctx, dto
-func (_m *IPartService) List(ctx context.Context, dto model.ModelPartFilter) ([]model.Part, error) {
+func (_m *IPartService) List(ctx context.Context, dto model.PartFilter) ([]model.Part, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -146,10 +146,10 @@ func (_m *IPartService) List(ctx context.Context, dto model.ModelPartFilter) ([]
 
 	var r0 []model.Part
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.ModelPartFilter) ([]model.Part, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.PartFilter) ([]model.Part, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.ModelPartFilter) []model.Part); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.PartFilter) []model.Part); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		if ret.Get(0) != nil {
@@ -157,7 +157,7 @@ func (_m *IPartService) List(ctx context.Context, dto model.ModelPartFilter) ([]
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.ModelPartFilter) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.PartFilter) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -173,14 +173,14 @@ type IPartService_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.ModelPartFilter
+//   - dto model.PartFilter
 func (_e *IPartService_Expecter) List(ctx interface{}, dto interface{}) *IPartService_List_Call {
 	return &IPartService_List_Call{Call: _e.mock.On("List", ctx, dto)}
 }
 
-func (_c *IPartService_List_Call) Run(run func(ctx context.Context, dto model.ModelPartFilter)) *IPartService_List_Call {
+func (_c *IPartService_List_Call) Run(run func(ctx context.Context, dto model.PartFilter)) *IPartService_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.ModelPartFilter))
+		run(args[0].(context.Context), args[1].(model.PartFilter))
 	})
 	return _c
 }
@@ -190,7 +190,7 @@ func (_c *IPartService_List_Call) Return(_a0 []model.Part, _a1 error) *IPartServ
 	return _c
 }
 
-func (_c *IPartService_List_Call) RunAndReturn(run func(context.Context, model.ModelPartFilter) ([]model.Part, error)) *IPartService_List_Call {
+func (_c *IPartService_List_Call) RunAndReturn(run func(context.Context, model.PartFilter) ([]model.Part, error)) *IPartService_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

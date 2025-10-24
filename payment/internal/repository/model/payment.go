@@ -10,7 +10,7 @@ const (
 	INVESTOR_MONEY PaymentMethod = 4
 )
 
-type PayOrderRepoRequestDto struct {
+type RepoPayment struct {
 	OrderUuid     string
 	UserUuid      string
 	PaymentMethod PaymentMethod

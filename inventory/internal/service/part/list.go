@@ -3,15 +3,14 @@ package part
 import (
 	"context"
 
-	"github.com/Artyom099/factory/inventory/internal/repository/converter"
-	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
+	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func (s *service) List(ctx context.Context, dto servModel.ModelPartFilter) ([]servModel.Part, error) {
-	res, err := s.partRepository.List(ctx, converter.ModelToRepoPartFilter(dto))
+func (s *service) List(ctx context.Context, dto model.PartFilter) ([]model.Part, error) {
+	res, err := s.partRepository.List(ctx, dto)
 	if err != nil {
-		return []servModel.Part{}, err
+		return []model.Part{}, model.ErrInternalError
 	}
 
-	return converter.RepoToModelListParts(res), nil
+	return res, nil
 }

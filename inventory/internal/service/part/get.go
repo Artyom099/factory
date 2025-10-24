@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Artyom099/factory/inventory/internal/repository/converter"
 	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
@@ -15,8 +14,8 @@ func (s *service) Get(ctx context.Context, uuid string) (servModel.Part, error) 
 		if errors.Is(err, repoModel.ErrPartNotFound) {
 			return servModel.Part{}, servModel.ErrPartNotFound
 		}
-		return servModel.Part{}, err
+		return servModel.Part{}, servModel.ErrInternalError
 	}
 
-	return converter.RepoToModelPart(res), nil
+	return res, nil
 }

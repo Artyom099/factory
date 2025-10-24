@@ -22,7 +22,7 @@ func (a *api) PayOrder(ctx context.Context, req *paymentV1.PayOrderRequest) (*pa
 		if errors.Is(err, model.ErrInvalidPaymentMethod) {
 			return nil, status.Error(codes.InvalidArgument, "unsupported payment method")
 		}
-		return nil, err
+		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
 	return &paymentV1.PayOrderResponse{TransactionUuid: transactionUuid}, nil

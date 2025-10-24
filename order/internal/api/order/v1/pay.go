@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Artyom099/factory/order/internal/api/converter"
 	"github.com/Artyom099/factory/order/internal/service/model"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
@@ -17,7 +16,7 @@ func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params
 	if err != nil {
 		return &orderV1.BadRequestError{
 			Code:    400,
-			Message: fmt.Sprintf("invalid order_uuid: %v", err),
+			Message: fmt.Sprintf("invalid order_uuid: %v", orderUUID),
 		}, nil
 	}
 
@@ -28,7 +27,7 @@ func (a *api) PayOrder(ctx context.Context, req *orderV1.OrderPayRequest, params
 		}, nil
 	}
 
-	transactionUUID, err := a.orderService.Pay(ctx, converter.ParamsAndReqToModelOrder(params, req))
+	transactionUUID, err := a.orderService.Pay(ctx, orderUUID.String(), model.OrderPaymentMethod(req.PaymentMethod))
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return &orderV1.NotFoundError{

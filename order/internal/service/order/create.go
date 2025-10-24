@@ -3,7 +3,6 @@ package order
 import (
 	"context"
 
-	"github.com/Artyom099/factory/order/internal/repository/converter"
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
@@ -24,9 +23,10 @@ func (s *service) Create(ctx context.Context, dto model.Order) (model.Order, err
 		totalPrice += float32(part.Price)
 	}
 
-	orderUuid, err := s.orderRepository.Create(ctx, converter.ModelToRepoOrder(dto, totalPrice))
+	dto.TotalPrice = totalPrice
+	orderUuid, err := s.orderRepository.Create(ctx, dto)
 	if err != nil {
-		return model.Order{}, err
+		return model.Order{}, model.ErrInternalError
 	}
 
 	return model.Order{

@@ -5,7 +5,7 @@ import (
 	servModel "github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func RepoToModelPart(dto repoModel.RepoPart) servModel.Part {
+func ToModelPart(dto repoModel.RepoPart) servModel.Part {
 	var dimensionModel servModel.Dimensions
 	if dto.Dimensions != nil {
 		dimensionModel = servModel.Dimensions{
@@ -27,7 +27,7 @@ func RepoToModelPart(dto repoModel.RepoPart) servModel.Part {
 
 	metadata := make(map[string]*servModel.Value, len(dto.Metadata))
 	for k, v := range dto.Metadata {
-		metadata[k] = valueRepoModelToServModel(v)
+		metadata[k] = toModelPartValue(v)
 	}
 
 	return servModel.Part{
@@ -44,7 +44,7 @@ func RepoToModelPart(dto repoModel.RepoPart) servModel.Part {
 	}
 }
 
-func ModelToRepoPartFilter(dto servModel.ModelPartFilter) repoModel.RepoPartFilter {
+func ToRepoPartFilter(dto servModel.PartFilter) repoModel.RepoPartFilter {
 	categories := []repoModel.Category{}
 	if len(dto.Categories) > 0 {
 		for _, c := range dto.Categories {
@@ -61,7 +61,7 @@ func ModelToRepoPartFilter(dto servModel.ModelPartFilter) repoModel.RepoPartFilt
 	}
 }
 
-func RepoToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
+func ToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
 	parts := make([]servModel.Part, 0, len(dto))
 	for _, p := range dto {
 		var dimensionModel servModel.Dimensions
@@ -85,7 +85,7 @@ func RepoToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
 
 		metadata := make(map[string]*servModel.Value, len(p.Metadata))
 		for k, v := range p.Metadata {
-			metadata[k] = valueRepoModelToServModel(v)
+			metadata[k] = toModelPartValue(v)
 		}
 
 		parts = append(parts, servModel.Part{
@@ -107,7 +107,7 @@ func RepoToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
 	return parts
 }
 
-func ModelToRepoPart(dto servModel.Part) repoModel.RepoPart {
+func ToRepoPart(dto servModel.Part) repoModel.RepoPart {
 	var dimensionModel repoModel.Dimensions
 	if dto.Dimensions != nil {
 		dimensionModel = repoModel.Dimensions{
@@ -129,10 +129,11 @@ func ModelToRepoPart(dto servModel.Part) repoModel.RepoPart {
 
 	metadata := make(map[string]*repoModel.Value, len(dto.Metadata))
 	for k, v := range dto.Metadata {
-		metadata[k] = valueServModelToRepoModel(v)
+		metadata[k] = toRepoPartValue(v)
 	}
 
 	return repoModel.RepoPart{
+		Uuid:          dto.Uuid,
 		Name:          dto.Name,
 		Description:   dto.Description,
 		Price:         dto.Price,
@@ -147,7 +148,7 @@ func ModelToRepoPart(dto servModel.Part) repoModel.RepoPart {
 	}
 }
 
-func valueRepoModelToServModel(v *repoModel.Value) *servModel.Value {
+func toModelPartValue(v *repoModel.Value) *servModel.Value {
 	if v == nil {
 		return nil
 	}
@@ -168,7 +169,7 @@ func valueRepoModelToServModel(v *repoModel.Value) *servModel.Value {
 	return nil
 }
 
-func valueServModelToRepoModel(v *servModel.Value) *repoModel.Value {
+func toRepoPartValue(v *servModel.Value) *repoModel.Value {
 	if v == nil {
 		return nil
 	}

@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	model "github.com/Artyom099/factory/payment/internal/repository/model"
+	model "github.com/Artyom099/factory/payment/internal/service/model"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -23,7 +23,7 @@ func (_m *IPaymentRepository) EXPECT() *IPaymentRepository_Expecter {
 }
 
 // PayOrder provides a mock function with given fields: ctx, dto
-func (_m *IPaymentRepository) PayOrder(ctx context.Context, dto model.PayOrderRepoRequestDto) (string, error) {
+func (_m *IPaymentRepository) PayOrder(ctx context.Context, dto model.Payment) (string, error) {
 	ret := _m.Called(ctx, dto)
 
 	if len(ret) == 0 {
@@ -32,16 +32,16 @@ func (_m *IPaymentRepository) PayOrder(ctx context.Context, dto model.PayOrderRe
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.PayOrderRepoRequestDto) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Payment) (string, error)); ok {
 		return rf(ctx, dto)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.PayOrderRepoRequestDto) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.Payment) string); ok {
 		r0 = rf(ctx, dto)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.PayOrderRepoRequestDto) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.Payment) error); ok {
 		r1 = rf(ctx, dto)
 	} else {
 		r1 = ret.Error(1)
@@ -57,14 +57,14 @@ type IPaymentRepository_PayOrder_Call struct {
 
 // PayOrder is a helper method to define mock.On call
 //   - ctx context.Context
-//   - dto model.PayOrderRepoRequestDto
+//   - dto model.Payment
 func (_e *IPaymentRepository_Expecter) PayOrder(ctx interface{}, dto interface{}) *IPaymentRepository_PayOrder_Call {
 	return &IPaymentRepository_PayOrder_Call{Call: _e.mock.On("PayOrder", ctx, dto)}
 }
 
-func (_c *IPaymentRepository_PayOrder_Call) Run(run func(ctx context.Context, dto model.PayOrderRepoRequestDto)) *IPaymentRepository_PayOrder_Call {
+func (_c *IPaymentRepository_PayOrder_Call) Run(run func(ctx context.Context, dto model.Payment)) *IPaymentRepository_PayOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.PayOrderRepoRequestDto))
+		run(args[0].(context.Context), args[1].(model.Payment))
 	})
 	return _c
 }
@@ -74,7 +74,7 @@ func (_c *IPaymentRepository_PayOrder_Call) Return(_a0 string, _a1 error) *IPaym
 	return _c
 }
 
-func (_c *IPaymentRepository_PayOrder_Call) RunAndReturn(run func(context.Context, model.PayOrderRepoRequestDto) (string, error)) *IPaymentRepository_PayOrder_Call {
+func (_c *IPaymentRepository_PayOrder_Call) RunAndReturn(run func(context.Context, model.Payment) (string, error)) *IPaymentRepository_PayOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }

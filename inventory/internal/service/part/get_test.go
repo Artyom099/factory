@@ -5,7 +5,7 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 
-	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
+	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 func (s *ServiceSuite) TestGetSuccess() {
@@ -26,24 +26,24 @@ func (s *ServiceSuite) TestGetSuccess() {
 		createdAt     = time.Now()
 		updatedAt     = time.Now()
 		stringValue   = gofakeit.Word()
-		metadata      = map[string]*repoModel.Value{
+		metadata      = map[string]*model.Value{
 			"key1": {StringValue: &stringValue},
 		}
 
-		repoResponseDto = repoModel.RepoPart{
+		modelPart = model.Part{
 			Uuid:          partUUID,
 			Name:          name,
 			Description:   description,
 			Price:         price,
 			StockQuantity: stockQuantity,
-			Category:      repoModel.Category(category),
-			Dimensions: &repoModel.Dimensions{
+			Category:      model.Category(category),
+			Dimensions: &model.Dimensions{
 				Width:  width,
 				Height: height,
 				Length: length,
 				Weight: weight,
 			},
-			Manufacturer: &repoModel.Manufacturer{
+			Manufacturer: &model.Manufacturer{
 				Name:    manufName,
 				Country: manufCountry,
 			},
@@ -54,7 +54,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 		}
 	)
 
-	s.partRepository.On("Get", s.ctx, partUUID).Return(repoResponseDto, nil)
+	s.partRepository.On("Get", s.ctx, partUUID).Return(modelPart, nil)
 
 	res, err := s.service.Get(s.ctx, partUUID)
 	s.Require().NoError(err)

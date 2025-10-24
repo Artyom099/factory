@@ -7,7 +7,7 @@ import (
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
-func ModelToApiPart(dto servModel.Part) *inventoryV1.GetPartResponse {
+func ToApiPart(dto servModel.Part) *inventoryV1.GetPartResponse {
 	if dto.Uuid == "" {
 		return nil
 	}
@@ -33,7 +33,7 @@ func ModelToApiPart(dto servModel.Part) *inventoryV1.GetPartResponse {
 
 	metadata := make(map[string]*inventoryV1.Value, len(dto.Metadata))
 	for k, v := range dto.Metadata {
-		metadata[k] = valueServModelToProto(v)
+		metadata[k] = toApiPartValue(v)
 	}
 
 	part := &inventoryV1.Part{
@@ -54,13 +54,13 @@ func ModelToApiPart(dto servModel.Part) *inventoryV1.GetPartResponse {
 	return &inventoryV1.GetPartResponse{Part: part}
 }
 
-func ApiToModelPartFilter(dto *inventoryV1.ListPartsRequest) servModel.ModelPartFilter {
+func ToModelPartFilter(dto *inventoryV1.ListPartsRequest) servModel.PartFilter {
 	if dto == nil || dto.GetFilter() == nil {
-		return servModel.ModelPartFilter{}
+		return servModel.PartFilter{}
 	}
 
 	f := dto.GetFilter()
-	filter := servModel.ModelPartFilter{
+	filter := servModel.PartFilter{
 		Uuids:                 f.GetUuids(),
 		Names:                 f.GetNames(),
 		Categories:            nil,
@@ -78,7 +78,7 @@ func ApiToModelPartFilter(dto *inventoryV1.ListPartsRequest) servModel.ModelPart
 	return filter
 }
 
-func ModelToApiListParts(dto []servModel.Part) *inventoryV1.ListPartsResponse {
+func ToApiListParts(dto []servModel.Part) *inventoryV1.ListPartsResponse {
 	parts := make([]*inventoryV1.Part, 0, len(dto))
 	for _, p := range dto {
 		var dimensionApi inventoryV1.Dimensions
@@ -102,7 +102,7 @@ func ModelToApiListParts(dto []servModel.Part) *inventoryV1.ListPartsResponse {
 
 		metadata := make(map[string]*inventoryV1.Value, len(p.Metadata))
 		for k, v := range p.Metadata {
-			metadata[k] = valueServModelToProto(v)
+			metadata[k] = toApiPartValue(v)
 		}
 
 		parts = append(parts, &inventoryV1.Part{
@@ -124,7 +124,7 @@ func ModelToApiListParts(dto []servModel.Part) *inventoryV1.ListPartsResponse {
 	return &inventoryV1.ListPartsResponse{Parts: parts}
 }
 
-func ApiToModelPart(dto *inventoryV1.CreatePartRequest) servModel.Part {
+func ToModelPart(dto *inventoryV1.CreatePartRequest) servModel.Part {
 	var dimensionsModel servModel.Dimensions
 	if d := dto.GetDimensions(); d != nil {
 		dimensionsModel = servModel.Dimensions{
@@ -146,7 +146,7 @@ func ApiToModelPart(dto *inventoryV1.CreatePartRequest) servModel.Part {
 
 	metadata := make(map[string]*servModel.Value, len(dto.GetMetadata()))
 	for k, v := range dto.GetMetadata() {
-		metadata[k] = valueProtoToServModel(v)
+		metadata[k] = toModelPartValue(v)
 	}
 
 	return servModel.Part{
@@ -162,7 +162,7 @@ func ApiToModelPart(dto *inventoryV1.CreatePartRequest) servModel.Part {
 	}
 }
 
-func valueProtoToServModel(v *inventoryV1.Value) *servModel.Value {
+func toModelPartValue(v *inventoryV1.Value) *servModel.Value {
 	if v == nil {
 		return nil
 	}
@@ -181,7 +181,7 @@ func valueProtoToServModel(v *inventoryV1.Value) *servModel.Value {
 	}
 }
 
-func valueServModelToProto(v *servModel.Value) *inventoryV1.Value {
+func toApiPartValue(v *servModel.Value) *inventoryV1.Value {
 	if v == nil {
 		return nil
 	}

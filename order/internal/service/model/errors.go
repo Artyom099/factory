@@ -18,4 +18,6 @@ var (
 	ErrInPaymeentService = errors.New("payment service error")
 
 	ErrUpdateOrder = errors.New("update order error")
+
+	ErrInternalError = errors.New("internal server error")
 )

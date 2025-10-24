@@ -6,10 +6,11 @@ import (
 
 	"github.com/google/uuid"
 
-	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
+	"github.com/Artyom099/factory/inventory/internal/repository/converter"
+	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
-func (r *repository) Create(ctx context.Context, dto repoModel.RepoPart) (string, error) {
+func (r *repository) Create(ctx context.Context, dto model.Part) (string, error) {
 	uuid := uuid.New().String()
 	dto.Uuid = uuid
 	dto.CreatedAt = time.Now()
@@ -17,7 +18,7 @@ func (r *repository) Create(ctx context.Context, dto repoModel.RepoPart) (string
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.data[uuid] = dto
+	r.data[uuid] = converter.ToRepoPart(dto)
 
 	return uuid, nil
 }

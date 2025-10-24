@@ -35,5 +35,5 @@ func (a *api) GetOrder(ctx context.Context, params orderV1.GetOrderParams) (orde
 		}, err
 	}
 
-	return converter.ModelToApiOrder(res), nil
+	return converter.ToApiOrder(res), nil
 }
