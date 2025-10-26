@@ -2,8 +2,9 @@ package order
 
 import (
 	"context"
+	"log"
 
-	"github.com/google/uuid"
+	sq "github.com/Masterminds/squirrel"
 
 	"github.com/Artyom099/factory/order/internal/repository/converter"
 	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
@@ -11,16 +12,26 @@ import (
 )
 
 func (r *repository) Create(ctx context.Context, dto model.Order) (string, error) {
-	orderUuid := uuid.New().String()
-
 	order := converter.ToRepoOrder(dto)
-	order.OrderUUID = orderUuid
-	order.Status = repoModel.OrderStatusPENDINGPAYMENT
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	builderInsert := sq.Insert("orders").
+		PlaceholderFormat(sq.Dollar).
+		Columns("user_uuid", "part_uuids", "total_price", "status", "payment_method").
+		Values(order.UserUUID, order.PartUuids, order.TotalPrice, repoModel.OrderStatusPENDINGPAYMENT, repoModel.OrderPaymentMethodUNSPECIFIED).
+		Suffix("RETURNING order_uuid")
 
-	r.data[orderUuid] = &order
+	query, args, err := builderInsert.ToSql()
+	if err != nil {
+		log.Printf("failed to build query: %v\n", err)
+		return "", model.ErrInternalError
+	}
 
-	return orderUuid, nil
+	var orderUUID string
+	err = r.pool.QueryRow(ctx, query, args...).Scan(&orderUUID)
+	if err != nil {
+		log.Printf("failed to insert order: %v\n", err)
+		return "", model.ErrInternalError
+	}
+
+	return orderUUID, nil
 }

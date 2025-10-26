@@ -14,12 +14,16 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
 	grpcInventoryV1 "github.com/Artyom099/factory/order/internal/client/grpc/inventory/v1"
 	grpcPaymentV1 "github.com/Artyom099/factory/order/internal/client/grpc/payment/v1"
+	"github.com/Artyom099/factory/order/internal/migrator"
 	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
 	orderService "github.com/Artyom099/factory/order/internal/service/order"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
@@ -36,6 +40,8 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
 	inventoryConn, err := grpc.NewClient(
 		inventoryServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -54,18 +60,37 @@ func main() {
 		log.Fatalf("failed to connect payment: %v", err)
 	}
 
+	err = godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("failed to load .env file: %v\n", err)
+		return
+	}
+
+	pool := initDB(ctx)
+	defer pool.Close()
+
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*pool.Config().ConnConfig), migrationsDir)
+
+	err = migratorRunner.Up()
+	if err != nil {
+		log.Printf("Ошибка миграции базы данных: %v\n", err)
+		return
+	}
+
 	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
 
 	grpcInventoryClient := grpcInventoryV1.NewClient(inventoryClient)
 	grpcPaymentClient := grpcPaymentV1.NewClient(paymentClient)
 
-	repo := orderRepository.NewRepository()
+	repo := orderRepository.NewRepository(pool)
 	service := orderService.NewService(repo, grpcInventoryClient, grpcPaymentClient)
 	api := orderApiV1.NewAPI(service)
 
 	orderServer, err := orderV1.NewServer(api)
 	if err != nil {
-		log.Fatalf("ошибка создания сервера OpenAPI: %v", err)
+		log.Printf("ошибка создания сервера OpenAPI: %v", err)
+		return
 	}
 
 	r := chi.NewRouter()
@@ -107,4 +132,20 @@ func main() {
 	}
 
 	log.Println("✅ Сервер остановлен")
+}
+
+func initDB(ctx context.Context) *pgxpool.Pool {
+	dbURI := os.Getenv("DB_URI")
+
+	pool, err := pgxpool.New(ctx, dbURI)
+	if err != nil {
+		log.Fatalf("failed to connect db: %v", err)
+	}
+
+	err = pool.Ping(ctx)
+	if err != nil {
+		log.Fatalf("База данных недоступна: %v\n", err)
+	}
+
+	return pool
 }
