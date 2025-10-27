@@ -13,6 +13,7 @@ jobs:
       go-version: ${{ steps.extract.outputs.GO_VERSION }}
       golangci-lint-version: ${{ steps.extract.outputs.GOLANGCI_LINT_VERSION }}
       modules: ${{ steps.extract.outputs.MODULES }}
+      gist-id: ${{ steps.extract.outputs.GIST_ID }}
 
     steps:
       - name: Checkout code
@@ -38,3 +39,13 @@ jobs:
     with:
       modules: ${{ needs.extract-vars.outputs.modules }}
       go-version: ${{ needs.extract-vars.outputs.go-version }}
+
+  coverage:
+    needs: test
+    uses: ./.github/workflows/test-coverage-reusable.yml
+    with:
+      modules: ${{ needs.extract-vars.outputs.modules }}
+      go-version: ${{ needs.extract-vars.outputs.go-version }}
+      gist-id: ${{ needs.extract-vars.outputs.gist-id }}
+    secrets:
+      GIST_SECRET: ${{ secrets.GIST_SECRET }}

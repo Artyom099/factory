@@ -15,6 +15,7 @@ vars:
   GRPCURL_VERSION: "v1.9.3"
   MOCKERY_VERSION: "v2.53.3" #"v3.5.5"
   GOOSE_VERSION: "v3.26.0"
+  GIST_ID: "8f1426178499e4bfc15735575c432973"
 
   BIN_DIR: "{{.ROOT_DIR}}/bin"
   GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"

@@ -10,6 +10,21 @@ type PartFilter struct {
 	Tags                  []string
 }
 
+type Part struct {
+	Uuid          string
+	Name          string
+	Description   string
+	Price         float64
+	StockQuantity int64
+	Category      Category
+	Dimensions    *Dimensions
+	Manufacturer  *Manufacturer
+	Tags          []string
+	Metadata      map[string]*Value
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type Value struct {
 	StringValue *string
 	Int64Value  *int64
@@ -38,19 +53,4 @@ type Manufacturer struct {
 	Name    string
 	Country string
 	Website string
-}
-
-type Part struct {
-	Uuid          string
-	Name          string
-	Description   string
-	Price         float64
-	StockQuantity int64
-	Category      Category
-	Dimensions    *Dimensions
-	Manufacturer  *Manufacturer
-	Tags          []string
-	Metadata      map[string]*Value
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 }

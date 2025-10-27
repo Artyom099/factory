@@ -98,7 +98,7 @@ func ToModelListParts(dto []repoModel.RepoPart) []servModel.Part {
 			Dimensions:    &dimensionModel,
 			Manufacturer:  &manufacturerModel,
 			Tags:          p.Tags,
-			CreatedAt:     p.CreatedAt,
+			CreatedAt:     p.CreatedAt.UTC(),
 			UpdatedAt:     p.UpdatedAt,
 			Metadata:      metadata,
 		})
@@ -133,7 +133,6 @@ func ToRepoPart(dto servModel.Part) repoModel.RepoPart {
 	}
 
 	return repoModel.RepoPart{
-		Uuid:          dto.Uuid,
 		Name:          dto.Name,
 		Description:   dto.Description,
 		Price:         dto.Price,
@@ -142,7 +141,7 @@ func ToRepoPart(dto servModel.Part) repoModel.RepoPart {
 		Dimensions:    &dimensionModel,
 		Manufacturer:  &manufacturerModel,
 		Tags:          dto.Tags,
-		CreatedAt:     dto.CreatedAt,
+		CreatedAt:     &dto.CreatedAt,
 		UpdatedAt:     dto.UpdatedAt,
 		Metadata:      metadata,
 	}
