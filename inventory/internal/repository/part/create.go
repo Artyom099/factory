@@ -3,7 +3,6 @@ package part
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,18 +25,17 @@ func (r *repository) Create(ctx context.Context, dto model.Part) (string, error)
 
 	res, err := r.collection.InsertOne(ctx, part)
 	if err != nil {
-		return "", model.ErrInternalError
+		return "", err
 	}
 
 	var createdPart repoModel.RepoPart
 	err = r.collection.FindOne(ctx, bson.M{"_id": res.InsertedID}).Decode(&createdPart)
 	if err != nil {
-		log.Printf("repo_err: %v", err)
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return "", repoModel.ErrPartNotFound
 		}
 
-		return "", repoModel.ErrInternalError
+		return "", err
 	}
 
 	return createdPart.Uuid, nil

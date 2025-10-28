@@ -109,6 +109,6 @@ func (s *ServiceSuite) TestCreateRepoError() {
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 	s.Require().Empty(uuid)
 }

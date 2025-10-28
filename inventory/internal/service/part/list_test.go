@@ -57,5 +57,5 @@ func (s *ServiceSuite) TestListRepoError() {
 
 	_, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }

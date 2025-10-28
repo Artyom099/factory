@@ -24,7 +24,7 @@ func (a *api) GetPart(ctx context.Context, req *inventoryV1.GetPartRequest) (*in
 		if errors.Is(err, model.ErrPartNotFound) {
 			return &inventoryV1.GetPartResponse{}, status.Errorf(codes.NotFound, "order not found")
 		}
-		return &inventoryV1.GetPartResponse{}, status.Errorf(codes.Internal, "intermal server error")
+		return &inventoryV1.GetPartResponse{}, status.Errorf(codes.Internal, "internal server error")
 	}
 
 	return converter.ToApiPart(res), nil

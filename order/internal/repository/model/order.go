@@ -11,7 +11,7 @@ type RepoOrder struct {
 	PaymentMethod   OrderPaymentMethod `db:"payment_method"`
 	Status          OrderStatus        `db:"status"`
 	CreatedAt       time.Time          `db:"created_at"`
-	UpdatedAt       time.Time          `db:"updated_at"`
+	UpdatedAt       *time.Time         `db:"updated_at"`
 }
 
 type OrderPaymentMethod string

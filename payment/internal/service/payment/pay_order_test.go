@@ -45,6 +45,6 @@ func (s *ServiceSuite) TestPayOrderRepoError() {
 
 	uuid, err := s.service.PayOrder(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 	s.Require().Empty(uuid)
 }

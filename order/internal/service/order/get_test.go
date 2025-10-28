@@ -39,5 +39,5 @@ func (s *ServiceSuite) TestGetRepoError() {
 	res, err := s.service.Get(s.ctx, orderUUID)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }

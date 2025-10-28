@@ -20,7 +20,7 @@ func (a *api) CreateOrder(ctx context.Context, req *orderV1.OrderCreateRequest) 
 	if err != nil {
 		return &orderV1.InternalServerError{
 			Code:    500,
-			Message: fmt.Sprintf("failed to create order: %v", err),
+			Message: "Internal Server Error",
 		}, nil
 	}
 

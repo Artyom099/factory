@@ -9,6 +9,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
 	go.mongodb.org/mongo-driver v1.17.4
 	google.golang.org/grpc v1.76.0

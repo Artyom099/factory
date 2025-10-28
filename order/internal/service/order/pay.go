@@ -13,7 +13,7 @@ func (s *service) Pay(ctx context.Context, orderUUID string, paymentMethod model
 		if errors.Is(err, model.ErrOrderNotFound) {
 			return "", model.ErrOrderNotFound
 		}
-		return "", model.ErrInternalError
+		return "", err
 	}
 
 	if order.Status == model.OrderStatusPAID {
@@ -35,7 +35,7 @@ func (s *service) Pay(ctx context.Context, orderUUID string, paymentMethod model
 
 	err = s.orderRepository.Update(ctx, order)
 	if err != nil {
-		return "", model.ErrUpdateOrder
+		return "", err
 	}
 
 	return transactionUUID, nil

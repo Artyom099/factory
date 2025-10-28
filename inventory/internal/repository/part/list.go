@@ -2,9 +2,9 @@ package part
 
 import (
 	"context"
-	"fmt"
 	"log"
 
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -18,7 +18,7 @@ func (r *repository) List(ctx context.Context, dto model.PartFilter) ([]model.Pa
 
 	cursor, err := r.collection.Find(ctx, filter, options.Find())
 	if err != nil {
-		return nil, fmt.Errorf("failed to query parts: %w", err)
+		return []model.Part{}, err
 	}
 	defer func() {
 		cerr := cursor.Close(ctx)
@@ -29,13 +29,12 @@ func (r *repository) List(ctx context.Context, dto model.PartFilter) ([]model.Pa
 
 	var repoParts []repoModel.RepoPart
 	if err := cursor.All(ctx, &repoParts); err != nil {
-		return nil, fmt.Errorf("failed to decode parts: %w", err)
+		return []model.Part{}, err
 	}
 
-	var parts []model.Part
-	for _, part := range repoParts {
-		parts = append(parts, converter.ToModelPart(part))
-	}
+	parts := lo.Map(repoParts, func(p repoModel.RepoPart, _ int) model.Part {
+		return converter.ToModelPart(p)
+	})
 
 	return parts, nil
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
 
 	"github.com/Artyom099/factory/order/internal/repository/converter"
 	repoModel "github.com/Artyom099/factory/order/internal/repository/model"
@@ -12,24 +13,50 @@ import (
 )
 
 func (r *repository) Get(ctx context.Context, orderUuid string) (model.Order, error) {
-	builderGet := sq.Select("order_uuid", "user_uuid", "part_uuids", "total_price", "transaction_uuid", "payment_method", "status").
-		From("orders").
-		Where(sq.Eq{"order_uuid": orderUuid}).
+	builderGet := sq.
+		Select(
+			"o.id AS order_uuid",
+			"o.user_uuid",
+			"COALESCE(array_agg(op.part_id), '{}') AS part_uuids",
+			"o.total_price",
+			"o.transaction_uuid",
+			"o.payment_method",
+			"o.status",
+			"o.created_at",
+			"o.updated_at",
+		).
+		From("orders o").
+		LeftJoin("order_parts op ON o.id = op.order_id").
+		Where(sq.Eq{"o.id": orderUuid}).
+		GroupBy(
+			"o.id",
+			"o.user_uuid",
+			"o.total_price",
+			"o.transaction_uuid",
+			"o.payment_method",
+			"o.status",
+			"o.created_at",
+			"o.updated_at",
+		).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := builderGet.ToSql()
 	if err != nil {
 		log.Printf("failed to build query: %v\n", err)
-		return model.Order{}, model.ErrInternalError
+		return model.Order{}, err
 	}
 
-	var order repoModel.RepoOrder
+	rows, err := r.pool.Query(ctx, query, args...)
+	if err != nil {
+		log.Printf("failed to query order: %v\n", err)
+		return model.Order{}, err
+	}
+	defer rows.Close()
 
-	err = r.pool.QueryRow(ctx, query, args...).
-		Scan(&order.OrderUUID, &order.UserUUID, &order.PartUuids, &order.TotalPrice, &order.TransactionUUID, &order.PaymentMethod, &order.Status)
+	order, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[repoModel.RepoOrder])
 	if err != nil {
 		log.Printf("failed to scan order: %v\n", err)
-		return model.Order{}, model.ErrInternalError
+		return model.Order{}, err
 	}
 
 	log.Printf("order: %v\n", order)

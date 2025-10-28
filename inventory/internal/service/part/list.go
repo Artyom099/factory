@@ -9,7 +9,7 @@ import (
 func (s *service) List(ctx context.Context, dto model.PartFilter) ([]model.Part, error) {
 	res, err := s.partRepository.List(ctx, dto)
 	if err != nil {
-		return []model.Part{}, model.ErrInternalError
+		return []model.Part{}, err
 	}
 
 	return res, nil

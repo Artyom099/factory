@@ -14,7 +14,7 @@ func (s *service) Get(ctx context.Context, orderUUID string) (servModel.Order, e
 		if errors.Is(err, repoModel.ErrOrderNotFound) {
 			return servModel.Order{}, servModel.ErrOrderNotFound
 		}
-		return servModel.Order{}, servModel.ErrInternalError
+		return servModel.Order{}, err
 	}
 
 	return res, nil
