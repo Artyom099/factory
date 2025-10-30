@@ -79,7 +79,7 @@ func (s *ServiceSuite) TestCreateRepoError() {
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }
 
 func (s *ServiceSuite) TestCreateINotAllPartsExistInInventoryServiceError() {

@@ -18,7 +18,7 @@ func (s *service) PayOrder(ctx context.Context, dto model.Payment) (string, erro
 
 	transactionUuid, err := s.paymentRepository.PayOrder(ctx, dto)
 	if err != nil {
-		return "", model.ErrInternalError
+		return "", err
 	}
 
 	return transactionUuid, nil

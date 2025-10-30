@@ -14,6 +14,8 @@ vars:
   YQ_VERSION: "v4.45.2"
   GRPCURL_VERSION: "v1.9.3"
   MOCKERY_VERSION: "v2.53.3" #"v3.5.5"
+  GOOSE_VERSION: "v3.26.0"
+  GIST_ID: "8f1426178499e4bfc15735575c432973"
 
   BIN_DIR: "{{.ROOT_DIR}}/bin"
   GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
@@ -27,6 +29,7 @@ vars:
   PROTOC_GEN_VALIDATE: "{{.BIN_DIR}}/protoc-gen-validate"
   GRPCURL: "{{.BIN_DIR}}/grpcurl"
   MOCKERY: "{{.BIN_DIR}}/mockery"
+  GOOSE: "{{.BIN_DIR}}/goose"
 
   NODE_MODULES_DIR: "{{.ROOT_DIR}}/node_modules/.bin"
   REDOCLY: "{{.NODE_MODULES_DIR}}/redocly"
@@ -37,6 +40,9 @@ vars:
   OPEN_API_FILES: "{{.ROOT_DIR}}/shared/api/bundles"
 
   COVERAGE_DIR: "{{.ROOT_DIR}}/coverage"
+
+  ORDER_MIGRATIONS_DIR: "./order/migrations"
+  POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
 
   MODULES: inventory order payment shared
 
@@ -515,28 +521,6 @@ tasks:
         echo "🎉 Все тесты API успешно выполнены!"
 
   test-coverage:
-    desc: "Тесты с покрытием бизнес-логики, автоматический поиск и анализ всех модулей"
-    cmds:
-      - |
-        echo "🧪 Запускаем расчёт покрытия..."
-        rm -rf {{.COVERAGE_DIR}}
-        mkdir -p {{.COVERAGE_DIR}}
-
-        # Находим все пакеты, для которых нужно измерить покрытие (исключаем mocks)
-        TARGET_PACKAGES=$(go list ./internal/... | grep -v "/mocks" | grep -E '/(api|service)/' | tr '\n' ',')
-
-        if [ -z "$TARGET_PACKAGES" ]; then
-          echo "⚠️ Не найдено пакетов для тестирования"
-          exit 1
-        fi
-
-        echo "🧪 Запуск тестов со сбором покрытия для всех модулей..."
-        go test -v -coverprofile={{.COVERAGE_DIR}}/coverage.out -coverpkg=$TARGET_PACKAGES ./...
-
-        echo "🧾 Общее покрытие:"
-        go tool cover -func={{.COVERAGE_DIR}}/coverage.out | tail -n1
-
-  test-coverage2:
     cmds:
       - |
         echo "🧪 Запускаем расчёт покрытия..."
@@ -583,3 +567,91 @@ tasks:
         else
           echo "📂 Отчёт сохранён в $OUTPUT (открой вручную)"
         fi
+
+  up-core:
+    desc: Поднять core контейнеры
+    dir: deploy/compose/core
+    cmds:
+      - echo "[task] 🚀 Поднимаем core контейнеры"
+      - docker compose up --build --detach
+
+  down-core:
+    desc: Остановить и удалить core контейнеры
+    dir: deploy/compose/core
+    cmds:
+      - echo "[task] 🛑 Останавливаем core контейнеры"
+      - docker compose down --volumes
+
+  up-inventory:
+    desc: Поднять Inventory сервис и все его зависимости
+    dir: deploy/compose/inventory
+    cmds:
+      - echo "[task] 📦 Поднимаем Inventory с зависимостями"
+      - docker compose up --build --detach
+
+  down-inventory:
+    desc: Остановить и удалить Inventory сервис и все его зависимости
+    dir: deploy/compose/inventory
+    cmds:
+      - echo "[task] 🛑 Останавливаем Inventory с зависимостями"
+      - docker compose down --volumes
+
+  up-order:
+    desc: Поднять Order сервис и все его зависимости
+    dir: deploy/compose/order
+    cmds:
+      - echo "[task] 📦 Поднимаем Order с зависимостями"
+      - docker compose up --build --detach
+
+  down-order:
+    desc: Остановить и удалить Order сервис и все его зависимости
+    dir: deploy/compose/order
+    cmds:
+      - echo "[task] 🛑 Останавливаем Order с зависимостями"
+      - docker compose down --volumes
+
+  up-all:
+    desc: Поднять все сервисы по очереди вместе с зависимостями
+    cmds:
+      - task up-core
+      - task up-inventory
+      - task up-order
+
+  down-all:
+    desc: Остановить и удалить все сервисы по очереди вместе с зависимостями
+    cmds:
+      - task down-core
+      - task down-inventory
+      - task down-order
+
+  test-unit:
+    desc: "Запускает юнит-тесты для всех модулей"
+    summary: |
+      Запускает юнит-тесты для указанных модулей проекта.
+      Можно указать конкретные модули через переменную MODULES.
+    cmds:
+      - |
+        ERR=0
+        for mod in {{.MODULES}}; do
+          if [ -d "$mod" ]; then
+            echo "🧪 Тестируем модуль $mod"
+            go test -v ./$mod/... || ERR=1
+          fi
+        done
+        exit $ERR
+
+  goose:install:
+    desc: "Устанавливает goose в ./bin"
+    cmds:
+      - |
+        [ -f {{.GOOSE}} ] || {
+          echo '📦 Installing goose...'
+          GOBIN={{.BIN_DIR}} go install github.com/pressly/goose/v3/cmd/goose@{{.GOOSE_VERSION}}
+        }
+    status:
+      - test -x {{.GOOSE}}
+
+  migr:create:
+    desc: "Создание миграции"
+    dir: order/migrations
+    cmd: "{{.BIN_DIR}}/goose create create_order_table sql"

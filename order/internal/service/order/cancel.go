@@ -14,7 +14,7 @@ func (s *service) Cancel(ctx context.Context, orderUUID string) error {
 		if errors.Is(err, repoModel.ErrOrderNotFound) {
 			return model.ErrOrderNotFound
 		}
-		return model.ErrInternalError
+		return err
 	}
 
 	if order.Status == model.OrderStatusPAID || order.Status == model.OrderStatusCANCELLED {
@@ -27,7 +27,7 @@ func (s *service) Cancel(ctx context.Context, orderUUID string) error {
 			if errors.Is(err, repoModel.ErrOrderNotFound) {
 				return model.ErrOrderNotFound
 			}
-			return model.ErrInternalError
+			return err
 		}
 	}
 

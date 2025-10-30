@@ -49,7 +49,7 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }
 
 func (s *ServiceSuite) TestCancelConflictError() {
@@ -84,5 +84,5 @@ func (s *ServiceSuite) TestCancelRepoGetError() {
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }

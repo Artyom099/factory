@@ -7,9 +7,13 @@ import (
 
 func ToRepoOrder(dto servModel.Order) repoModel.RepoOrder {
 	return repoModel.RepoOrder{
-		UserUUID:   dto.UserUUID,
-		PartUuids:  dto.PartUuids,
-		TotalPrice: dto.TotalPrice,
+		OrderUUID:       dto.OrderUUID,
+		UserUUID:        dto.UserUUID,
+		PartUuids:       dto.PartUuids,
+		TotalPrice:      dto.TotalPrice,
+		TransactionUUID: dto.TransactionUUID,
+		PaymentMethod:   repoModel.OrderPaymentMethod(dto.PaymentMethod),
+		Status:          repoModel.OrderStatus(dto.Status),
 	}
 }
 

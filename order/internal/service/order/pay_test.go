@@ -69,7 +69,7 @@ func (s *ServiceSuite) TestPayRepoUpdateError() {
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrUpdateOrder)
+	s.Require().ErrorIs(err, repoErr)
 }
 
 func (s *ServiceSuite) TestPayRepoGetError() {
@@ -84,7 +84,7 @@ func (s *ServiceSuite) TestPayRepoGetError() {
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
 	s.Require().Empty(res)
-	s.Require().ErrorIs(err, model.ErrInternalError)
+	s.Require().ErrorIs(err, repoErr)
 }
 
 func (s *ServiceSuite) TestPayPaymentClientError() {

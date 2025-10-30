@@ -2,23 +2,41 @@ package part
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/Artyom099/factory/inventory/internal/repository/converter"
+	repoModel "github.com/Artyom099/factory/inventory/internal/repository/model"
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
 
 func (r *repository) Create(ctx context.Context, dto model.Part) (string, error) {
+	part := converter.ToRepoPart(dto)
 	uuid := uuid.New().String()
-	dto.Uuid = uuid
-	dto.CreatedAt = time.Now()
+	part.Uuid = uuid
 
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	if part.CreatedAt.IsZero() {
+		*part.CreatedAt = time.Now()
+	}
 
-	r.data[uuid] = converter.ToRepoPart(dto)
+	res, err := r.collection.InsertOne(ctx, part)
+	if err != nil {
+		return "", err
+	}
 
-	return uuid, nil
+	var createdPart repoModel.RepoPart
+	err = r.collection.FindOne(ctx, bson.M{"_id": res.InsertedID}).Decode(&createdPart)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return "", repoModel.ErrPartNotFound
+		}
+
+		return "", err
+	}
+
+	return createdPart.Uuid, nil
 }

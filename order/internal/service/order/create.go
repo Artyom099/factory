@@ -26,7 +26,7 @@ func (s *service) Create(ctx context.Context, dto model.Order) (model.Order, err
 	dto.TotalPrice = totalPrice
 	orderUuid, err := s.orderRepository.Create(ctx, dto)
 	if err != nil {
-		return model.Order{}, model.ErrInternalError
+		return model.Order{}, err
 	}
 
 	return model.Order{

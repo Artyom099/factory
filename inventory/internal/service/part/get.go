@@ -14,7 +14,7 @@ func (s *service) Get(ctx context.Context, uuid string) (servModel.Part, error) 
 		if errors.Is(err, repoModel.ErrPartNotFound) {
 			return servModel.Part{}, servModel.ErrPartNotFound
 		}
-		return servModel.Part{}, servModel.ErrInternalError
+		return servModel.Part{}, err
 	}
 
 	return res, nil
