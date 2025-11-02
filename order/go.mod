@@ -2,10 +2,14 @@ module github.com/Artyom099/factory/order
 
 go 1.24.0
 
+replace github.com/Artyom099/factory/platform => ../platform
+
 require (
+	github.com/Artyom099/factory/platform v0.0.0-00010101000000-000000000000
 	github.com/Artyom099/factory/shared v0.0.0-00010101000000-000000000000
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/brianvoe/gofakeit/v6 v6.28.0
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/render v1.0.3
@@ -14,6 +18,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/stretchr/testify v1.11.1
+	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.76.0
 )
 
@@ -48,7 +53,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.38.0 // indirect
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
 	golang.org/x/net v0.44.0 // indirect

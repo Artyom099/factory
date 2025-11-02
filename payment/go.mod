@@ -4,6 +4,8 @@ go 1.24.0
 
 replace github.com/Artyom099/factory/shared => ../shared
 
+replace github.com/Artyom099/factory/platform => ../platform
+
 require (
 	github.com/Artyom099/factory/shared v0.0.0-00010101000000-000000000000
 	github.com/brianvoe/gofakeit/v6 v6.28.0

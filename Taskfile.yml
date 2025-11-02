@@ -13,9 +13,9 @@ vars:
   OGEN_VERSION: "v1.12.0"
   YQ_VERSION: "v4.45.2"
   GRPCURL_VERSION: "v1.9.3"
-  MOCKERY_VERSION: "v2.53.3" #"v3.5.5"
+  MOCKERY_VERSION: "v2.53.3"
   GOOSE_VERSION: "v3.26.0"
-  GIST_ID: "8f1426178499e4bfc15735575c432973"
+  ENVSUBST_VERSION: "v1.4.3"
 
   BIN_DIR: "{{.ROOT_DIR}}/bin"
   GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
@@ -30,6 +30,8 @@ vars:
   GRPCURL: "{{.BIN_DIR}}/grpcurl"
   MOCKERY: "{{.BIN_DIR}}/mockery"
   GOOSE: "{{.BIN_DIR}}/goose"
+  ENVSUBST: "{{.BIN_DIR}}/envsubst"
+  ENVDIR: "{{.ROOT_DIR}}/deploy/env"
 
   NODE_MODULES_DIR: "{{.ROOT_DIR}}/node_modules/.bin"
   REDOCLY: "{{.NODE_MODULES_DIR}}/redocly"
@@ -43,8 +45,10 @@ vars:
 
   ORDER_MIGRATIONS_DIR: "./order/migrations"
   POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
+  GIST_ID: "8f1426178499e4bfc15735575c432973"
 
-  MODULES: inventory order payment shared
+  SERVICES: order,inventory,payment
+  MODULES: inventory order payment shared platform
 
 tasks:
   install-validate:
@@ -655,3 +659,38 @@ tasks:
     desc: "Создание миграции"
     dir: order/migrations
     cmd: "{{.BIN_DIR}}/goose create create_order_table sql"
+
+  env:install-envsubst:
+    desc: "Устанавливает envsubst в bin/"
+    cmds:
+      - |
+        [ -f {{.ENVSUBST}} ] || {
+          echo "📦 Устанавливаем envsubst версии {{.ENVSUBST_VERSION}}..."
+          GOBIN={{.BIN_DIR}} go install github.com/a8m/envsubst/cmd/envsubst@{{.ENVSUBST_VERSION}}
+        }
+        echo "✅ envsubst установлен: {{.ENVSUBST}}"
+
+  env:generate:
+    desc: "Генерирует .env файлы для всех сервисов из шаблонов и единого файла конфигурации"
+    deps: [env:install-envsubst]
+    cmds:
+      - |
+        ENV_FILE="{{.ENVDIR}}/.env"
+        TEMPLATE_FILE="{{.ENVDIR}}/.env.template"
+        SCRIPT="{{.ENVDIR}}/generate-env.sh"
+
+        if [ ! -f "$ENV_FILE" ]; then
+          if [ -f "$TEMPLATE_FILE" ]; then
+            echo "🔄 Файл $ENV_FILE не найден, создаем из шаблона $TEMPLATE_FILE"
+            cp "$TEMPLATE_FILE" "$ENV_FILE"
+            echo "✅ Создан файл $ENV_FILE. Проверьте и отредактируйте значения переменных при необходимости."
+          else
+            echo "❌ Шаблон $TEMPLATE_FILE не найден!"
+            exit 1
+          fi
+        fi
+
+        chmod +x "$SCRIPT"
+        # Передаем список сервисов в виде строки с разделителями-запятыми
+        export SERVICES="{{.SERVICES}}"
+        ENV_SUBST={{.ENVSUBST}} "$SCRIPT"

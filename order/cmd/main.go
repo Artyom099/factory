@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -16,13 +17,13 @@ import (
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
 	grpcInventoryV1 "github.com/Artyom099/factory/order/internal/client/grpc/inventory/v1"
 	grpcPaymentV1 "github.com/Artyom099/factory/order/internal/client/grpc/payment/v1"
+	"github.com/Artyom099/factory/order/internal/config"
 	"github.com/Artyom099/factory/order/internal/migrator"
 	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
 	orderService "github.com/Artyom099/factory/order/internal/service/order"
@@ -39,8 +40,15 @@ const (
 	shutdownTimeout        = 10 * time.Second
 )
 
+const configPath = "../deploy/compose/order/.env"
+
 func main() {
 	ctx := context.Background()
+
+	err := config.Load(configPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to load config: %w", err))
+	}
 
 	inventoryConn, err := grpc.NewClient(
 		inventoryServerAddress,
@@ -58,12 +66,6 @@ func main() {
 	)
 	if err != nil {
 		log.Fatalf("failed to connect payment: %v", err)
-	}
-
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("failed to load .env file: %v\n", err)
-		return
 	}
 
 	pool := initDB(ctx)
@@ -135,9 +137,7 @@ func main() {
 }
 
 func initDB(ctx context.Context) *pgxpool.Pool {
-	dbURI := os.Getenv("DB_URI")
-
-	pool, err := pgxpool.New(ctx, dbURI)
+	pool, err := pgxpool.New(ctx, config.AppConfig().Postgres.URI())
 	if err != nil {
 		log.Fatalf("failed to connect db: %v", err)
 	}
