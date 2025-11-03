@@ -27,9 +27,7 @@ RUN go mod download
 # Копируем исходный код всех модулей — включая зависимости, т.к. они нужны при компиляции
 COPY platform ./platform
 COPY shared ./shared
-COPY order ./order
 COPY inventory ./inventory
-COPY payment ./payment
 
 # Скачиваем grpc-health-probe — это утилита для проверки состояния gRPC-сервиса
 ADD https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.37/grpc_health_probe-linux-amd64 ./grpc-health-probe

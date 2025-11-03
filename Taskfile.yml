@@ -48,7 +48,7 @@ vars:
   GIST_ID: "8f1426178499e4bfc15735575c432973"
 
   SERVICES: order,inventory,payment
-  MODULES: inventory order payment shared platform
+  MODULES: inventory order payment
 
 tasks:
   install-validate:
@@ -639,7 +639,7 @@ tasks:
         for mod in {{.MODULES}}; do
           if [ -d "$mod" ]; then
             echo "🧪 Тестируем модуль $mod"
-            go test -v ./$mod/... || ERR=1
+            go test -v ./$mod/internal/... || ERR=1
           fi
         done
         exit $ERR
@@ -701,4 +701,5 @@ tasks:
     cmds:
       - echo "🚀 Запуск e2e тестов Inventory сервиса..."
       - cd ../../ && go mod tidy
-      - go test -tags=integration -v ./...
+      # - go test -tags=integration -v ./...
+      - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...

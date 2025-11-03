@@ -9,7 +9,7 @@ import (
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
-func (env *TestEnvironment) GetTestSightingInfo() *inventoryV1.CreatePartRequest {
+func (env *TestEnvironment) GetCreatePartRequest() *inventoryV1.CreatePartRequest {
 	return &inventoryV1.CreatePartRequest{
 		Name:          "Москва, Красная площадь",
 		Description:   "Яркий светящийся объект треугольной формы",

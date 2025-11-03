@@ -11,7 +11,7 @@ import (
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
-var _ = Describe("UFOService", func() {
+var _ = Describe("InventoryService", func() {
 	var (
 		ctx             context.Context
 		cancel          context.CancelFunc
@@ -41,7 +41,7 @@ var _ = Describe("UFOService", func() {
 
 	Describe("Create", func() {
 		It("должен успешно создавать новую деталь", func() {
-			req := env.GetTestSightingInfo()
+			req := env.GetCreatePartRequest()
 
 			resp, err := inventoryClient.CreatePart(ctx, req)
 
