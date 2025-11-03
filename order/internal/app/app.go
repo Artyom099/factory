@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/Artyom099/factory/order/internal/config"
 	"github.com/Artyom099/factory/order/internal/migrator"
@@ -104,9 +107,12 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Mount("/", orderServer)
 
+	readHeaderTimeout := 5 * time.Second
+
 	a.httpServer = &http.Server{
-		Addr:    config.AppConfig().OrderGRPC.Address(),
-		Handler: r,
+		Addr:              config.AppConfig().OrderGRPC.Address(),
+		Handler:           r,
+		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки
 	}
 
 	closer.AddNamed("HTTP server", func(ctx context.Context) error {
@@ -118,13 +124,31 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 
 func (a *App) initMigrator(ctx context.Context) error {
 	migrationsDir := os.Getenv("MIGRATIONS_DIR")
-	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*pool.Config().ConnConfig), migrationsDir)
-
-	err = migratorRunner.Up()
-	if err != nil {
-		log.Printf("Ошибка миграции базы данных: %v\n", err)
-		return
+	if migrationsDir == "" {
+		return errors.New("MIGRATIONS_DIR env is not set")
 	}
+
+	if _, err := os.Stat(migrationsDir); err != nil {
+		return fmt.Errorf("migrations directory %s: %w", migrationsDir, err)
+	}
+
+	pool := a.diContainer.PostgresHandle(ctx)
+	connConfig := pool.Config().ConnConfig.Copy()
+	sqlDB := stdlib.OpenDB(*connConfig)
+	// defer func() {
+	// 	if cerr := sqlDB.Close(); cerr != nil {
+	// 		logger.Error(ctx, "❌ Ошибка при закрытии DB после миграций", zap.Error(cerr))
+	// 	}
+	// }()
+
+	migratorRunner := migrator.NewMigrator(sqlDB, migrationsDir)
+	if err := migratorRunner.Up(); err != nil {
+		return fmt.Errorf("apply migrations: %w", err)
+	}
+
+	logger.Info(ctx, fmt.Sprintf("✅ Миграции успешно применены из %s", migrationsDir))
+
+	return nil
 }
 
 func (a *App) runHTTPServer(ctx context.Context) error {

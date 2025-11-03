@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 
@@ -19,8 +20,30 @@ type config struct {
 }
 
 func Load(path ...string) error {
+	dotenvDirs := make([]string, 0, len(path))
+	for _, p := range path {
+		if p == "" {
+			continue
+		}
+
+		absPath := p
+		if !filepath.IsAbs(p) {
+			resolved, err := filepath.Abs(p)
+			if err != nil {
+				return err
+			}
+			absPath = resolved
+		}
+
+		dotenvDirs = append(dotenvDirs, filepath.Dir(absPath))
+	}
+
 	err := godotenv.Load(path...)
 	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+
+	if err := ensureAbsoluteMigrationsDir(dotenvDirs); err != nil {
 		return err
 	}
 
@@ -62,4 +85,33 @@ func Load(path ...string) error {
 
 func AppConfig() *config {
 	return appConfig
+}
+
+func ensureAbsoluteMigrationsDir(dotenvDirs []string) error {
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	if migrationsDir == "" || filepath.IsAbs(migrationsDir) {
+		return nil
+	}
+
+	if len(dotenvDirs) > 0 {
+		absPath := filepath.Clean(filepath.Join(dotenvDirs[0], migrationsDir))
+		serr := os.Setenv("MIGRATIONS_DIR", absPath)
+		if serr != nil {
+			return serr
+		}
+
+		return nil
+	}
+
+	absPath, err := filepath.Abs(migrationsDir)
+	if err != nil {
+		return err
+	}
+
+	err = os.Setenv("MIGRATIONS_DIR", absPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
