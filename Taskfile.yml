@@ -326,7 +326,7 @@ tasks:
     desc: "Генерирует моки интерфейсов с помощью mockery"
     deps: [mockery:install]
     cmds:
-      - |1
+      - |
         echo '🧪 Генерация моков...'
         {{.MOCKERY}}
 
@@ -703,3 +703,8 @@ tasks:
       - cd ../../ && go mod tidy
       # - go test -tags=integration -v ./...
       - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...
+
+  test-integration:
+    desc: "Запускает e2e тесты всех сервисов"
+    cmds:
+      - task e2e:test:inv

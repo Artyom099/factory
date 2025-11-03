@@ -5,23 +5,21 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/reflection"
 
 	"github.com/Artyom099/factory/order/internal/config"
+	"github.com/Artyom099/factory/order/internal/migrator"
 	"github.com/Artyom099/factory/platform/pkg/closer"
-	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
 type App struct {
 	diContainer *diContainer
-	grpcServer  *grpc.Server
+	httpServer  *http.Server
 	listener    net.Listener
 }
 
@@ -37,7 +35,7 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	return a.runGRPCServer(ctx)
+	return a.runHTTPServer(ctx)
 }
 
 func (a *App) initDeps(ctx context.Context) error {
@@ -46,7 +44,8 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initLogger,
 		a.initCloser,
 		a.initListener,
-		a.initGRPCServer,
+		a.initHTTPServer,
+		a.initMigrator,
 	}
 
 	for _, f := range inits {
@@ -95,18 +94,7 @@ func (a *App) initListener(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initGRPCServer(ctx context.Context) error {
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
-	closer.AddNamed("gRPC server", func(ctx context.Context) error {
-		a.grpcServer.GracefulStop()
-		return nil
-	})
-
-	reflection.Register(a.grpcServer)
-
-	// Регистрируем health service для проверки работоспособности
-	health.RegisterService(a.grpcServer)
-
+func (a *App) initHTTPServer(ctx context.Context) error {
 	orderServer, err := orderV1.NewServer(a.diContainer.OpderV1API(ctx))
 	if err != nil {
 		return err
@@ -116,14 +104,34 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Mount("/", orderServer)
 
+	a.httpServer = &http.Server{
+		Addr:    config.AppConfig().OrderGRPC.Address(),
+		Handler: r,
+	}
+
+	closer.AddNamed("HTTP server", func(ctx context.Context) error {
+		return a.httpServer.Shutdown(ctx)
+	})
+
 	return nil
 }
 
-func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf("🚀 gRPC OrderService server listening on %s", config.AppConfig().OrderGRPC.Address()))
+func (a *App) initMigrator(ctx context.Context) error {
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*pool.Config().ConnConfig), migrationsDir)
 
-	err := a.grpcServer.Serve(a.listener)
+	err = migratorRunner.Up()
 	if err != nil {
+		log.Printf("Ошибка миграции базы данных: %v\n", err)
+		return
+	}
+}
+
+func (a *App) runHTTPServer(ctx context.Context) error {
+	logger.Info(ctx, fmt.Sprintf("🚀 HTTP OrderService server listening on %s", config.AppConfig().OrderGRPC.Address()))
+
+	err := a.httpServer.Serve(a.listener)
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 
