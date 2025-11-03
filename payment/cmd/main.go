@@ -1,60 +1,52 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
-	"net"
-	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"go.uber.org/zap"
 
-	paymentApiV1 "github.com/Artyom099/factory/payment/internal/api/payment/v1"
-	paymentRepository "github.com/Artyom099/factory/payment/internal/repository/payment"
-	paymentService "github.com/Artyom099/factory/payment/internal/service/payment"
-	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
+	"github.com/Artyom099/factory/payment/internal/app"
+	"github.com/Artyom099/factory/payment/internal/config"
+	"github.com/Artyom099/factory/platform/pkg/closer"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
-const grpcPort = 50052
+const configPath = "../deploy/compose/payment/.env"
 
 func main() {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
+	err := config.Load(configPath)
 	if err != nil {
-		log.Printf("failed to listen: %v\n", err)
+		panic(fmt.Errorf("failed to load config: %w", err))
+	}
+
+	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer appCancel()
+	defer gracefulShutdown()
+
+	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
+
+	a, err := app.New(appCtx)
+	if err != nil {
+		logger.Error(appCtx, "❌ Не удалось создать приложение", zap.Error(err))
 		return
 	}
-	defer func() {
-		if cerr := listener.Close(); cerr != nil {
-			log.Printf("failed to close listener: %v\n", cerr)
-		}
-	}()
 
-	s := grpc.NewServer()
+	err = a.Run(appCtx)
+	if err != nil {
+		logger.Error(appCtx, "❌ Ошибка при работе приложения", zap.Error(err))
+		return
+	}
+}
 
-	repo := paymentRepository.NewRepository()
-	service := paymentService.NewService(repo)
-	api := paymentApiV1.NewAPI(service)
+func gracefulShutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	paymentV1.RegisterPaymentServiceServer(s, api)
-
-	reflection.Register(s)
-
-	go func() {
-		log.Printf("Payment gRPC server listening on %d\n", grpcPort)
-		err = s.Serve(listener)
-		if err != nil {
-			log.Printf("failed to serve: %v\n", err)
-			return
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down payment gRPC server...")
-	s.GracefulStop()
-	log.Println("Server stopped")
+	if err := closer.CloseAll(ctx); err != nil {
+		logger.Error(ctx, "❌ Ошибка при завершении работы", zap.Error(err))
+	}
 }

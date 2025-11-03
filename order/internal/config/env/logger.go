@@ -1,8 +1,6 @@
 package env
 
-import (
-	"github.com/caarlos0/env/v11"
-)
+import "github.com/caarlos0/env/v11"
 
 type loggerEnvConfig struct {
 	Level  string `env:"LOGGER_LEVEL,required"`

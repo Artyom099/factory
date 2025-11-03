@@ -18,7 +18,7 @@ import (
 func (a *api) GetPart(ctx context.Context, req *inventoryV1.GetPartRequest) (*inventoryV1.GetPartResponse, error) {
 	uuid, err := uuid.Parse(req.GetUuid())
 	if err != nil {
-		logger.Error(ctx, "invalid order_uuid", zap.String("part_uuid", req.GetUuid()))
+		logger.Error(ctx, "invalid part_uuid", zap.String("part_uuid", req.GetUuid()))
 		return &inventoryV1.GetPartResponse{}, status.Errorf(codes.InvalidArgument, "invalid uuid")
 	}
 

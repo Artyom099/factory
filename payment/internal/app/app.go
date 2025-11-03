@@ -6,17 +6,15 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Artyom099/factory/order/internal/config"
+	"github.com/Artyom099/factory/payment/internal/config"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
-	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
+	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
 type App struct {
@@ -77,7 +75,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) initListener(_ context.Context) error {
-	listener, err := net.Listen("tcp", config.AppConfig().OrderGRPC.Address())
+	listener, err := net.Listen("tcp", config.AppConfig().PaymentGRPC.Address())
 	if err != nil {
 		return err
 	}
@@ -107,20 +105,13 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	// Регистрируем health service для проверки работоспособности
 	health.RegisterService(a.grpcServer)
 
-	orderServer, err := orderV1.NewServer(a.diContainer.OpderV1API(ctx))
-	if err != nil {
-		return err
-	}
-
-	r := chi.NewRouter()
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Mount("/", orderServer)
+	paymentV1.RegisterPaymentServiceServer(a.grpcServer, a.diContainer.PaymentV1API(ctx))
 
 	return nil
 }
 
 func (a *App) runGRPCServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf("🚀 gRPC OrderService server listening on %s", config.AppConfig().OrderGRPC.Address()))
+	logger.Info(ctx, fmt.Sprintf("🚀 gRPC PaymentService server listening on %s", config.AppConfig().PaymentGRPC.Address()))
 
 	err := a.grpcServer.Serve(a.listener)
 	if err != nil {
