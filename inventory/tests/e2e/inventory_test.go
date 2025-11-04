@@ -50,4 +50,38 @@ var _ = Describe("InventoryService", func() {
 			Expect(resp.GetUuid()).To(MatchRegexp(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`))
 		})
 	})
+
+	Describe("Get", func() {
+		var partUUID string
+
+		BeforeEach(func() {
+			var err error
+			partUUID, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+		})
+
+		It("должен успешно возвращать деталь по UUID", func() {
+			resp, err := inventoryClient.GetPart(ctx, &inventoryV1.GetPartRequest{
+				Uuid: partUUID,
+			})
+
+			Expect(err).ToNot(HaveOccurred())
+
+			Expect(resp.GetPart()).ToNot(BeNil())
+			Expect(resp.GetPart().Uuid).To(Equal(partUUID))
+			Expect(resp.GetPart().Name).ToNot(BeEmpty())
+			Expect(resp.GetPart().Description).ToNot(BeEmpty())
+			// Expect(resp.GetPart().Price).ToNot(BeEmpty())
+			// Expect(resp.GetPart().StockQuantity).ToNot(BeEmpty())
+			Expect(resp.GetPart().Category).To(Equal(inventoryV1.Category_CATEGORY_ENGINE))
+
+			Expect(resp.GetPart().GetDimensions()).ToNot(BeNil())
+			// Expect(resp.GetPart().GetDimensions().Width).ToNot(BeEmpty())
+			// Expect(resp.GetPart().GetDimensions().Height).ToNot(BeEmpty())
+			// Expect(resp.GetPart().GetDimensions().Length).ToNot(BeEmpty())
+			// Expect(resp.GetPart().GetDimensions().Weight).ToNot(BeEmpty())
+
+			Expect(resp.GetPart().GetCreatedAt()).ToNot(BeNil())
+		})
+	})
 })
