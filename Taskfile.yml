@@ -143,7 +143,7 @@ tasks:
         - format: форматирует код перед проверкой
     deps: [install-golangci-lint]
     vars:
-      MODULES: "{{.LINT_MODULES}}"
+      LINT_MODULES: "{{.LINT_MODULES}}"
       GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
     cmds:
       - |
