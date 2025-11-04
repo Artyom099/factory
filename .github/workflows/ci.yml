@@ -49,8 +49,7 @@ jobs:
 
   coverage:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [unit-test]
-    # needs: [test, integration-test]
+    needs: [unit-test, integration-test]
     uses: ./.github/workflows/test-coverage-reusable.yml
     with:
       modules: ${{ needs.extract-vars.outputs.modules }}

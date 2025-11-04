@@ -5,11 +5,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
-	"github.com/brianvoe/gofakeit/v6"
 )
 
 func (env *TestEnvironment) GetCreatePartRequest() *inventoryV1.CreatePartRequest {
