@@ -8,7 +8,9 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/zap"
 
+	"github.com/Artyom099/factory/platform/pkg/logger"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -32,7 +34,7 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (string, error) 
 		"name":           gofakeit.Name(),
 		"description":    gofakeit.ProductDescription(),
 		"price":          gofakeit.Price(10, 20_000),
-		"category":       inventoryV1.Category_CATEGORY_ENGINE,
+		"category":       inventoryV1.Category(gofakeit.Number(0, 4)),
 		"stock_quantity": gofakeit.Uint8(),
 		"dimensions": bson.M{
 			"width":  gofakeit.Float64(),
@@ -56,10 +58,19 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (string, error) 
 		databaseName = "inventory-service" // fallback значение
 	}
 
-	_, err := env.Mongo.Client().Database(databaseName).Collection(partsCollectionName).InsertOne(ctx, part)
+	result, err := env.Mongo.Client().Database(databaseName).Collection(partsCollectionName).InsertOne(ctx, part)
+	logger.Debug(ctx, "insertedID: ", zap.Any("insertedID: ", result.InsertedID))
 	if err != nil {
 		return "", err
 	}
+
+	// var repoPart repoModel.RepoPart
+	// err = env.Mongo.Client().
+	// 	Database(databaseName).
+	// 	Collection(partsCollectionName).
+	// 	FindOne(ctx, bson.M{"_id": result.InsertedID}).
+	// 	Decode(&repoPart)
+	// logger.Debug(ctx, "repoPart: ", zap.Any("repoPart: ", repoPart))
 
 	return uuid, nil
 }

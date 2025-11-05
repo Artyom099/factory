@@ -40,7 +40,7 @@ jobs:
       - name: 🧪 Run tests with coverage
         env:
           MODULES: ${{ inputs.modules }}
-        run: task test-coverage
+        run: task coverage:test
 
       - name: 📊 Extract coverage percent
         run: |

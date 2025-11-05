@@ -42,6 +42,7 @@ vars:
   OPEN_API_FILES: "{{.ROOT_DIR}}/shared/api/bundles"
 
   COVERAGE_DIR: "{{.ROOT_DIR}}/coverage"
+  COVERAGE_FILE: total.out
 
   ORDER_MIGRATIONS_DIR: "./order/migrations"
   POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
@@ -525,7 +526,8 @@ tasks:
         echo
         echo "🎉 Все тесты API успешно выполнены!"
 
-  test-coverage:
+  coverage:test:
+    desc: "Считает тестовое покрытие сервисов"
     cmds:
       - |
         echo "🧪 Запускаем расчёт покрытия..."
@@ -555,14 +557,41 @@ tasks:
 
         echo "✅ Проверка покрытия завершена."
 
+  coverage:merge:
+    desc: "Объединяет покрытия трёх сервисов (inventory, order, payment) в один общий файл"
+    deps: [coverage:test]
+    cmds:
+      - |
+        echo "🧩 Объединяем покрытия сервисов..."
+        COVERAGE_DIR={{.COVERAGE_DIR}}
+        OUTPUT=$COVERAGE_DIR/{{.COVERAGE_FILE}}
+
+        # Проверяем, что файлы существуют
+        for f in inventory.out order.out payment.out; do
+          if [ ! -f "$COVERAGE_DIR/$f" ]; then
+            echo "❌ Не найден файл покрытия: $COVERAGE_DIR/$f"
+            exit 1
+          fi
+        done
+
+        # Берём заголовок только из первого файла
+        head -n 1 "$COVERAGE_DIR/inventory.out" > "$OUTPUT"
+
+        # Добавляем все остальные строки (кроме первой) из всех файлов
+        for f in inventory.out order.out payment.out; do
+          tail -n +2 "$COVERAGE_DIR/$f" >> "$OUTPUT"
+        done
+
+        echo "✅ Объединённый отчёт сохранён в $OUTPUT"
+
   coverage:html:
     desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
-    deps: [test-coverage]
+    deps: [coverage:merge]
     cmds:
       - |
         OUTPUT={{.COVERAGE_DIR}}/coverage.html
         echo "🌐 Генерируем HTML-отчёт..."
-        go tool cover -html={{.COVERAGE_DIR}}/coverage.out -o $OUTPUT
+        go tool cover -html={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} -o $OUTPUT
 
         echo "🚀 Открываем $OUTPUT"
         if command -v open &> /dev/null; then
