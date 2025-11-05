@@ -92,8 +92,13 @@ var _ = Describe("InventoryService", Ordered, func() {
 
 		BeforeEach(func() {
 			var err error
+
 			partUUID1, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+
 			partUUID2, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+
 			partUUID3, err = env.InsertTestPart(ctx)
 			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
 		})

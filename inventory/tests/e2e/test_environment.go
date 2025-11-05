@@ -34,7 +34,7 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (string, error) 
 		"name":           gofakeit.Name(),
 		"description":    gofakeit.ProductDescription(),
 		"price":          gofakeit.Price(10, 20_000),
-		"category":       inventoryV1.Category(gofakeit.Number(0, 4)),
+		"category":       inventoryV1.Category(gofakeit.Number(0, 4)), //nolint:gosec
 		"stock_quantity": gofakeit.Uint8(),
 		"dimensions": bson.M{
 			"width":  gofakeit.Float64(),
