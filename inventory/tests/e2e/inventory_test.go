@@ -54,53 +54,40 @@ var _ = Describe("InventoryService", Ordered, func() {
 	})
 
 	Describe("Get", func() {
-		var partUUID string
+		var insertedPartPtr *InsertedPart
 
 		BeforeEach(func() {
 			var err error
-			partUUID, err = env.InsertTestPart(ctx)
+			insertedPartPtr, err = env.InsertTestPart(ctx)
 			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
 		})
 
 		It("должен успешно возвращать деталь по UUID", func() {
 			resp, err := inventoryClient.GetPart(ctx, &inventoryV1.GetPartRequest{
-				Uuid: partUUID,
+				Uuid: insertedPartPtr.Uuid,
 			})
 
 			Expect(err).ToNot(HaveOccurred())
-
 			Expect(resp.GetPart()).ToNot(BeNil())
-			Expect(resp.GetPart().Uuid).To(Equal(partUUID))
-			Expect(resp.GetPart().Name).ToNot(BeEmpty())
-			Expect(resp.GetPart().Description).ToNot(BeEmpty())
-			// Expect(resp.GetPart().Price).ToNot(BeEmpty())
-			// Expect(resp.GetPart().StockQuantity).ToNot(BeEmpty())
-			// Expect(resp.GetPart().Category).To(Equal(inventoryV1.Category_CATEGORY_ENGINE))
 
-			Expect(resp.GetPart().GetDimensions()).ToNot(BeNil())
-			// Expect(resp.GetPart().GetDimensions().Width).ToNot(BeEmpty())
-			// Expect(resp.GetPart().GetDimensions().Height).ToNot(BeEmpty())
-			// Expect(resp.GetPart().GetDimensions().Length).ToNot(BeEmpty())
-			// Expect(resp.GetPart().GetDimensions().Weight).ToNot(BeEmpty())
-
-			Expect(resp.GetPart().GetCreatedAt()).ToNot(BeNil())
+			AssertPartsEqual(insertedPartPtr, resp.GetPart())
 		})
 	})
 
 	Describe("List", Ordered, func() {
-		var partUUID1, partUUID2, partUUID3 string
+		var insertedPartPtr1, insertedPartPtr2, insertedPartPtr3 *InsertedPart
 
 		BeforeEach(func() {
 			var err error
 
-			partUUID1, err = env.InsertTestPart(ctx)
-			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+			insertedPartPtr1, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали 1 в MongoDB")
 
-			partUUID2, err = env.InsertTestPart(ctx)
-			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+			insertedPartPtr2, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали 2 в MongoDB")
 
-			partUUID3, err = env.InsertTestPart(ctx)
-			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали в MongoDB")
+			insertedPartPtr3, err = env.InsertTestPart(ctx)
+			Expect(err).ToNot(HaveOccurred(), "ожидали успешную вставку детали 3 в MongoDB")
 		})
 
 		It("list all parts", func() {
@@ -109,18 +96,19 @@ var _ = Describe("InventoryService", Ordered, func() {
 			})
 
 			Expect(err).ToNot(HaveOccurred())
-			Expect(resp.GetParts()).ToNot(BeNil())
-			Expect(len(resp.GetParts())).To(Equal(3))
+			parts := resp.GetParts()
+			Expect(parts).ToNot(BeNil())
+			Expect(len(parts)).To(Equal(3))
 
-			Expect(resp.GetParts()[0].Uuid).To(Equal(partUUID1))
-			Expect(resp.GetParts()[1].Uuid).To(Equal(partUUID2))
-			Expect(resp.GetParts()[2].Uuid).To(Equal(partUUID3))
+			AssertPartsEqual(insertedPartPtr1, parts[0])
+			AssertPartsEqual(insertedPartPtr2, parts[1])
+			AssertPartsEqual(insertedPartPtr3, parts[2])
 		})
 
 		XIt("list part by uuid", func() {
 			resp, err := inventoryClient.ListParts(ctx, &inventoryV1.ListPartsRequest{
 				Filter: &inventoryV1.PartsFilter{
-					Uuids: []string{partUUID1, partUUID3},
+					Uuids: []string{insertedPartPtr1.Uuid, insertedPartPtr2.Uuid},
 				},
 			})
 
@@ -129,8 +117,8 @@ var _ = Describe("InventoryService", Ordered, func() {
 			logger.Debug(ctx, "", zap.Any("Parts: ", parts))
 			Expect(len(parts)).To(Equal(2))
 
-			Expect(parts[0].Uuid).To(Or(Equal(partUUID1), Equal(partUUID3)))
-			Expect(parts[1].Uuid).To(Or(Equal(partUUID1), Equal(partUUID3)))
+			Expect(parts[0].Uuid).To(Or(Equal(insertedPartPtr1), Equal(insertedPartPtr2)))
+			Expect(parts[1].Uuid).To(Or(Equal(insertedPartPtr1), Equal(insertedPartPtr2)))
 		})
 	})
 })
