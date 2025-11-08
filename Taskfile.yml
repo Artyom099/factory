@@ -560,7 +560,7 @@ tasks:
               continue
             fi
 
-            go test -v -coverprofile={{.COVERAGE_DIR}}/$mod.out -coverpkg=$TARGET_PACKAGES ./$mod/...
+            go test -v -cover -coverprofile={{.COVERAGE_DIR}}/$mod.out -coverpkg=$TARGET_PACKAGES ./$mod/...
 
             echo "🧾 Покрытие для $mod:"
             go tool cover -func={{.COVERAGE_DIR}}/$mod.out | tail -n1
