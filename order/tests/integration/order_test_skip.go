@@ -3,8 +3,8 @@ package integration
 import (
 	"context"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" // nolint:staticcheck
+	. "github.com/onsi/gomega"    // nolint:staticcheck
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

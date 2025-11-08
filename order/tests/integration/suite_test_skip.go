@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo/v2" // nolint:staticcheck
+	. "github.com/onsi/gomega"    // nolint:staticcheck
 	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/platform/pkg/logger"
@@ -46,7 +46,7 @@ var _ = BeforeSuite(func() {
 
 	// Устанавливаем переменные в окружение процесса
 	for key, value := range envVars {
-		_ = os.Setenv(key, value)
+		_ = os.Setenv(key, value) // nolint:gosec
 	}
 
 	logger.Info(suiteCtx, "Запуск тестового окружения...")
