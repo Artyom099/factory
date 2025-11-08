@@ -102,7 +102,6 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 
 	reflection.Register(a.grpcServer)
 
-	// Регистрируем health service для проверки работоспособности
 	health.RegisterService(a.grpcServer)
 
 	paymentV1.RegisterPaymentServiceServer(a.grpcServer, a.diContainer.PaymentV1API(ctx))

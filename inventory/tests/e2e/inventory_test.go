@@ -5,11 +5,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/Artyom099/factory/platform/pkg/logger"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -23,7 +21,6 @@ var _ = Describe("InventoryService", Ordered, func() {
 	BeforeEach(func() {
 		ctx, cancel = context.WithCancel(suiteCtx)
 
-		// Создаём gRPC клиент
 		conn, err := grpc.NewClient(
 			env.App.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -34,7 +31,6 @@ var _ = Describe("InventoryService", Ordered, func() {
 	})
 
 	AfterEach(func() {
-		// Чистим коллекцию после теста
 		err := env.ClearPartsCollection(ctx)
 		Expect(err).ToNot(HaveOccurred(), "ожидали успешную очистку коллекции parts")
 
@@ -98,14 +94,14 @@ var _ = Describe("InventoryService", Ordered, func() {
 			Expect(err).ToNot(HaveOccurred())
 			parts := resp.GetParts()
 			Expect(parts).ToNot(BeNil())
-			Expect(len(parts)).To(Equal(3))
+			Expect(parts).To(HaveLen(3))
 
 			AssertPartsEqual(insertedPartPtr1, parts[0])
 			AssertPartsEqual(insertedPartPtr2, parts[1])
 			AssertPartsEqual(insertedPartPtr3, parts[2])
 		})
 
-		XIt("list part by uuid", func() {
+		It("list parts by uuids", func() {
 			resp, err := inventoryClient.ListParts(ctx, &inventoryV1.ListPartsRequest{
 				Filter: &inventoryV1.PartsFilter{
 					Uuids: []string{insertedPartPtr1.Uuid, insertedPartPtr2.Uuid},
@@ -113,12 +109,56 @@ var _ = Describe("InventoryService", Ordered, func() {
 			})
 
 			Expect(err).ToNot(HaveOccurred())
-			parts := resp.GetParts()
-			logger.Debug(ctx, "", zap.Any("Parts: ", parts))
-			Expect(len(parts)).To(Equal(2))
 
-			Expect(parts[0].Uuid).To(Or(Equal(insertedPartPtr1), Equal(insertedPartPtr2)))
-			Expect(parts[1].Uuid).To(Or(Equal(insertedPartPtr1), Equal(insertedPartPtr2)))
+			parts := resp.GetParts()
+			Expect(parts).To(HaveLen(2))
+
+			receivedUuids := []string{parts[0].Uuid, parts[1].Uuid}
+			Expect(receivedUuids).To(ConsistOf(
+				insertedPartPtr1.Uuid,
+				insertedPartPtr2.Uuid,
+			))
+		})
+
+		It("list parts by names", func() {
+			resp, err := inventoryClient.ListParts(ctx, &inventoryV1.ListPartsRequest{
+				Filter: &inventoryV1.PartsFilter{
+					Names: []string{insertedPartPtr1.Name, insertedPartPtr3.Name},
+				},
+			})
+
+			Expect(err).ToNot(HaveOccurred())
+
+			parts := resp.GetParts()
+			Expect(parts).To(HaveLen(2))
+
+			receivedNames := []string{parts[0].Name, parts[1].Name}
+			Expect(receivedNames).To(ConsistOf(
+				insertedPartPtr1.Name,
+				insertedPartPtr3.Name,
+			))
+		})
+
+		It("list parts by countries", func() {
+			resp, err := inventoryClient.ListParts(ctx, &inventoryV1.ListPartsRequest{
+				Filter: &inventoryV1.PartsFilter{
+					ManufacturerCountries: []string{
+						insertedPartPtr2.Manufacturer.Country,
+						insertedPartPtr3.Manufacturer.Country,
+					},
+				},
+			})
+
+			Expect(err).ToNot(HaveOccurred())
+
+			parts := resp.GetParts()
+			Expect(parts).To(HaveLen(2))
+
+			receivedCountries := []string{parts[0].Manufacturer.Country, parts[1].Manufacturer.Country}
+			Expect(receivedCountries).To(ConsistOf(
+				insertedPartPtr2.Manufacturer.Country,
+				insertedPartPtr3.Manufacturer.Country,
+			))
 		})
 	})
 })

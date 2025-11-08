@@ -4,24 +4,26 @@ import (
 	"context"
 	"errors"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/Artyom099/factory/payment/internal/api/converter"
 	"github.com/Artyom099/factory/payment/internal/service/model"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
 func (a *api) PayOrder(ctx context.Context, req *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
 	if err := req.Validate(); err != nil {
-		// logger.Error(ctx, "validation error", zap.Error(err))
+		logger.Error(ctx, "validation error", zap.Error(err))
 		return &paymentV1.PayOrderResponse{}, status.Errorf(codes.InvalidArgument, "validation error: %v", err)
 	}
 
 	transactionUuid, err := a.paymentService.PayOrder(ctx, converter.ToModelPayment(req))
 	if err != nil {
 		if errors.Is(err, model.ErrInvalidPaymentMethod) {
-			// logger.Error(ctx, "unsupported payment method", zap.String("payment method", req.GetPaymentMethod().String()))
+			logger.Error(ctx, "unsupported payment method", zap.String("payment method", req.GetPaymentMethod().String()))
 			return nil, status.Error(codes.InvalidArgument, "unsupported payment method")
 		}
 

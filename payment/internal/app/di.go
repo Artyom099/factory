@@ -25,21 +25,21 @@ func NewDiContainer() *diContainer {
 
 func (d *diContainer) PaymentV1API(ctx context.Context) paymentV1.PaymentServiceServer {
 	if d.paymentV1API == nil {
-		d.paymentV1API = paymentApiV1.NewAPI(d.PartService(ctx))
+		d.paymentV1API = paymentApiV1.NewAPI(d.PaymentService(ctx))
 	}
 
 	return d.paymentV1API
 }
 
-func (d *diContainer) PartService(ctx context.Context) service.IPaymentService {
+func (d *diContainer) PaymentService(ctx context.Context) service.IPaymentService {
 	if d.paymentService == nil {
-		d.paymentService = paymentService.NewService(d.PartRepository(ctx))
+		d.paymentService = paymentService.NewService(d.PaymentRepository(ctx))
 	}
 
 	return d.paymentService
 }
 
-func (d *diContainer) PartRepository(ctx context.Context) repository.IPaymentRepository {
+func (d *diContainer) PaymentRepository(ctx context.Context) repository.IPaymentRepository {
 	if d.paymentRepository == nil {
 		d.paymentRepository = paymentRepository.NewRepository()
 	}

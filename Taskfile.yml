@@ -526,6 +526,20 @@ tasks:
         echo
         echo "🎉 Все тесты API успешно выполнены!"
 
+  test-unit:
+    desc: "Запускает юнит-тесты для всех модулей"
+    summary: Можно указать конкретные модули через переменную MODULES
+    cmds:
+      - |
+        ERR=0
+        for mod in {{.MODULES}}; do
+          if [ -d "$mod" ]; then
+            echo "🧪 Тестируем модуль $mod"
+            go test -v ./$mod/internal/... || ERR=1
+          fi
+        done
+        exit $ERR
+
   coverage:test:
     desc: "Считает тестовое покрытие сервисов"
     cmds:
@@ -658,22 +672,6 @@ tasks:
       - task down-inventory
       - task down-order
 
-  test-unit:
-    desc: "Запускает юнит-тесты для всех модулей"
-    summary: |
-      Запускает юнит-тесты для указанных модулей проекта.
-      Можно указать конкретные модули через переменную MODULES.
-    cmds:
-      - |
-        ERR=0
-        for mod in {{.MODULES}}; do
-          if [ -d "$mod" ]; then
-            echo "🧪 Тестируем модуль $mod"
-            go test -v ./$mod/internal/... || ERR=1
-          fi
-        done
-        exit $ERR
-
   goose:install:
     desc: "Устанавливает goose в ./bin"
     cmds:
@@ -726,15 +724,23 @@ tasks:
         ENV_SUBST={{.ENVSUBST}} "$SCRIPT"
 
   e2e:test:inv:
-    desc: "Запускает e2e тесты для Inventory сервиса"
+    desc: "Запускает интеграционные тесты для Inventory сервиса"
     dir: inventory/tests/e2e
     cmds:
-      - echo "🚀 Запуск e2e тестов Inventory сервиса..."
+      - echo "🚀 Запуск интеграционных тестов Inventory сервиса..."
       - cd ../../ && go mod tidy
-      # - go test -tags=integration -v ./...
+      - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...
+
+  e2e:test:order:
+    desc: "Запускает интеграционные тесты для Order сервиса"
+    dir: order/tests/integration
+    cmds:
+      - echo "🚀 Запуск интеграционных тестов Order сервиса..."
+      - cd ../../ && go mod tidy
       - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...
 
   test-integration:
-    desc: "Запускает e2e тесты всех сервисов"
+    desc: "Запускает интеграционные тесты всех сервисов"
     cmds:
       - task e2e:test:inv
+      # - task e2e:test:order

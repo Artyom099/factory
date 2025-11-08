@@ -135,11 +135,6 @@ func (a *App) initMigrator(ctx context.Context) error {
 	pool := a.diContainer.PostgresHandle(ctx)
 	connConfig := pool.Config().ConnConfig.Copy()
 	sqlDB := stdlib.OpenDB(*connConfig)
-	// defer func() {
-	// 	if cerr := sqlDB.Close(); cerr != nil {
-	// 		logger.Error(ctx, "❌ Ошибка при закрытии DB после миграций", zap.Error(cerr))
-	// 	}
-	// }()
 
 	migratorRunner := migrator.NewMigrator(sqlDB, migrationsDir)
 	if err := migratorRunner.Up(); err != nil {
