@@ -14,16 +14,16 @@ import (
 )
 
 type InsertedPart struct {
-	Uuid          string
-	Name          string
-	Description   string
-	Price         float64
-	Category      inventoryV1.Category
-	StockQuantity int64
-	Dimensions    *inventoryV1.Dimensions
-	Manufacturer  *inventoryV1.Manufacturer
-	Tags          []string
-	// Metadata      map[string]*Value
+	Uuid          string                       `bson:"uuid"`
+	Name          string                       `bson:"name"`
+	Description   string                       `bson:"description"`
+	Price         float64                      `bson:"price"`
+	Category      inventoryV1.Category         `bson:"category"`
+	StockQuantity int64                        `bson:"stock_quantity"`
+	Dimensions    *inventoryV1.Dimensions      `bson:"dimensions"`
+	Manufacturer  *inventoryV1.Manufacturer    `bson:"manufacturer"`
+	Tags          []string                     `bson:"tags"`
+	Metadata      map[string]map[string]string `bson:"metadata"`
 }
 
 func (env *TestEnvironment) GetCreatePartRequest() *inventoryV1.CreatePartRequest {
@@ -41,12 +41,12 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (*InsertedPart, 
 	uuid := gofakeit.UUID()
 
 	part := bson.M{
-		"uuid":        uuid,
-		"name":        gofakeit.Product().Name,
-		"description": gofakeit.Product().Description,
-		"price":       gofakeit.Price(10, 20_000),
-		"category":    inventoryV1.Category(gofakeit.Number(0, 4)), //nolint:gosec
-		// "stock_quantity": gofakeit.Int64(),
+		"uuid":           uuid,
+		"name":           gofakeit.Product().Name,
+		"description":    gofakeit.Product().Description,
+		"price":          gofakeit.Price(10, 20_000),
+		"category":       inventoryV1.Category(gofakeit.Number(0, 4)), //nolint:gosec
+		"stock_quantity": gofakeit.Int64(),
 		"dimensions": bson.M{
 			"width":  gofakeit.Float64Range(0, 100_000),
 			"height": gofakeit.Float64Range(0, 100_000),
@@ -58,13 +58,15 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (*InsertedPart, 
 			"country": gofakeit.Country(),
 		},
 		"tags": []string{gofakeit.Adjective(), gofakeit.Adjective()},
-		// "metadata": bson.M{
-		// 	"key1": gofakeit.BeerName(),
-		// },
+		"metadata": bson.M{
+			"material": bson.M{
+				"string_value": gofakeit.BeerName(),
+			},
+		},
 		"created_at": primitive.NewDateTimeFromTime(time.Now()),
 	}
 
-	databaseName := os.Getenv("MONGO_DATABASE")
+	databaseName := os.Getenv("MONGO_INITDB_DATABASE")
 	if databaseName == "" {
 		databaseName = "inventory-service" // fallback значение
 	}
@@ -90,23 +92,43 @@ func (env *TestEnvironment) InsertTestPart(ctx context.Context) (*InsertedPart, 
 func AssertPartsEqual(expected *InsertedPart, got *inventoryV1.Part) {
 	Expect := gomega.Expect
 	Equal := gomega.Equal
+	BeTrue := gomega.BeTrue
 
 	Expect(got.Uuid).To(Equal(expected.Uuid))
 	Expect(got.Name).To(Equal(expected.Name))
 	Expect(got.Description).To(Equal(expected.Description))
-	Expect(got.Price).To(gomega.Equal(expected.Price))
-	Expect(got.Category).To(gomega.Equal(expected.Category))
-	Expect(got.Dimensions.Width).To(gomega.Equal(expected.Dimensions.Width))
-	Expect(got.Dimensions.Height).To(gomega.Equal(expected.Dimensions.Height))
-	Expect(got.Dimensions.Length).To(gomega.Equal(expected.Dimensions.Length))
-	Expect(got.Dimensions.Weight).To(gomega.Equal(expected.Dimensions.Weight))
-	Expect(got.Manufacturer.Name).To(gomega.Equal(expected.Manufacturer.Name))
-	Expect(got.Manufacturer.Country).To(gomega.Equal(expected.Manufacturer.Country))
-	Expect(got.Tags).To(gomega.Equal(expected.Tags))
+	Expect(got.Price).To(Equal(expected.Price))
+	Expect(got.Category).To(Equal(expected.Category))
+	Expect(got.StockQuantity).To(Equal(expected.StockQuantity))
+	Expect(got.Dimensions.Width).To(Equal(expected.Dimensions.Width))
+	Expect(got.Dimensions.Height).To(Equal(expected.Dimensions.Height))
+	Expect(got.Dimensions.Length).To(Equal(expected.Dimensions.Length))
+	Expect(got.Dimensions.Weight).To(Equal(expected.Dimensions.Weight))
+	Expect(got.Manufacturer.Name).To(Equal(expected.Manufacturer.Name))
+	Expect(got.Manufacturer.Country).To(Equal(expected.Manufacturer.Country))
+	Expect(got.Tags).To(Equal(expected.Tags))
+
+	if expected.Metadata != nil && got.Metadata != nil {
+		for key, expVal := range expected.Metadata {
+			gotVal, ok := got.Metadata[key]
+			Expect(ok).To(BeTrue(), "missing metadata key %s", key)
+
+			switch val := any(expVal).(type) {
+			case string:
+				Expect(gotVal.GetStringValue()).
+					To(Equal(val), "mismatch in metadata[%s]", key)
+			case map[string]string:
+				Expect(gotVal.GetStringValue()).
+					To(Equal(val["string_value"]), "mismatch in metadata[%s]", key)
+			default:
+				Expect(false).To(BeTrue(), "unsupported metadata type for %s", key)
+			}
+		}
+	}
 }
 
 func (env *TestEnvironment) ClearPartsCollection(ctx context.Context) error {
-	databaseName := os.Getenv("MONGO_DATABASE")
+	databaseName := os.Getenv("MONGO_INITDB_DATABASE")
 	if databaseName == "" {
 		databaseName = "inventory-service" // fallback значение
 	}
