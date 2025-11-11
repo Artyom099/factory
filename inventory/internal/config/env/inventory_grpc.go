@@ -15,7 +15,7 @@ type inventoryGRPCConfig struct {
 	raw inventoryGRPCEnvConfig
 }
 
-func NewUFOGRPCConfig() (*inventoryGRPCConfig, error) {
+func NewInventoryGRPCConfig() (*inventoryGRPCConfig, error) {
 	var raw inventoryGRPCEnvConfig
 	if err := env.Parse(&raw); err != nil {
 		return nil, err

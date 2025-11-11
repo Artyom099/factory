@@ -16,7 +16,7 @@ import (
 func (a *api) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
 	orderUUID, err := uuid.Parse(params.OrderUUID.String())
 	if err != nil {
-		logger.Error(ctx, "invalid order_uuid", zap.String("order_uuid", orderUUID.String()))
+		logger.Error(ctx, "invalid order_uuid", zap.String("order_uuid", params.OrderUUID.String()))
 		return &orderV1.BadRequestError{
 			Code:    400,
 			Message: fmt.Sprintf("Invalid order_uuid: %v", err),
@@ -34,7 +34,7 @@ func (a *api) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams)
 		}
 
 		if errors.Is(err, model.ErrConflict) {
-			logger.Error(ctx, "order paid or already cancelled", zap.String("order_uuid", orderUUID.String()))
+			logger.Error(ctx, err.Error(), zap.String("order_uuid", orderUUID.String()))
 			return &orderV1.ConflictError{
 				Code:    409,
 				Message: fmt.Sprintf("Order %s paid or already cancelled", orderUUID.String()),

@@ -27,7 +27,7 @@ func Load(path ...string) error {
 		return err
 	}
 
-	inventoryGRPCCfg, err := env.NewUFOGRPCConfig()
+	inventoryGRPCCfg, err := env.NewInventoryGRPCConfig()
 	if err != nil {
 		return err
 	}
