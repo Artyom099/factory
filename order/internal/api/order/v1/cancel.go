@@ -6,14 +6,17 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
 func (a *api) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams) (orderV1.CancelOrderRes, error) {
 	orderUUID, err := uuid.Parse(params.OrderUUID.String())
 	if err != nil {
+		logger.Error(ctx, "invalid order_uuid", zap.String("order_uuid", params.OrderUUID.String()))
 		return &orderV1.BadRequestError{
 			Code:    400,
 			Message: fmt.Sprintf("Invalid order_uuid: %v", err),
@@ -23,18 +26,22 @@ func (a *api) CancelOrder(ctx context.Context, params orderV1.CancelOrderParams)
 	err = a.orderService.Cancel(ctx, orderUUID.String())
 	if err != nil {
 		if errors.Is(err, model.ErrOrderNotFound) {
+			logger.Error(ctx, "order not found", zap.String("order_uuid", orderUUID.String()))
 			return &orderV1.NotFoundError{
 				Code:    404,
 				Message: fmt.Sprintf("Order %s not found", orderUUID.String()),
 			}, nil
 		}
+
 		if errors.Is(err, model.ErrConflict) {
+			logger.Error(ctx, err.Error(), zap.String("order_uuid", orderUUID.String()))
 			return &orderV1.ConflictError{
 				Code:    409,
 				Message: fmt.Sprintf("Order %s paid or already cancelled", orderUUID.String()),
 			}, nil
 		}
 
+		logger.Error(ctx, "internal server error", zap.String("order_uuid", orderUUID.String()), zap.Error(err))
 		return &orderV1.InternalServerError{
 			Code:    500,
 			Message: "Internal Server Error",

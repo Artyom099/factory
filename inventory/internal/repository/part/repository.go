@@ -2,13 +2,14 @@ package part
 
 import (
 	"context"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 
 	def "github.com/Artyom099/factory/inventory/internal/repository"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
 var _ def.IPartRepository = (*repository)(nil)
@@ -17,8 +18,8 @@ type repository struct {
 	collection *mongo.Collection
 }
 
-func NewRepository(db *mongo.Database) *repository {
-	collection := db.Collection("orders")
+func NewRepository(ctx context.Context, db *mongo.Database) *repository {
+	collection := db.Collection("parts")
 
 	indexModels := []mongo.IndexModel{
 		{
@@ -43,11 +44,9 @@ func NewRepository(db *mongo.Database) *repository {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	_, err := collection.Indexes().CreateMany(ctx, indexModels)
 	if err != nil {
+		logger.Error(ctx, "error create mongo indexes", zap.Error(err))
 		panic(err)
 	}
 

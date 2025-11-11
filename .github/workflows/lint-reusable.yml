@@ -15,7 +15,7 @@ on:
 
 jobs:
   golangci-lint:
-    name: Lint all Go modules
+    name: lint all go modules
     runs-on: ubuntu-latest
 
     steps:

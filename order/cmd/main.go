@@ -2,150 +2,51 @@ package main
 
 import (
 	"context"
-	"errors"
-	"log"
-	"net"
-	"net/http"
-	"os"
+	"fmt"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"go.uber.org/zap"
 
-	orderApiV1 "github.com/Artyom099/factory/order/internal/api/order/v1"
-	grpcInventoryV1 "github.com/Artyom099/factory/order/internal/client/grpc/inventory/v1"
-	grpcPaymentV1 "github.com/Artyom099/factory/order/internal/client/grpc/payment/v1"
-	"github.com/Artyom099/factory/order/internal/migrator"
-	orderRepository "github.com/Artyom099/factory/order/internal/repository/order"
-	orderService "github.com/Artyom099/factory/order/internal/service/order"
-	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
-	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
-	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
+	"github.com/Artyom099/factory/order/internal/app"
+	"github.com/Artyom099/factory/order/internal/config"
+	"github.com/Artyom099/factory/platform/pkg/closer"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
-const (
-	httpPort               = "8080"
-	inventoryServerAddress = "localhost:50051"
-	paymentServerAddress   = "localhost:50052"
-	readHeaderTimeout      = 5 * time.Second
-	shutdownTimeout        = 10 * time.Second
-)
+const configPath = "../deploy/compose/order/.env"
 
 func main() {
-	ctx := context.Background()
-
-	inventoryConn, err := grpc.NewClient(
-		inventoryServerAddress,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	err := config.Load(configPath)
 	if err != nil {
-		log.Fatalf("failed to connect inventory: %v", err)
+		panic(fmt.Errorf("failed to load config: %w", err))
 	}
 
-	inventoryClient := inventoryV1.NewInventoryServiceClient(inventoryConn)
+	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer appCancel()
+	defer gracefulShutdown()
 
-	paymentConn, err := grpc.NewClient(
-		paymentServerAddress,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		log.Fatalf("failed to connect payment: %v", err)
-	}
+	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
 
-	err = godotenv.Load(".env")
+	a, err := app.New(appCtx)
 	if err != nil {
-		log.Fatalf("failed to load .env file: %v\n", err)
+		logger.Error(appCtx, "❌ Не удалось создать приложение", zap.Error(err))
 		return
 	}
 
-	pool := initDB(ctx)
-	defer pool.Close()
-
-	migrationsDir := os.Getenv("MIGRATIONS_DIR")
-	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*pool.Config().ConnConfig), migrationsDir)
-
-	err = migratorRunner.Up()
+	err = a.Run(appCtx)
 	if err != nil {
-		log.Printf("Ошибка миграции базы данных: %v\n", err)
+		logger.Error(appCtx, "❌ Ошибка при работе приложения", zap.Error(err))
 		return
 	}
-
-	paymentClient := paymentV1.NewPaymentServiceClient(paymentConn)
-
-	grpcInventoryClient := grpcInventoryV1.NewClient(inventoryClient)
-	grpcPaymentClient := grpcPaymentV1.NewClient(paymentClient)
-
-	repo := orderRepository.NewRepository(pool)
-	service := orderService.NewService(repo, grpcInventoryClient, grpcPaymentClient)
-	api := orderApiV1.NewAPI(service)
-
-	orderServer, err := orderV1.NewServer(api)
-	if err != nil {
-		log.Printf("ошибка создания сервера OpenAPI: %v", err)
-		return
-	}
-
-	r := chi.NewRouter()
-
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(10 * time.Second))
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-
-	r.Mount("/", orderServer)
-
-	server := &http.Server{
-		Addr:              net.JoinHostPort("localhost", httpPort),
-		Handler:           r,
-		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки
-	}
-
-	go func() {
-		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", httpPort)
-		err := server.ListenAndServe()
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Printf("❌ Ошибка запуска сервера: %v\n", err)
-		}
-	}()
-
-	// Graceful shutdown
-	quitCh := make(chan os.Signal, 1)
-	signal.Notify(quitCh, syscall.SIGINT, syscall.SIGTERM)
-	<-quitCh
-
-	log.Println("🛑 Завершение работы сервера...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
-
-	err = server.Shutdown(ctx)
-	if err != nil {
-		log.Printf("❌ Ошибка при остановке сервера: %v\n", err)
-	}
-
-	log.Println("✅ Сервер остановлен")
 }
 
-func initDB(ctx context.Context) *pgxpool.Pool {
-	dbURI := os.Getenv("DB_URI")
+func gracefulShutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	pool, err := pgxpool.New(ctx, dbURI)
-	if err != nil {
-		log.Fatalf("failed to connect db: %v", err)
+	if err := closer.CloseAll(ctx); err != nil {
+		logger.Error(ctx, "❌ Ошибка при завершении работы", zap.Error(err))
 	}
-
-	err = pool.Ping(ctx)
-	if err != nil {
-		log.Fatalf("База данных недоступна: %v\n", err)
-	}
-
-	return pool
 }
