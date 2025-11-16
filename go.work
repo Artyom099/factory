@@ -1,8 +1,10 @@
 go 1.24.0
 
 use (
+	./assembly
 	./inventory
 	./order
+	./notification
 	./payment
 	./platform
 	./shared

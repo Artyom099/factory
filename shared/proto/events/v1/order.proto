@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package events.v1;
+
+import "validate/validate.proto";
+
+option go_package = "github.com/Artyom099/factory/shared/pkg/events/v1;events_v1";
+
+// PaymentMethod - определение способа оплаты
+enum PaymentMethod {
+    PAYMENT_METHOD_UNSPECIFIED = 0;
+    PAYMENT_METHOD_CARD = 1;
+    PAYMENT_METHOD_SBP = 2;
+    PAYMENT_METHOD_CREDIT_CARD = 3;
+    PAYMENT_METHOD_INVESTOR_MONEY = 4;
+}
+
+// Событие Order -> Assembly
+message OrderPaidEvent {
+    string event_uuid = 1 [(validate.rules).string.uuid = true];
+    string order_uuid = 2 [(validate.rules).string.uuid = true];
+    string user_uuid = 3 [(validate.rules).string.uuid = true];
+    PaymentMethod payment_method = 4 [(validate.rules).enum.defined_only = true];
+    string transaction_uuid = 5 [(validate.rules).string.uuid = true];
+}
+
+// Событие Assembly -> Order
+message ShipAssembledEvent {
+    string event_uuid = 1 [(validate.rules).string.uuid = true];
+    string order_uuid = 2 [(validate.rules).string.uuid = true];
+    string user_uuid = 3 [(validate.rules).string.uuid = true];
+    int64 build_time_sec = 4;
+}

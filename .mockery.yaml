@@ -7,7 +7,14 @@ mockname: "{{.InterfaceName}}"
 resolve-type-alias: False
 issue-845-fix: True
 
+# команда для генерации моков - task mockery:gen
+
 packages:
+  # payment
+  github.com/Artyom099/factory/payment/internal/config:
+    config:
+      include-regex: ".*Config"
+
   github.com/Artyom099/factory/payment/internal/service:
     config:
       include-regex: ".*Service"
@@ -16,6 +23,11 @@ packages:
     config:
       include-regex: ".*Repository"
 
+  # inventory
+  github.com/Artyom099/factory/inventory/internal/config:
+    config:
+      include-regex: ".*Config"
+
   github.com/Artyom099/factory/inventory/internal/service:
     config:
       include-regex: ".*Service"
@@ -23,6 +35,11 @@ packages:
   github.com/Artyom099/factory/inventory/internal/repository:
     config:
       include-regex: ".*Repository"
+
+  # order
+  github.com/Artyom099/factory/order/internal/config:
+    config:
+      include-regex: ".*Config"
 
   github.com/Artyom099/factory/order/internal/service:
     config:
@@ -35,3 +52,7 @@ packages:
   github.com/Artyom099/factory/order/internal/client/grpc:
     config:
       include-regex: ".*Client"
+
+  # assembly
+
+  # notification

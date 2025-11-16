@@ -1,0 +1,14 @@
+**Заказ оплачен**
+
+**ID Заказа:** {{.UUID}}
+**Поьзователь:** {{.UserUUID}}
+
+{{- if .PaymentMethod}}
+*Способ оплаты:** {{.PaymentMethod}}
+{{- end}}
+
+{{- if .TransactionUUID}}
+**Цвет:** {{.TransactionUUID}}
+{{- end}}
+
+**Зарегистрировано:** {{.RegisteredAt.Format "2006-01-02 15:04:05"}}
