@@ -1,24 +1,28 @@
-package migrator
+package pg
 
 import (
 	"database/sql"
 
 	"github.com/pressly/goose/v3"
+
+	def "github.com/Artyom099/factory/platform/pkg/migrator"
 )
 
-type Migrator struct {
+var _ def.IMigrator = (*migrator)(nil)
+
+type migrator struct {
 	db            *sql.DB
 	migrationsDir string
 }
 
-func NewMigrator(db *sql.DB, migrationsDir string) *Migrator {
-	return &Migrator{
+func NewMigrator(db *sql.DB, migrationsDir string) *migrator {
+	return &migrator{
 		db:            db,
 		migrationsDir: migrationsDir,
 	}
 }
 
-func (m *Migrator) Up() error {
+func (m *migrator) Up() error {
 	err := goose.Up(m.db, m.migrationsDir)
 	if err != nil {
 		return err

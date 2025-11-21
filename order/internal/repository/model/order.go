@@ -7,7 +7,7 @@ type RepoOrder struct {
 	UserUUID        string             `db:"user_uuid"`
 	PartUuids       []string           `db:"part_uuids"`
 	TotalPrice      float32            `db:"total_price"`
-	TransactionUUID string             `db:"transaction_uuid"`
+	TransactionUUID *string            `db:"transaction_uuid"`
 	PaymentMethod   OrderPaymentMethod `db:"payment_method"`
 	Status          OrderStatus        `db:"status"`
 	CreatedAt       time.Time          `db:"created_at"`

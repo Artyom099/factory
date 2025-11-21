@@ -11,7 +11,7 @@ func ToRepoOrder(dto servModel.Order) repoModel.RepoOrder {
 		UserUUID:        dto.UserUUID,
 		PartUuids:       dto.PartUuids,
 		TotalPrice:      dto.TotalPrice,
-		TransactionUUID: dto.TransactionUUID,
+		TransactionUUID: &dto.TransactionUUID,
 		PaymentMethod:   repoModel.OrderPaymentMethod(dto.PaymentMethod),
 		Status:          repoModel.OrderStatus(dto.Status),
 	}
@@ -23,7 +23,7 @@ func ToModelOrder(dto repoModel.RepoOrder) servModel.Order {
 		UserUUID:        dto.UserUUID,
 		PartUuids:       dto.PartUuids,
 		TotalPrice:      dto.TotalPrice,
-		TransactionUUID: dto.TransactionUUID,
+		TransactionUUID: *dto.TransactionUUID,
 		PaymentMethod:   servModel.OrderPaymentMethod(dto.PaymentMethod),
 		Status:          servModel.OrderStatus(dto.Status),
 	}

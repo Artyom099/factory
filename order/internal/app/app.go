@@ -14,9 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 
 	"github.com/Artyom099/factory/order/internal/config"
-	"github.com/Artyom099/factory/order/internal/migrator"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
@@ -79,7 +79,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) initListener(_ context.Context) error {
-	listener, err := net.Listen("tcp", config.AppConfig().OrderGRPC.Address())
+	listener, err := net.Listen("tcp", config.AppConfig().OrderHTTP.Address())
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	readHeaderTimeout := 5 * time.Second
 
 	a.httpServer = &http.Server{
-		Addr:              config.AppConfig().OrderGRPC.Address(),
+		Addr:              config.AppConfig().OrderHTTP.Address(),
 		Handler:           r,
 		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки
 	}
@@ -136,7 +136,7 @@ func (a *App) initMigrator(ctx context.Context) error {
 	connConfig := pool.Config().ConnConfig.Copy()
 	sqlDB := stdlib.OpenDB(*connConfig)
 
-	migratorRunner := migrator.NewMigrator(sqlDB, migrationsDir)
+	migratorRunner := pg.NewMigrator(sqlDB, migrationsDir)
 	if err := migratorRunner.Up(); err != nil {
 		return fmt.Errorf("apply migrations: %w", err)
 	}
@@ -147,7 +147,7 @@ func (a *App) initMigrator(ctx context.Context) error {
 }
 
 func (a *App) runHTTPServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf("🚀 HTTP OrderService server listening on %s", config.AppConfig().OrderGRPC.Address()))
+	logger.Info(ctx, fmt.Sprintf("🚀 HTTP OrderService server listening on %s", config.AppConfig().OrderHTTP.Address()))
 
 	err := a.httpServer.Serve(a.listener)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {

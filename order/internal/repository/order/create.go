@@ -41,7 +41,7 @@ func (r *repository) Create(ctx context.Context, dto model.Order) (string, error
 	}
 
 	for _, partUuid := range order.PartUuids {
-		builderInsertOrderParts := sq.Insert("order_parts").
+		builderInsertOrderParts := sq.Insert("orders_parts").
 			Columns("order_id", "part_id").
 			Values(orderUUID, partUuid).
 			PlaceholderFormat(sq.Dollar)

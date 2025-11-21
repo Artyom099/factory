@@ -38,5 +38,17 @@ func (s *service) Pay(ctx context.Context, orderUUID string, paymentMethod model
 		return "", err
 	}
 
+	// отправляем сообщение в кафку, что заказ оплачен
+	err = s.orderProducerService.ProduceOrderPaid(ctx, model.OrderPaidOutEvent{
+		EventUUID:       "mock",
+		OrderUUID:       orderUUID,
+		UserUUID:        order.UserUUID,
+		PaymentMethod:   string(paymentMethod),
+		TransactionUUID: transactionUUID,
+	})
+	if err != nil {
+		return "", model.ErrSendOderPaidMessageToKafka
+	}
+
 	return transactionUUID, nil
 }
