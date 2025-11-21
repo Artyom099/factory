@@ -21,8 +21,8 @@ import (
 )
 
 type diContainer struct {
-	assemblyProducerService service.IProducerService
-	assemblyConsumerService service.IConsumerService
+	assemblyProducerService service.IAssemblyProducerService
+	assemblyConsumerService service.IAssemblyConsumerService
 
 	consumerGroup     sarama.ConsumerGroup
 	orderPaidConsumer wrappedKafka.IConsumer
@@ -36,7 +36,7 @@ func NewDiContainer() *diContainer {
 	return &diContainer{}
 }
 
-func (d *diContainer) AssemblyProducerService() service.IProducerService {
+func (d *diContainer) AssemblyProducerService() service.IAssemblyProducerService {
 	if d.assemblyProducerService == nil {
 		d.assemblyProducerService = orderProducer.NewService(d.OrderAssembledProducer())
 	}
@@ -44,7 +44,7 @@ func (d *diContainer) AssemblyProducerService() service.IProducerService {
 	return d.assemblyProducerService
 }
 
-func (d *diContainer) AssemblyConsumerService() service.IConsumerService {
+func (d *diContainer) AssemblyConsumerService() service.IAssemblyConsumerService {
 	if d.assemblyConsumerService == nil {
 		d.assemblyConsumerService = orderConsumer.NewService(d.OrderPaidConsumer(), d.OrderPaidDecoder())
 	}

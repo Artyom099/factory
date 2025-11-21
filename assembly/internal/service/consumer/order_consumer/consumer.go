@@ -11,7 +11,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
-var _ def.IConsumerService = (*service)(nil)
+var _ def.IAssemblyConsumerService = (*service)(nil)
 
 type service struct {
 	orderPaidConsumer kafka.IConsumer

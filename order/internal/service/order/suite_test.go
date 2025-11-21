@@ -7,7 +7,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	clientMocks "github.com/Artyom099/factory/order/internal/client/grpc/mocks"
-	"github.com/Artyom099/factory/order/internal/repository/mocks"
+	repoMocks "github.com/Artyom099/factory/order/internal/repository/mocks"
+	serviceMocks "github.com/Artyom099/factory/order/internal/service/mocks"
 )
 
 type ServiceSuite struct {
@@ -15,9 +16,11 @@ type ServiceSuite struct {
 
 	ctx context.Context // nolint:containedctx
 
-	orderRepository *mocks.IOrderRepository
-	inventoryClient *clientMocks.IInventoryClient
-	paymentClient   *clientMocks.IPaymentClient
+	orderRepository      *repoMocks.IOrderRepository
+	inventoryClient      *clientMocks.IInventoryClient
+	paymentClient        *clientMocks.IPaymentClient
+	orderProducerService *serviceMocks.IOrderProducerService
+	orderConsumerService *serviceMocks.IOrderConsumerService
 
 	service *service
 }
@@ -25,14 +28,18 @@ type ServiceSuite struct {
 func (s *ServiceSuite) SetupTest() {
 	s.ctx = context.Background()
 
-	s.orderRepository = mocks.NewIOrderRepository(s.T())
+	s.orderRepository = repoMocks.NewIOrderRepository(s.T())
 	s.inventoryClient = clientMocks.NewIInventoryClient(s.T())
 	s.paymentClient = clientMocks.NewIPaymentClient(s.T())
+	s.orderProducerService = serviceMocks.NewIOrderProducerService(s.T())
+	s.orderConsumerService = serviceMocks.NewIOrderConsumerService(s.T())
 
 	s.service = NewService(
 		s.orderRepository,
 		s.inventoryClient,
 		s.paymentClient,
+		s.orderProducerService,
+		s.orderConsumerService,
 	)
 }
 

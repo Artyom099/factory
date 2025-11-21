@@ -19,20 +19,20 @@ func (r *repository) Get(ctx context.Context, orderUuid string) (model.Order, er
 			"o.user_uuid",
 			"COALESCE(array_agg(op.part_id), '{}') AS part_uuids",
 			"o.total_price",
-			"o.transaction_uuid",
+			"COALESCE(o.transaction_uuid, '') AS transaction_uuid",
 			"o.payment_method",
 			"o.status",
 			"o.created_at",
 			"o.updated_at",
 		).
 		From("orders o").
-		LeftJoin("order_parts op ON o.id = op.order_id").
+		LeftJoin("orders_parts op ON o.id = op.order_id").
 		Where(sq.Eq{"o.id": orderUuid}).
 		GroupBy(
 			"o.id",
 			"o.user_uuid",
 			"o.total_price",
-			"o.transaction_uuid",
+			"COALESCE(o.transaction_uuid, '')",
 			"o.payment_method",
 			"o.status",
 			"o.created_at",

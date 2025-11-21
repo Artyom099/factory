@@ -54,5 +54,27 @@ packages:
       include-regex: ".*Client"
 
   # assembly
+  github.com/Artyom099/factory/assembly/internal/config:
+    config:
+      include-regex: ".*Config"
+
+  github.com/Artyom099/factory/assembly/internal/service:
+    config:
+      include-regex: ".*Service"
+
+  github.com/Artyom099/factory/assembly/internal/repository:
+    config:
+      include-regex: ".*Repository"
 
   # notification
+  github.com/Artyom099/factory/notification/internal/config:
+    config:
+      include-regex: ".*Config"
+
+  github.com/Artyom099/factory/notification/internal/service:
+    config:
+      include-regex: ".*Service"
+
+  github.com/Artyom099/factory/notification/internal/repository:
+    config:
+      include-regex: ".*Repository"

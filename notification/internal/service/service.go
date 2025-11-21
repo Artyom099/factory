@@ -11,5 +11,5 @@ type IConsumerService interface {
 }
 
 type TelegramService interface {
-	SendOrderPaidNotification(ctx context.Context, uuid string, dto model.OrderPaidInEvent) error
+	SendOrderPaidNotification(ctx context.Context, dto model.OrderPaidInEvent) error
 }

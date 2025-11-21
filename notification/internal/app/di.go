@@ -109,6 +109,8 @@ func (d *diContainer) TelegramClient(ctx context.Context) httpClient.TelegramCli
 	return d.telegramClient
 }
 
+const telegramBotToken = "mock"
+
 func (d *diContainer) TelegramBot(ctx context.Context) *bot.Bot {
 	if d.telegramBot == nil {
 		b, err := bot.New(telegramBotToken)

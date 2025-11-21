@@ -6,10 +6,11 @@ import (
 	"embed"
 	"html/template"
 
+	"go.uber.org/zap"
+
 	"github.com/Artyom099/factory/notification/internal/client/http"
 	"github.com/Artyom099/factory/notification/internal/model"
 	"github.com/Artyom099/factory/platform/pkg/logger"
-	"go.uber.org/zap"
 )
 
 //go:embed templates/order_paid_notification.tmpl

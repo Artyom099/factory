@@ -16,4 +16,6 @@ var (
 	ErrOrderCancelled = errors.New("order cancelled")
 
 	ErrInPaymeentService = errors.New("payment service error")
+
+	ErrSendOderPaidMessageToKafka = errors.New("send message to kafka error")
 )

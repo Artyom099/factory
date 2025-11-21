@@ -6,10 +6,10 @@ import (
 	"github.com/Artyom099/factory/assembly/internal/model"
 )
 
-type IConsumerService interface {
+type IAssemblyConsumerService interface {
 	RunConsumer(ctx context.Context) error
 }
 
-type IProducerService interface {
+type IAssemblyProducerService interface {
 	ProduceOrderAssembled(ctx context.Context, event model.ShipAssembledOutEvent) error
 }
