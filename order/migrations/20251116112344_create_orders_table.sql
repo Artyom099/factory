@@ -4,7 +4,7 @@ CREATE TABLE orders (
     id                  UUID PRIMARY KEY            DEFAULT uuid_generate_v4(),
     user_uuid           UUID                        NOT NULL,
     total_price         NUMERIC(10, 2)              NOT NULL,
-    transaction_uuid    UUID,
+    transaction_uuid    TEXT,
     payment_method      TEXT                        NOT NULL,
     status              TEXT                        NOT NULL,
     created_at          TIMESTAMP WITH TIME ZONE    NOT NULL DEFAULT now(),

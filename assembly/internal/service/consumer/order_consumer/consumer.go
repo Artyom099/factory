@@ -16,12 +16,18 @@ var _ def.IAssemblyConsumerService = (*service)(nil)
 type service struct {
 	orderPaidConsumer kafka.IConsumer
 	orderPaidDecoder  kafkaConverter.IOrderPaidDecoder
+	assemblyService   def.IAssemblyService
 }
 
-func NewService(orderPaidConsumer kafka.IConsumer, orderPaidDecoder kafkaConverter.IOrderPaidDecoder) *service {
+func NewService(
+	orderPaidConsumer kafka.IConsumer,
+	orderPaidDecoder kafkaConverter.IOrderPaidDecoder,
+	assemblyService def.IAssemblyService,
+) *service {
 	return &service{
 		orderPaidConsumer: orderPaidConsumer,
 		orderPaidDecoder:  orderPaidDecoder,
+		assemblyService:   assemblyService,
 	}
 }
 

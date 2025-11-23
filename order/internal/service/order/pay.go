@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
 
@@ -40,7 +42,7 @@ func (s *service) Pay(ctx context.Context, orderUUID string, paymentMethod model
 
 	// отправляем сообщение в кафку, что заказ оплачен
 	err = s.orderProducerService.ProduceOrderPaid(ctx, model.OrderPaidOutEvent{
-		EventUUID:       "mock",
+		EventUUID:       uuid.New().String(),
 		OrderUUID:       orderUUID,
 		UserUUID:        order.UserUUID,
 		PaymentMethod:   string(paymentMethod),

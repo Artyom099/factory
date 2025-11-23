@@ -10,6 +10,7 @@ import (
 	kafkaConverter "github.com/Artyom099/factory/assembly/internal/converter/kafka"
 	"github.com/Artyom099/factory/assembly/internal/converter/kafka/decoder"
 	"github.com/Artyom099/factory/assembly/internal/service"
+	assemblyService "github.com/Artyom099/factory/assembly/internal/service/assembly"
 	orderConsumer "github.com/Artyom099/factory/assembly/internal/service/consumer/order_consumer"
 	orderProducer "github.com/Artyom099/factory/assembly/internal/service/producer/order_producer"
 	"github.com/Artyom099/factory/platform/pkg/closer"
@@ -21,6 +22,7 @@ import (
 )
 
 type diContainer struct {
+	assemblyService         service.IAssemblyService
 	assemblyProducerService service.IAssemblyProducerService
 	assemblyConsumerService service.IAssemblyConsumerService
 
@@ -46,10 +48,22 @@ func (d *diContainer) AssemblyProducerService() service.IAssemblyProducerService
 
 func (d *diContainer) AssemblyConsumerService() service.IAssemblyConsumerService {
 	if d.assemblyConsumerService == nil {
-		d.assemblyConsumerService = orderConsumer.NewService(d.OrderPaidConsumer(), d.OrderPaidDecoder())
+		d.assemblyConsumerService = orderConsumer.NewService(
+			d.OrderPaidConsumer(),
+			d.OrderPaidDecoder(),
+			d.AssemblyService(),
+		)
 	}
 
 	return d.assemblyConsumerService
+}
+
+func (d *diContainer) AssemblyService() service.IAssemblyService {
+	if d.assemblyService == nil {
+		d.assemblyService = assemblyService.NewService(d.AssemblyProducerService())
+	}
+
+	return d.assemblyService
 }
 
 func (d *diContainer) ConsumerGroup() sarama.ConsumerGroup {

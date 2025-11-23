@@ -27,5 +27,11 @@ func (s *service) OrderHandler(ctx context.Context, msg consumer.Message) error 
 		zap.String("transation_uuid", event.TransactionUUID),
 	)
 
+	err = s.assemblyService.Assembly(ctx, event)
+	if err != nil {
+		logger.Error(ctx, "Failed to Assembly Order", zap.Error(err), zap.Any("message: ", msg))
+		return err
+	}
+
 	return nil
 }

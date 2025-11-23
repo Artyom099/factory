@@ -11,14 +11,17 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
-var _ def.IConsumerService = (*service)(nil)
+var _ def.INotificationConsumerService = (*service)(nil)
 
 type service struct {
 	orderPaidConsumer kafka.IConsumer
 	orderPaidDecoder  kafkaConverter.IOrderPaidDecoder
 }
 
-func NewService(orderPaidConsumer kafka.IConsumer, orderPaidDecoder kafkaConverter.IOrderPaidDecoder) *service {
+func NewService(
+	orderPaidConsumer kafka.IConsumer,
+	orderPaidDecoder kafkaConverter.IOrderPaidDecoder,
+) *service {
 	return &service{
 		orderPaidConsumer: orderPaidConsumer,
 		orderPaidDecoder:  orderPaidDecoder,
@@ -28,7 +31,7 @@ func NewService(orderPaidConsumer kafka.IConsumer, orderPaidDecoder kafkaConvert
 func (s *service) RunConsumer(ctx context.Context) error {
 	logger.Info(ctx, "Starting orderPaidConsumer service")
 
-	err := s.orderPaidConsumer.Consume(ctx, s.OrderHandler)
+	err := s.orderPaidConsumer.Consume(ctx, s.OrderPaidHandler)
 	if err != nil {
 		logger.Error(ctx, "Consume from order.paid topic error", zap.Error(err))
 		return err

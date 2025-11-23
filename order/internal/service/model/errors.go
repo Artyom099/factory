@@ -17,5 +17,5 @@ var (
 
 	ErrInPaymeentService = errors.New("payment service error")
 
-	ErrSendOderPaidMessageToKafka = errors.New("send message to kafka error")
+	ErrSendOderPaidMessageToKafka = errors.New("send order paid message to kafka error")
 )

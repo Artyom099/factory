@@ -6,10 +6,11 @@ import (
 	"github.com/Artyom099/factory/notification/internal/model"
 )
 
-type IConsumerService interface {
+type INotificationConsumerService interface {
 	RunConsumer(ctx context.Context) error
 }
 
-type TelegramService interface {
+type ITelegramService interface {
 	SendOrderPaidNotification(ctx context.Context, dto model.OrderPaidInEvent) error
+	SendOrderAssembledNotification(ctx context.Context, dto model.OrderAssembledInEvent) error
 }

@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"net"
 
 	"github.com/go-faster/errors"
 	"go.uber.org/zap"
@@ -19,7 +18,7 @@ import (
 type App struct {
 	diContainer *diContainer
 	grpcServer  *grpc.Server
-	listener    net.Listener
+	// listener    net.Listener
 }
 
 func New(ctx context.Context) (*App, error) {

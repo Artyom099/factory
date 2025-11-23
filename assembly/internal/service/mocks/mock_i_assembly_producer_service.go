@@ -23,7 +23,7 @@ func (_m *IAssemblyProducerService) EXPECT() *IAssemblyProducerService_Expecter 
 }
 
 // ProduceOrderAssembled provides a mock function with given fields: ctx, event
-func (_m *IAssemblyProducerService) ProduceOrderAssembled(ctx context.Context, event model.ShipAssembledOutEvent) error {
+func (_m *IAssemblyProducerService) ProduceOrderAssembled(ctx context.Context, event model.OrderAssembledOutEvent) error {
 	ret := _m.Called(ctx, event)
 
 	if len(ret) == 0 {
@@ -31,7 +31,7 @@ func (_m *IAssemblyProducerService) ProduceOrderAssembled(ctx context.Context, e
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.ShipAssembledOutEvent) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.OrderAssembledOutEvent) error); ok {
 		r0 = rf(ctx, event)
 	} else {
 		r0 = ret.Error(0)
@@ -47,14 +47,14 @@ type IAssemblyProducerService_ProduceOrderAssembled_Call struct {
 
 // ProduceOrderAssembled is a helper method to define mock.On call
 //   - ctx context.Context
-//   - event model.ShipAssembledOutEvent
+//   - event model.OrderAssembledOutEvent
 func (_e *IAssemblyProducerService_Expecter) ProduceOrderAssembled(ctx interface{}, event interface{}) *IAssemblyProducerService_ProduceOrderAssembled_Call {
 	return &IAssemblyProducerService_ProduceOrderAssembled_Call{Call: _e.mock.On("ProduceOrderAssembled", ctx, event)}
 }
 
-func (_c *IAssemblyProducerService_ProduceOrderAssembled_Call) Run(run func(ctx context.Context, event model.ShipAssembledOutEvent)) *IAssemblyProducerService_ProduceOrderAssembled_Call {
+func (_c *IAssemblyProducerService_ProduceOrderAssembled_Call) Run(run func(ctx context.Context, event model.OrderAssembledOutEvent)) *IAssemblyProducerService_ProduceOrderAssembled_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.ShipAssembledOutEvent))
+		run(args[0].(context.Context), args[1].(model.OrderAssembledOutEvent))
 	})
 	return _c
 }
@@ -64,7 +64,7 @@ func (_c *IAssemblyProducerService_ProduceOrderAssembled_Call) Return(_a0 error)
 	return _c
 }
 
-func (_c *IAssemblyProducerService_ProduceOrderAssembled_Call) RunAndReturn(run func(context.Context, model.ShipAssembledOutEvent) error) *IAssemblyProducerService_ProduceOrderAssembled_Call {
+func (_c *IAssemblyProducerService_ProduceOrderAssembled_Call) RunAndReturn(run func(context.Context, model.OrderAssembledOutEvent) error) *IAssemblyProducerService_ProduceOrderAssembled_Call {
 	_c.Call.Return(run)
 	return _c
 }

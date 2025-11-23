@@ -145,9 +145,7 @@ func (d *diContainer) PostgresHandle(ctx context.Context) *pgxpool.Pool {
 	return d.postgresHandle
 }
 
-//
-//
-//
+// Kafka
 
 func (d *diContainer) OrderProducerService() service.IOrderProducerService {
 	if d.orderProducerService == nil {

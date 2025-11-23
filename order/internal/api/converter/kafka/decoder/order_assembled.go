@@ -3,7 +3,7 @@ package decoder
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
 	eventsV1 "github.com/Artyom099/factory/shared/pkg/proto/events/v1"

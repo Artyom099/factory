@@ -24,17 +24,11 @@ flowchart LR
     Inventory --> MongoDB[(MongoDB)]
 
     %% ==== KAFKA BUS ====
-    Order --> Kafka[Kafka]
-    Kafka --> Order
-    Kafka --> Assembly[Assembly Service]
-    Assembly[Assembly Service] --> Kafka
-    Kafka --> Notification[Notification Service]
+    Order -->|order paid| Kafka(Kafka)
+    Kafka -->|order assembled| Order
+    Kafka -->|order paid| Assembly[Assembly Service]
+    Assembly[Assembly Service] -->|order assembled| Kafka
+    Kafka -->|order paid| Notification[Notification Service]
+    Kafka -->|order assembled| Notification[Notification Service]
     Notification -->|HTTP| Telegram[Telegram]
 ```
-
-в пятой домашке делаем два топика в кафке - OrderPaid, ShipAssembled
-И для каждого топика будет по одному продюсеру и по два консьюмера?
-
-OrderServiceProducer шлет в топик OrderPaid из которого читают два консьюмера AssemblyServiceConsumer и NotificationServiceConsumer.
-
-AssemblyServiceProducer шлет в топик ShipAssembled из которого читают два консьюмера OrderServiceConsumer и NotificationServiceConsumer.

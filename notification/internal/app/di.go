@@ -23,8 +23,8 @@ import (
 )
 
 type diContainer struct {
-	telegramService             service.TelegramService
-	notificationConsumerService service.IConsumerService
+	telegramService             service.ITelegramService
+	notificationConsumerService service.INotificationConsumerService
 
 	consumerGroup          sarama.ConsumerGroup
 	orderPaidConsumer      wrappedKafka.IConsumer
@@ -32,7 +32,7 @@ type diContainer struct {
 	orderAssembledConsumer wrappedKafka.IConsumer
 	orderAssembledDecoder  kafkaConverter.IOrderAssembledDecoder
 
-	telegramClient httpClient.TelegramClient
+	telegramClient httpClient.ITelegramClient
 	telegramBot    *bot.Bot
 }
 
@@ -40,7 +40,7 @@ func NewDiContainer() *diContainer {
 	return &diContainer{}
 }
 
-func (d *diContainer) NotificationConsumerService() service.IConsumerService {
+func (d *diContainer) NotificationConsumerService() service.INotificationConsumerService {
 	if d.notificationConsumerService == nil {
 		d.notificationConsumerService = orderPaidConsumer.NewService(d.OrderPaidConsumer(), d.OrderPaidDecoder())
 	}
@@ -91,7 +91,30 @@ func (d *diContainer) OrderPaidDecoder() kafkaConverter.IOrderPaidDecoder {
 	return d.orderPaidDecoder
 }
 
-func (d *diContainer) TelegramService(ctx context.Context) service.TelegramService {
+func (d *diContainer) OrderAssembledConsumer() wrappedKafka.IConsumer {
+	if d.orderAssembledConsumer == nil {
+		d.orderAssembledConsumer = wrappedKafkaConsumer.NewConsumer(
+			d.ConsumerGroup(),
+			[]string{
+				config.AppConfig().OrderAssembledConsumer.Topic(),
+			},
+			logger.Logger(),
+			kafkaMiddleware.Logging(logger.Logger()),
+		)
+	}
+
+	return d.orderAssembledConsumer
+}
+
+func (d *diContainer) OrderAssembledDecoder() kafkaConverter.IOrderAssembledDecoder {
+	if d.orderAssembledDecoder == nil {
+		d.orderAssembledDecoder = decoder.NewOrderAssembledDecoder()
+	}
+
+	return d.orderAssembledDecoder
+}
+
+func (d *diContainer) TelegramService(ctx context.Context) service.ITelegramService {
 	if d.telegramService == nil {
 		d.telegramService = telegramService.NewService(
 			d.TelegramClient(ctx),
@@ -101,7 +124,7 @@ func (d *diContainer) TelegramService(ctx context.Context) service.TelegramServi
 	return d.telegramService
 }
 
-func (d *diContainer) TelegramClient(ctx context.Context) httpClient.TelegramClient {
+func (d *diContainer) TelegramClient(ctx context.Context) httpClient.ITelegramClient {
 	if d.telegramClient == nil {
 		d.telegramClient = telegramClient.NewClient(d.TelegramBot(ctx))
 	}

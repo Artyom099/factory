@@ -1,6 +1,7 @@
 **Заказ оплачен**
 
-**ID Заказа:** {{.UUID}}
+**ID События:** {{.EventUUID}}
+**ID Заказа:** {{.OrderUUID}}
 **Поьзователь:** {{.UserUUID}}
 
 {{- if .PaymentMethod}}
@@ -8,7 +9,5 @@
 {{- end}}
 
 {{- if .TransactionUUID}}
-**Цвет:** {{.TransactionUUID}}
+**Транзакция:** {{.TransactionUUID}}
 {{- end}}
-
-**Зарегистрировано:** {{.RegisteredAt.Format "2006-01-02 15:04:05"}}

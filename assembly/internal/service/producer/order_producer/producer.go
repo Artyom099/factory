@@ -3,8 +3,8 @@ package order_producer
 import (
 	"context"
 
-	"github.com/gogo/protobuf/proto"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/Artyom099/factory/assembly/internal/model"
 	"github.com/Artyom099/factory/platform/pkg/kafka"
@@ -22,7 +22,7 @@ func NewService(orderAssembledProducer kafka.IProducer) *service {
 	}
 }
 
-func (p *service) ProduceOrderAssembled(ctx context.Context, event model.ShipAssembledOutEvent) error {
+func (p *service) ProduceOrderAssembled(ctx context.Context, event model.OrderAssembledOutEvent) error {
 	msg := &eventsV1.ShipAssembledEvent{
 		EventUuid:    event.EventUUID,
 		OrderUuid:    event.OrderUUID,
