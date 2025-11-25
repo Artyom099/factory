@@ -25,7 +25,7 @@ message OrderPaidEvent {
 }
 
 // Событие Assembly -> Order
-message ShipAssembledEvent {
+message OrderAssembledEvent {
     string event_uuid = 1 [(validate.rules).string.uuid = true];
     string order_uuid = 2 [(validate.rules).string.uuid = true];
     string user_uuid = 3 [(validate.rules).string.uuid = true];

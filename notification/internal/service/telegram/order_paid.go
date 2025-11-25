@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"context"
+	"text/template"
 
 	"go.uber.org/zap"
 
@@ -10,18 +11,20 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/logger"
 )
 
+var orderPaidTemplate = template.Must(template.ParseFS(templateFS, "templates/order_paid_notification.tmpl"))
+
 func (s *service) SendOrderPaidNotification(ctx context.Context, dto model.OrderPaidInEvent) error {
 	message, err := s.buildOrderPaidMessage(dto)
 	if err != nil {
 		return err
 	}
 
-	err = s.telegramClient.SendMessage(ctx, chatID, message)
+	err = s.telegramClient.SendMessage(ctx, s.chatID, message)
 	if err != nil {
 		return err
 	}
 
-	logger.Info(ctx, "Telegram message sent to chat", zap.Int64("chat_id", chatID), zap.String("message", message))
+	logger.Info(ctx, "Telegram message sent to chat", zap.Int64("chat_id", s.chatID), zap.String("message", message))
 	return nil
 }
 

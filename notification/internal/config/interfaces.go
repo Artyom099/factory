@@ -26,3 +26,8 @@ type OrderAssembledConsumerConfig interface {
 	GroupID() string
 	Config() *sarama.Config
 }
+
+type TelegramConfig interface {
+	Token() string
+	ChatID() int64
+}

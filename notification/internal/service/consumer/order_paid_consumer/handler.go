@@ -27,5 +27,9 @@ func (s *service) OrderPaidHandler(ctx context.Context, msg consumer.Message) er
 		zap.String("transation_uuid", event.TransactionUUID),
 	)
 
+	if err = s.telegramService.SendOrderPaidNotification(ctx, event); err != nil {
+		return err
+	}
+
 	return nil
 }

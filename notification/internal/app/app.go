@@ -135,7 +135,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 func (a *App) runConsumer(ctx context.Context) error {
 	logger.Info(ctx, "🚀 OrderPaid Kafka consumer running")
 
-	err := a.diContainer.NotificationConsumerService().RunConsumer(ctx)
+	err := a.diContainer.NotificationConsumerService(ctx).RunConsumer(ctx)
 	if err != nil {
 		return err
 	}

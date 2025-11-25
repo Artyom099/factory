@@ -26,5 +26,9 @@ func (s *service) OrderAssembledHandler(ctx context.Context, msg consumer.Messag
 		zap.Int64("build_time_sec", event.BuildTimeSec),
 	)
 
+	if err = s.telegramService.SendOrderAssembledNotification(ctx, event); err != nil {
+		return err
+	}
+
 	return nil
 }

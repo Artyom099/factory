@@ -205,22 +205,22 @@ var _ interface {
 	ErrorName() string
 } = OrderPaidEventValidationError{}
 
-// Validate checks the field values on ShipAssembledEvent with the rules
+// Validate checks the field values on OrderAssembledEvent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ShipAssembledEvent) Validate() error {
+func (m *OrderAssembledEvent) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ShipAssembledEvent with the rules
+// ValidateAll checks the field values on OrderAssembledEvent with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ShipAssembledEventMultiError, or nil if none found.
-func (m *ShipAssembledEvent) ValidateAll() error {
+// OrderAssembledEventMultiError, or nil if none found.
+func (m *OrderAssembledEvent) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ShipAssembledEvent) validate(all bool) error {
+func (m *OrderAssembledEvent) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -228,7 +228,7 @@ func (m *ShipAssembledEvent) validate(all bool) error {
 	var errors []error
 
 	if err := m._validateUuid(m.GetEventUuid()); err != nil {
-		err = ShipAssembledEventValidationError{
+		err = OrderAssembledEventValidationError{
 			field:  "EventUuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -240,7 +240,7 @@ func (m *ShipAssembledEvent) validate(all bool) error {
 	}
 
 	if err := m._validateUuid(m.GetOrderUuid()); err != nil {
-		err = ShipAssembledEventValidationError{
+		err = OrderAssembledEventValidationError{
 			field:  "OrderUuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -252,7 +252,7 @@ func (m *ShipAssembledEvent) validate(all bool) error {
 	}
 
 	if err := m._validateUuid(m.GetUserUuid()); err != nil {
-		err = ShipAssembledEventValidationError{
+		err = OrderAssembledEventValidationError{
 			field:  "UserUuid",
 			reason: "value must be a valid UUID",
 			cause:  err,
@@ -266,13 +266,13 @@ func (m *ShipAssembledEvent) validate(all bool) error {
 	// no validation rules for BuildTimeSec
 
 	if len(errors) > 0 {
-		return ShipAssembledEventMultiError(errors)
+		return OrderAssembledEventMultiError(errors)
 	}
 
 	return nil
 }
 
-func (m *ShipAssembledEvent) _validateUuid(uuid string) error {
+func (m *OrderAssembledEvent) _validateUuid(uuid string) error {
 	if matched := _order_uuidPattern.MatchString(uuid); !matched {
 		return errors.New("invalid uuid format")
 	}
@@ -280,13 +280,13 @@ func (m *ShipAssembledEvent) _validateUuid(uuid string) error {
 	return nil
 }
 
-// ShipAssembledEventMultiError is an error wrapping multiple validation errors
-// returned by ShipAssembledEvent.ValidateAll() if the designated constraints
-// aren't met.
-type ShipAssembledEventMultiError []error
+// OrderAssembledEventMultiError is an error wrapping multiple validation
+// errors returned by OrderAssembledEvent.ValidateAll() if the designated
+// constraints aren't met.
+type OrderAssembledEventMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ShipAssembledEventMultiError) Error() string {
+func (m OrderAssembledEventMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -295,11 +295,11 @@ func (m ShipAssembledEventMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ShipAssembledEventMultiError) AllErrors() []error { return m }
+func (m OrderAssembledEventMultiError) AllErrors() []error { return m }
 
-// ShipAssembledEventValidationError is the validation error returned by
-// ShipAssembledEvent.Validate if the designated constraints aren't met.
-type ShipAssembledEventValidationError struct {
+// OrderAssembledEventValidationError is the validation error returned by
+// OrderAssembledEvent.Validate if the designated constraints aren't met.
+type OrderAssembledEventValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -307,24 +307,24 @@ type ShipAssembledEventValidationError struct {
 }
 
 // Field function returns field value.
-func (e ShipAssembledEventValidationError) Field() string { return e.field }
+func (e OrderAssembledEventValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ShipAssembledEventValidationError) Reason() string { return e.reason }
+func (e OrderAssembledEventValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ShipAssembledEventValidationError) Cause() error { return e.cause }
+func (e OrderAssembledEventValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ShipAssembledEventValidationError) Key() bool { return e.key }
+func (e OrderAssembledEventValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ShipAssembledEventValidationError) ErrorName() string {
-	return "ShipAssembledEventValidationError"
+func (e OrderAssembledEventValidationError) ErrorName() string {
+	return "OrderAssembledEventValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ShipAssembledEventValidationError) Error() string {
+func (e OrderAssembledEventValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -336,14 +336,14 @@ func (e ShipAssembledEventValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sShipAssembledEvent.%s: %s%s",
+		"invalid %sOrderAssembledEvent.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ShipAssembledEventValidationError{}
+var _ error = OrderAssembledEventValidationError{}
 
 var _ interface {
 	Field() string
@@ -351,4 +351,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ShipAssembledEventValidationError{}
+} = OrderAssembledEventValidationError{}

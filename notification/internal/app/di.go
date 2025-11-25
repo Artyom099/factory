@@ -23,7 +23,7 @@ import (
 )
 
 type diContainer struct {
-	telegramService             service.ITelegramService
+	telegramService             service.INotificationTelegramService
 	notificationConsumerService service.INotificationConsumerService
 
 	consumerGroup          sarama.ConsumerGroup
@@ -40,9 +40,13 @@ func NewDiContainer() *diContainer {
 	return &diContainer{}
 }
 
-func (d *diContainer) NotificationConsumerService() service.INotificationConsumerService {
+func (d *diContainer) NotificationConsumerService(ctx context.Context) service.INotificationConsumerService {
 	if d.notificationConsumerService == nil {
-		d.notificationConsumerService = orderPaidConsumer.NewService(d.OrderPaidConsumer(), d.OrderPaidDecoder())
+		d.notificationConsumerService = orderPaidConsumer.NewService(
+			d.OrderPaidConsumer(),
+			d.OrderPaidDecoder(),
+			d.TelegramService(ctx),
+		)
 	}
 
 	return d.notificationConsumerService
@@ -114,10 +118,11 @@ func (d *diContainer) OrderAssembledDecoder() kafkaConverter.IOrderAssembledDeco
 	return d.orderAssembledDecoder
 }
 
-func (d *diContainer) TelegramService(ctx context.Context) service.ITelegramService {
+func (d *diContainer) TelegramService(ctx context.Context) service.INotificationTelegramService {
 	if d.telegramService == nil {
 		d.telegramService = telegramService.NewService(
 			d.TelegramClient(ctx),
+			config.AppConfig().Telegram.ChatID(),
 		)
 	}
 
@@ -132,11 +137,9 @@ func (d *diContainer) TelegramClient(ctx context.Context) httpClient.ITelegramCl
 	return d.telegramClient
 }
 
-const telegramBotToken = "mock"
-
 func (d *diContainer) TelegramBot(ctx context.Context) *bot.Bot {
 	if d.telegramBot == nil {
-		b, err := bot.New(telegramBotToken)
+		b, err := bot.New(config.AppConfig().Telegram.Token())
 		if err != nil {
 			panic(fmt.Sprintf("failed to create telegram bot: %s\n", err.Error()))
 		}

@@ -156,7 +156,7 @@ func (x *OrderPaidEvent) GetTransactionUuid() string {
 }
 
 // Событие Assembly -> Order
-type ShipAssembledEvent struct {
+type OrderAssembledEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EventUuid     string                 `protobuf:"bytes,1,opt,name=event_uuid,json=eventUuid,proto3" json:"event_uuid,omitempty"`
 	OrderUuid     string                 `protobuf:"bytes,2,opt,name=order_uuid,json=orderUuid,proto3" json:"order_uuid,omitempty"`
@@ -166,20 +166,20 @@ type ShipAssembledEvent struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ShipAssembledEvent) Reset() {
-	*x = ShipAssembledEvent{}
+func (x *OrderAssembledEvent) Reset() {
+	*x = OrderAssembledEvent{}
 	mi := &file_events_v1_order_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ShipAssembledEvent) String() string {
+func (x *OrderAssembledEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ShipAssembledEvent) ProtoMessage() {}
+func (*OrderAssembledEvent) ProtoMessage() {}
 
-func (x *ShipAssembledEvent) ProtoReflect() protoreflect.Message {
+func (x *OrderAssembledEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_events_v1_order_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -191,33 +191,33 @@ func (x *ShipAssembledEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ShipAssembledEvent.ProtoReflect.Descriptor instead.
-func (*ShipAssembledEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use OrderAssembledEvent.ProtoReflect.Descriptor instead.
+func (*OrderAssembledEvent) Descriptor() ([]byte, []int) {
 	return file_events_v1_order_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ShipAssembledEvent) GetEventUuid() string {
+func (x *OrderAssembledEvent) GetEventUuid() string {
 	if x != nil {
 		return x.EventUuid
 	}
 	return ""
 }
 
-func (x *ShipAssembledEvent) GetOrderUuid() string {
+func (x *OrderAssembledEvent) GetOrderUuid() string {
 	if x != nil {
 		return x.OrderUuid
 	}
 	return ""
 }
 
-func (x *ShipAssembledEvent) GetUserUuid() string {
+func (x *OrderAssembledEvent) GetUserUuid() string {
 	if x != nil {
 		return x.UserUuid
 	}
 	return ""
 }
 
-func (x *ShipAssembledEvent) GetBuildTimeSec() int64 {
+func (x *OrderAssembledEvent) GetBuildTimeSec() int64 {
 	if x != nil {
 		return x.BuildTimeSec
 	}
@@ -236,8 +236,8 @@ const file_events_v1_order_proto_rawDesc = "" +
 	"order_uuid\x18\x02 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\torderUuid\x12%\n" +
 	"\tuser_uuid\x18\x03 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\buserUuid\x12I\n" +
 	"\x0epayment_method\x18\x04 \x01(\x0e2\x18.events.v1.PaymentMethodB\b\xfaB\x05\x82\x01\x02\x10\x01R\rpaymentMethod\x123\n" +
-	"\x10transaction_uuid\x18\x05 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x0ftransactionUuid\"\xb3\x01\n" +
-	"\x12ShipAssembledEvent\x12'\n" +
+	"\x10transaction_uuid\x18\x05 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x0ftransactionUuid\"\xb4\x01\n" +
+	"\x13OrderAssembledEvent\x12'\n" +
 	"\n" +
 	"event_uuid\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\teventUuid\x12'\n" +
 	"\n" +
@@ -266,9 +266,9 @@ func file_events_v1_order_proto_rawDescGZIP() []byte {
 var file_events_v1_order_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_events_v1_order_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_events_v1_order_proto_goTypes = []any{
-	(PaymentMethod)(0),         // 0: events.v1.PaymentMethod
-	(*OrderPaidEvent)(nil),     // 1: events.v1.OrderPaidEvent
-	(*ShipAssembledEvent)(nil), // 2: events.v1.ShipAssembledEvent
+	(PaymentMethod)(0),          // 0: events.v1.PaymentMethod
+	(*OrderPaidEvent)(nil),      // 1: events.v1.OrderPaidEvent
+	(*OrderAssembledEvent)(nil), // 2: events.v1.OrderAssembledEvent
 }
 var file_events_v1_order_proto_depIdxs = []int32{
 	0, // 0: events.v1.OrderPaidEvent.payment_method:type_name -> events.v1.PaymentMethod

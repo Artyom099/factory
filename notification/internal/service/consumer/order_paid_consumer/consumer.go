@@ -16,15 +16,18 @@ var _ def.INotificationConsumerService = (*service)(nil)
 type service struct {
 	orderPaidConsumer kafka.IConsumer
 	orderPaidDecoder  kafkaConverter.IOrderPaidDecoder
+	telegramService   def.INotificationTelegramService
 }
 
 func NewService(
 	orderPaidConsumer kafka.IConsumer,
 	orderPaidDecoder kafkaConverter.IOrderPaidDecoder,
+	telegramService def.INotificationTelegramService,
 ) *service {
 	return &service{
 		orderPaidConsumer: orderPaidConsumer,
 		orderPaidDecoder:  orderPaidDecoder,
+		telegramService:   telegramService,
 	}
 }
 

@@ -16,7 +16,7 @@ func NewOrderAssembledDecoder() *orderAssembledDecoder {
 }
 
 func (d *orderAssembledDecoder) Decode(data []byte) (model.OrderAssembledInEvent, error) {
-	var pb eventsV1.ShipAssembledEvent
+	var pb eventsV1.OrderAssembledEvent
 	if err := proto.Unmarshal(data, &pb); err != nil {
 		return model.OrderAssembledInEvent{}, fmt.Errorf("failed to unmarshal protobuf: %w", err)
 	}
