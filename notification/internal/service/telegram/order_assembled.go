@@ -29,8 +29,6 @@ func (s *service) SendOrderAssembledNotification(ctx context.Context, dto model.
 }
 
 func (s *service) buildOrderAssembledMessage(dto model.OrderAssembledInEvent) (string, error) {
-	// todo
-
 	var buf bytes.Buffer
 	err := orderAssembleTemplate.Execute(&buf, dto)
 	if err != nil {

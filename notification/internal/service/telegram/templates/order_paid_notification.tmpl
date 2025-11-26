@@ -2,12 +2,6 @@
 
 **ID События:** {{.EventUUID}}
 **ID Заказа:** {{.OrderUUID}}
-**Поьзователь:** {{.UserUUID}}
-
-{{- if .PaymentMethod}}
-*Способ оплаты:** {{.PaymentMethod}}
-{{- end}}
-
-{{- if .TransactionUUID}}
+**Пользователь:** {{.UserUUID}}
+**Способ оплаты:** {{.PaymentMethod}}
 **Транзакция:** {{.TransactionUUID}}
-{{- end}}

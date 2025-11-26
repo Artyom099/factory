@@ -14,12 +14,18 @@ import (
 var _ def.IOrderConsumerService = (*service)(nil)
 
 type service struct {
+	orderService           def.IOrderService
 	orderAssembledConsumer kafka.IConsumer
 	orderAssembledDecoder  kafkaConverter.IOrderAssembledDecoder
 }
 
-func NewService(orderAssembledConsumer kafka.IConsumer, orderAssembledDecoder kafkaConverter.IOrderAssembledDecoder) *service {
+func NewService(
+	orderService def.IOrderService,
+	orderAssembledConsumer kafka.IConsumer,
+	orderAssembledDecoder kafkaConverter.IOrderAssembledDecoder,
+) *service {
 	return &service{
+		orderService:           orderService,
 		orderAssembledConsumer: orderAssembledConsumer,
 		orderAssembledDecoder:  orderAssembledDecoder,
 	}

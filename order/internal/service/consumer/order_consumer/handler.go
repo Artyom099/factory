@@ -26,5 +26,11 @@ func (s *service) OrderHandler(ctx context.Context, msg consumer.Message) error 
 		zap.Int64("build_time_sec", event.BuildTimeSec),
 	)
 
+	err = s.orderService.Assemble(ctx, event.OrderUUID)
+	if err != nil {
+		logger.Error(ctx, "Failed to update order status to assembled", zap.Error(err))
+		return err
+	}
+
 	return nil
 }

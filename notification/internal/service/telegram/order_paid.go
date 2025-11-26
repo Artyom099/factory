@@ -29,8 +29,6 @@ func (s *service) SendOrderPaidNotification(ctx context.Context, dto model.Order
 }
 
 func (s *service) buildOrderPaidMessage(dto model.OrderPaidInEvent) (string, error) {
-	// todo
-
 	var buf bytes.Buffer
 	err := orderPaidTemplate.Execute(&buf, dto)
 	if err != nil {

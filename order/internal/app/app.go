@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/order/internal/config"
 	"github.com/Artyom099/factory/platform/pkg/closer"
@@ -38,7 +39,40 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	return a.runHTTPServer(ctx)
+	errCh := make(chan error, 2)
+
+	// Контекст для остановки всех горутин
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// HTTP сервер
+	go func() {
+		if err := a.runHTTPServer(ctx); err != nil {
+			errCh <- errors.Errorf("http server crashed: %v", err)
+		}
+	}()
+
+	// Order Assembled Консьюмер
+	go func() {
+		if err := a.runOrderAssembledConsumer(ctx); err != nil {
+			errCh <- errors.Errorf("consumer crashed: %v", err)
+		}
+	}()
+
+	// Ожидание либо ошибки, либо завершения контекста (например, сигнал SIGINT/SIGTERM)
+	select {
+	case <-ctx.Done():
+		logger.Info(ctx, "Shutdown signal received")
+	case err := <-errCh:
+		logger.Error(ctx, "Component crashed, shutting down", zap.Error(err))
+		// Триггерим cancel, чтобы остановить второй компонент
+		cancel()
+		// Дождись завершения всех задач (если есть graceful shutdown внутри)
+		<-ctx.Done()
+		return err
+	}
+
+	return nil
 }
 
 func (a *App) initDeps(ctx context.Context) error {
@@ -151,6 +185,17 @@ func (a *App) runHTTPServer(ctx context.Context) error {
 
 	err := a.httpServer.Serve(a.listener)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) runOrderAssembledConsumer(ctx context.Context) error {
+	logger.Info(ctx, "🚀 OrderAssembled Kafka consumer running")
+
+	err := a.diContainer.OrderConsumerService(ctx).RunConsumer(ctx)
+	if err != nil {
 		return err
 	}
 

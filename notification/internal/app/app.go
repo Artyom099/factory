@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/go-faster/errors"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -18,7 +20,6 @@ import (
 type App struct {
 	diContainer *diContainer
 	grpcServer  *grpc.Server
-	// listener    net.Listener
 }
 
 func New(ctx context.Context) (*App, error) {
@@ -40,9 +41,16 @@ func (a *App) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// Консьюмер
+	// OrderPaid Консьюмер
 	go func() {
-		if err := a.runConsumer(ctx); err != nil {
+		if err := a.runOrderPaidConsumer(ctx); err != nil {
+			errCh <- errors.Errorf("consumer crashed: %v", err)
+		}
+	}()
+
+	// Order Assembled Консьюмер
+	go func() {
+		if err := a.runOrderAssembledConsumer(ctx); err != nil {
 			errCh <- errors.Errorf("consumer crashed: %v", err)
 		}
 	}()
@@ -76,6 +84,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initLogger,
 		a.initCloser,
 		a.initGRPCServer,
+		a.initTelegramBot,
 	}
 
 	for _, f := range inits {
@@ -127,18 +136,55 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 // 		return err
 // 	}
 
-// 	logger.Info(ctx, "🚀 Notification Healthcheck gRPC running on "+config.AppConfig().AssemblyGRPC.Address())
+// 	logger.Info(ctx, "Notification Healthcheck gRPC running on "+config.AppConfig().NotificationGRPC.Address())
 
 // 	return a.grpcServer.Serve(lis)
 // }
 
-func (a *App) runConsumer(ctx context.Context) error {
+func (a *App) runOrderPaidConsumer(ctx context.Context) error {
 	logger.Info(ctx, "🚀 OrderPaid Kafka consumer running")
 
-	err := a.diContainer.NotificationConsumerService(ctx).RunConsumer(ctx)
+	err := a.diContainer.OrderPaidConsumerService(ctx).RunConsumer(ctx)
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (a *App) runOrderAssembledConsumer(ctx context.Context) error {
+	logger.Info(ctx, "🚀 OrderAssembled Kafka consumer running")
+
+	err := a.diContainer.OrderAssembledConsumerService(ctx).RunConsumer(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) initTelegramBot(ctx context.Context) error {
+	// Получаем бота из DI контейнера
+	telegramBot := a.diContainer.TelegramBot(ctx)
+
+	// Регистрируем обработчик для активации бота
+	telegramBot.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, func(ctx context.Context, b *bot.Bot, update *models.Update) {
+		logger.Info(ctx, "chat id", zap.Int64("chat_id", update.Message.Chat.ID))
+
+		_, err := b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   "Notification Factory активирован! Теперь вы будете получать уведомления о новых заказах.",
+		})
+		if err != nil {
+			logger.Error(ctx, "Failed to send activation message", zap.Error(err))
+		}
+	})
+
+	// Запускаем бота в фоне
+	go func() {
+		logger.Info(ctx, "🤖 Telegram bot started...")
+		telegramBot.Start(ctx)
+	}()
 
 	return nil
 }

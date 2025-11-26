@@ -76,7 +76,7 @@ func (d *diContainer) OrderService(ctx context.Context) service.IOrderService {
 			d.InventoryRepository(ctx),
 			d.PaymentClient(ctx),
 			d.OrderProducerService(),
-			d.OrderConsumerService(),
+			d.OrderConsumerService(ctx),
 		)
 	}
 
@@ -155,9 +155,13 @@ func (d *diContainer) OrderProducerService() service.IOrderProducerService {
 	return d.orderProducerService
 }
 
-func (d *diContainer) OrderConsumerService() service.IOrderConsumerService {
+func (d *diContainer) OrderConsumerService(ctx context.Context) service.IOrderConsumerService {
 	if d.orderConsumerService == nil {
-		d.orderConsumerService = orderConsumer.NewService(d.OrderAssembledConsumer(), d.OrderAssembledDecoder())
+		d.orderConsumerService = orderConsumer.NewService(
+			d.OrderService(ctx),
+			d.OrderAssembledConsumer(),
+			d.OrderAssembledDecoder(),
+		)
 	}
 
 	return d.orderConsumerService
