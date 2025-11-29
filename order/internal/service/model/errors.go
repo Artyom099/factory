@@ -15,5 +15,11 @@ var (
 
 	ErrOrderCancelled = errors.New("order cancelled")
 
+	ErrOrderAssembled = errors.New("order assembled")
+
+	ErrOrderPendingPayment = errors.New("order pending payment")
+
 	ErrInPaymeentService = errors.New("payment service error")
+
+	ErrSendOderPaidMessageToKafka = errors.New("send order paid message to kafka error")
 )

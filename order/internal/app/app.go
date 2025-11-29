@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -12,11 +11,13 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/order/internal/config"
-	"github.com/Artyom099/factory/order/internal/migrator"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 )
 
@@ -38,7 +39,40 @@ func New(ctx context.Context) (*App, error) {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	return a.runHTTPServer(ctx)
+	errCh := make(chan error, 2)
+
+	// Контекст для остановки всех горутин
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// HTTP сервер
+	go func() {
+		if err := a.runHTTPServer(ctx); err != nil {
+			errCh <- errors.Errorf("http server crashed: %v", err)
+		}
+	}()
+
+	// Order Assembled Консьюмер
+	go func() {
+		if err := a.runOrderAssembledConsumer(ctx); err != nil {
+			errCh <- errors.Errorf("consumer crashed: %v", err)
+		}
+	}()
+
+	// Ожидание либо ошибки, либо завершения контекста (например, сигнал SIGINT/SIGTERM)
+	select {
+	case <-ctx.Done():
+		logger.Info(ctx, "Shutdown signal received")
+	case err := <-errCh:
+		logger.Error(ctx, "Component crashed, shutting down", zap.Error(err))
+		// Триггерим cancel, чтобы остановить второй компонент
+		cancel()
+		// Дождись завершения всех задач (если есть graceful shutdown внутри)
+		<-ctx.Done()
+		return err
+	}
+
+	return nil
 }
 
 func (a *App) initDeps(ctx context.Context) error {
@@ -79,7 +113,7 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) initListener(_ context.Context) error {
-	listener, err := net.Listen("tcp", config.AppConfig().OrderGRPC.Address())
+	listener, err := net.Listen("tcp", config.AppConfig().OrderHTTP.Address())
 	if err != nil {
 		return err
 	}
@@ -110,7 +144,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	readHeaderTimeout := 5 * time.Second
 
 	a.httpServer = &http.Server{
-		Addr:              config.AppConfig().OrderGRPC.Address(),
+		Addr:              config.AppConfig().OrderHTTP.Address(),
 		Handler:           r,
 		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки
 	}
@@ -136,7 +170,7 @@ func (a *App) initMigrator(ctx context.Context) error {
 	connConfig := pool.Config().ConnConfig.Copy()
 	sqlDB := stdlib.OpenDB(*connConfig)
 
-	migratorRunner := migrator.NewMigrator(sqlDB, migrationsDir)
+	migratorRunner := pg.NewMigrator(sqlDB, migrationsDir)
 	if err := migratorRunner.Up(); err != nil {
 		return fmt.Errorf("apply migrations: %w", err)
 	}
@@ -147,10 +181,21 @@ func (a *App) initMigrator(ctx context.Context) error {
 }
 
 func (a *App) runHTTPServer(ctx context.Context) error {
-	logger.Info(ctx, fmt.Sprintf("🚀 HTTP OrderService server listening on %s", config.AppConfig().OrderGRPC.Address()))
+	logger.Info(ctx, fmt.Sprintf("🚀 HTTP OrderService server listening on %s", config.AppConfig().OrderHTTP.Address()))
 
 	err := a.httpServer.Serve(a.listener)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		return err
+	}
+
+	return nil
+}
+
+func (a *App) runOrderAssembledConsumer(ctx context.Context) error {
+	logger.Info(ctx, "🚀 OrderAssembled Kafka consumer running")
+
+	err := a.diContainer.OrderConsumerService(ctx).RunConsumer(ctx)
+	if err != nil {
 		return err
 	}
 

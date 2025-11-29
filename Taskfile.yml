@@ -48,9 +48,9 @@ vars:
   POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
   GIST_ID: "8f1426178499e4bfc15735575c432973"
 
-  SERVICES: order,inventory,payment
+  SERVICES: order,inventory,payment,assembly,notification,core
   MODULES: inventory order payment
-  LINT_MODULES: inventory order payment shared platform
+  LINT_MODULES: inventory order payment shared platform assembly notification
 
 tasks:
   install-validate:
@@ -286,7 +286,7 @@ tasks:
     cmds:
       - |
         echo "🔄 Обновление зависимостей в go.mod во всех модулях"
-        for mod in {{.MODULES}}; do
+        for mod in {{.LINT_MODULES}}; do
           if [ -d "$mod" ]; then
             echo "🔄 Обновление зависимостей в $mod"
             (cd "$mod" && go mod tidy -compat=1.24) || exit 1
@@ -686,7 +686,8 @@ tasks:
   migr:create:
     desc: "Создание миграции"
     dir: order/migrations
-    cmd: "{{.BIN_DIR}}/goose create create_order_table sql"
+    # cmd: "{{.BIN_DIR}}/goose create create_uuid_ossp_extension sql"
+    cmd: "{{.BIN_DIR}}/goose create create_orders_table sql"
 
   env:install-envsubst:
     desc: "Устанавливает envsubst в bin/"

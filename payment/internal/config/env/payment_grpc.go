@@ -15,7 +15,7 @@ type paymentGRPCConfig struct {
 	raw paymentGRPCEnvConfig
 }
 
-func NewUFOGRPCConfig() (*paymentGRPCConfig, error) {
+func NewPaymentGRPCConfig() (*paymentGRPCConfig, error) {
 	var raw paymentGRPCEnvConfig
 	if err := env.Parse(&raw); err != nil {
 		return nil, err

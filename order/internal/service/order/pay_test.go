@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
@@ -32,6 +33,7 @@ func (s *ServiceSuite) TestPaySuccess() {
 	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
 	s.paymentClient.On("PayOrder", s.ctx, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
 	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(nil)
+	s.orderProducerService.On("ProduceOrderPaid", s.ctx, mock.AnythingOfType("model.OrderPaidOutEvent")).Return(nil)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().NoError(err)

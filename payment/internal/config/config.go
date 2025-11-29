@@ -26,14 +26,14 @@ func Load(path ...string) error {
 		return err
 	}
 
-	inventoryGRPCCfg, err := env.NewUFOGRPCConfig()
+	paymentGRPCCfg, err := env.NewPaymentGRPCConfig()
 	if err != nil {
 		return err
 	}
 
 	appConfig = &config{
 		Logger:      loggerCfg,
-		PaymentGRPC: inventoryGRPCCfg,
+		PaymentGRPC: paymentGRPCCfg,
 	}
 
 	return nil

@@ -26,7 +26,7 @@ func (r *repository) Get(ctx context.Context, orderUuid string) (model.Order, er
 			"o.updated_at",
 		).
 		From("orders o").
-		LeftJoin("order_parts op ON o.id = op.order_id").
+		LeftJoin("orders_parts op ON o.id = op.order_id").
 		Where(sq.Eq{"o.id": orderUuid}).
 		GroupBy(
 			"o.id",
