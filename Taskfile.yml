@@ -1,9 +1,16 @@
 version: "3"
 
+includes:
+  lint: ./taskfiles/lint.yml
+  tests: ./taskfiles/tests.yml
+  env: ./taskfiles/env.yml
+  proto: ./taskfiles/proto.yml
+  docker: ./taskfiles/docker.yml
+  coverage: ./taskfiles/coverage.yml
+
 # Глобальные переменные проекта
 vars:
   GO_VERSION: "1.24"
-  GOLANGCI_LINT_VERSION: "v2.1.5"
   GCI_VERSION: "v0.13.6"
   GOFUMPT_VERSION: "v0.8.0"
   BUF_VERSION: "1.53.0"
@@ -15,7 +22,6 @@ vars:
   GRPCURL_VERSION: "v1.9.3"
   MOCKERY_VERSION: "v2.53.3"
   GOOSE_VERSION: "v3.26.0"
-  ENVSUBST_VERSION: "v1.4.3"
 
   BIN_DIR: "{{.ROOT_DIR}}/bin"
   GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
@@ -30,8 +36,6 @@ vars:
   GRPCURL: "{{.BIN_DIR}}/grpcurl"
   MOCKERY: "{{.BIN_DIR}}/mockery"
   GOOSE: "{{.BIN_DIR}}/goose"
-  ENVSUBST: "{{.BIN_DIR}}/envsubst"
-  ENVDIR: "{{.ROOT_DIR}}/deploy/env"
 
   NODE_MODULES_DIR: "{{.ROOT_DIR}}/node_modules/.bin"
   REDOCLY: "{{.NODE_MODULES_DIR}}/redocly"
@@ -48,20 +52,11 @@ vars:
   POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
   GIST_ID: "8f1426178499e4bfc15735575c432973"
 
-  SERVICES: order,inventory,payment,assembly,notification,core
+  SERVICES: order,inventory,payment,assembly,notification,core,iam
   MODULES: inventory order payment
-  LINT_MODULES: inventory order payment shared platform assembly notification
+  LINT_MODULES: inventory order payment shared platform assembly notification iam
 
 tasks:
-  install-validate:
-    desc: "Скачивает protoc-gen-validate в папку bin"
-    cmds:
-      - |
-        [ -f {{.BIN_DIR}} ] || {
-          mkdir -p {{.BIN_DIR}}
-          GOBIN={{.BIN_DIR}} go install github.com/envoyproxy/protoc-gen-validate@v1.0.4
-        }
-
   install-formatters:
     desc: "Устанавливает форматтеры gci и gofumpt в ./bin"
     summary: |
@@ -114,116 +109,6 @@ tasks:
             find $module -type f -name '*.go' ! -path '*/mocks/*' -exec {{.GCI}} write -s standard -s default -s "prefix(github.com/olezhek28/microservices-course-olezhek-solution)" {} +
           fi
         done
-
-  install-golangci-lint:
-    desc: "Устанавливает golangci-lint в каталог bin"
-    summary: |
-      Проверяет наличие golangci-lint в директории bin.
-      Если инструмент не найден, автоматически устанавливает его через go install.
-
-      Устанавливаемая версия: {{.GOLANGCI_LINT_VERSION}}
-    cmds:
-      - |
-        [ -f {{.GOLANGCI_LINT}} ] || {
-          mkdir -p {{.BIN_DIR}}
-          echo "📦 Устанавливаем golangci-lint {{.GOLANGCI_LINT_VERSION}}..."
-          GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
-        }
-    status:
-      - test -x {{.GOLANGCI_LINT}}
-
-  lint:
-    desc: "Запускает golangci-lint для всех модулей"
-    summary: |
-      Запускает линтер golangci-lint для всех модулей проекта.
-      Линтер проверяет код на соответствие стандартам качества и лучшим практикам.
-      Проверка включает проверку безопасности через gosec (встроенный в golangci-lint).
-
-      Зависимости:
-        - install-golangci-lint: автоматически устанавливает линтер
-        - format: форматирует код перед проверкой
-    deps: [install-golangci-lint]
-    vars:
-      LINT_MODULES: "{{.LINT_MODULES}}"
-      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
-    cmds:
-      - |
-        set -e
-        ERR=0
-        echo "🔍 Линтим все модули ..."
-        for mod in {{.LINT_MODULES}}; do
-          if [ -d "$mod" ]; then
-            echo "🔍 Линтим $mod module"
-            {{.GOLANGCI_LINT}} run $mod/... --config=.golangci.yml || ERR=1
-          fi
-        done
-        exit $ERR
-
-  lint:fix:
-    desc: "Чинит все найденные ошибки линтера"
-    vars:
-      MODULES: "{{.LINT_MODULES}}"
-      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
-    cmds:
-      - |
-        for mod in {{.LINT_MODULES}}; do \
-          echo "🔍 Fixing lint errors in $mod"; \
-          (cd $mod && {{.GOLANGCI_LINT}} run --fix); \
-        done
-
-  install-buf:
-    desc: "Устанавливает Buf в каталог bin"
-    cmds:
-      - |
-        [ -f {{.BUF}} ] || {
-          mkdir -p {{.BIN_DIR}} tmp-buf
-          curl -sSL \
-            "https://github.com/bufbuild/buf/releases/download/v{{.BUF_VERSION}}/buf-$(uname -s)-$(uname -m).tar.gz" \
-            | tar -xz -C tmp-buf
-          mv tmp-buf/buf/bin/buf {{.BUF}}
-          rm -rf tmp-buf
-          chmod +x {{.BUF}}
-        }
-
-  proto:install-plugins:
-    desc: "Устанавливает protoc плагины в каталог bin"
-    cmds:
-      - |
-        [ -f {{.PROTOC_GEN_GO}} ] || {
-          echo '📦 Installing protoc-gen-go...'
-          GOBIN={{.BIN_DIR}} go install google.golang.org/protobuf/cmd/protoc-gen-go@{{.PROTOC_GEN_GO_VERSION}}
-        }
-        [ -f {{.PROTOC_GEN_GO_GRPC}} ] || {
-          echo '📦 Installing protoc-gen-go-grpc...'
-          GOBIN={{.BIN_DIR}} go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
-        }
-        [ -f {{.PROTOC_GEN_VALIDATE}} ] || {
-          echo '📦 Installing protoc-gen-validate...'
-          GOBIN={{.BIN_DIR}} go install github.com/envoyproxy/protoc-gen-validate@{{.PROTOC_GEN_VALIDATE_VERSION}}
-        }
-
-  proto:update-deps:
-    deps: [install-buf]
-    desc: Обновляет зависимости protobuf из удаленных репозиториев (googleapis и т.д.)
-    dir: shared/proto
-    cmds:
-      - |
-        echo "🔄 Обновляем зависимости buf..."
-        {{.BUF}} dep update
-
-  proto:gen:
-    deps: [install-buf, proto:install-plugins, proto:lint]
-    desc: Генерация Go-кода из .proto
-    dir: shared/proto
-    cmds:
-      - "{{.BUF}} generate"
-
-  proto:lint:
-    deps: [install-buf, proto:install-plugins]
-    desc: Проверка .proto-файлов на соответствие стилю
-    dir: shared/proto
-    cmds:
-      - "{{.BUF}} lint"
 
   redocly-cli:install:
     desc: Установить локально Redocly CLI
@@ -302,37 +187,7 @@ tasks:
           GOBIN={{.BIN_DIR}} go install github.com/mikefarah/yq/v4@{{.YQ_VERSION}}
         }
 
-  grpcurl:install:
-    desc: "Устанавливает grpcurl в каталог bin"
-    cmds:
-      - |
-        [ -f {{.GRPCURL}} ] || {
-          echo '📦 Устанавливаем grpcurl {{.GRPCURL_VERSION}}...'
-          GOBIN={{.BIN_DIR}} go install github.com/fullstorydev/grpcurl/cmd/grpcurl@{{.GRPCURL_VERSION}}
-        }
-    status:
-      - test -x {{.GRPCURL}}
-
-  mockery:install:
-    desc: "Устанавливает mockery в ./bin"
-    cmds:
-      - |
-        [ -f {{.MOCKERY}} ] || {
-          echo '📦 Installing mockery...'
-          GOBIN={{.BIN_DIR}} go install github.com/vektra/mockery/v2@{{.MOCKERY_VERSION}}
-        }
-    status:
-      - test -x {{.MOCKERY}}
-
-  mockery:gen:
-    desc: "Генерирует моки интерфейсов с помощью mockery"
-    deps: [mockery:install]
-    cmds:
-      - |
-        echo '🧪 Генерация моков...'
-        {{.MOCKERY}}
-
-  test-api:
+  test-api-2:
     desc: "🧪 Запуск тестов для проверки API микросервисов"
     deps: [grpcurl:install]
     cmds:
@@ -526,152 +381,6 @@ tasks:
         echo
         echo "🎉 Все тесты API успешно выполнены!"
 
-  test-unit:
-    desc: "Запускает юнит-тесты для всех модулей"
-    summary: Можно указать конкретные модули через переменную MODULES
-    cmds:
-      - |
-        ERR=0
-        for mod in {{.MODULES}}; do
-          if [ -d "$mod" ]; then
-            echo "🧪 Тестируем модуль $mod"
-            go test -v ./$mod/internal/... || ERR=1
-          fi
-        done
-        exit $ERR
-
-  coverage:test:
-    desc: "Считает тестовое покрытие сервисов"
-    cmds:
-      - |
-        echo "🧪 Запускаем расчёт покрытия..."
-        rm -rf {{.COVERAGE_DIR}}
-        mkdir -p {{.COVERAGE_DIR}}
-
-        total_coverage=0
-        module_count=0
-
-        for mod in {{.MODULES}}; do
-          if [ -d "$mod/internal" ]; then
-            echo "🧪 Модуль: $mod"
-            TARGET_PACKAGES=$(cd $mod && go list ./internal/... | grep -v "/mocks" | grep -E '/(api|service)/' | tr '\n' ',')
-            if [ -z "$TARGET_PACKAGES" ]; then
-              echo "⚠️  В модуле $mod нет пакетов для тестирования"
-              continue
-            fi
-
-            go test -v -cover -coverprofile={{.COVERAGE_DIR}}/$mod.out -coverpkg=$TARGET_PACKAGES ./$mod/...
-
-            echo "🧾 Покрытие для $mod:"
-            go tool cover -func={{.COVERAGE_DIR}}/$mod.out | tail -n1
-
-            module_count=$((module_count+1))
-          fi
-        done
-
-        echo "✅ Проверка покрытия завершена."
-
-  coverage:merge:
-    desc: "Объединяет покрытия трёх сервисов (inventory, order, payment) в один общий файл"
-    deps: [coverage:test]
-    cmds:
-      - |
-        echo "🧩 Объединяем покрытия сервисов..."
-        COVERAGE_DIR={{.COVERAGE_DIR}}
-        OUTPUT=$COVERAGE_DIR/{{.COVERAGE_FILE}}
-
-        # Проверяем, что файлы существуют
-        for f in inventory.out order.out payment.out; do
-          if [ ! -f "$COVERAGE_DIR/$f" ]; then
-            echo "❌ Не найден файл покрытия: $COVERAGE_DIR/$f"
-            exit 1
-          fi
-        done
-
-        # Берём заголовок только из первого файла
-        head -n 1 "$COVERAGE_DIR/inventory.out" > "$OUTPUT"
-
-        # Добавляем все остальные строки (кроме первой) из всех файлов
-        for f in inventory.out order.out payment.out; do
-          tail -n +2 "$COVERAGE_DIR/$f" >> "$OUTPUT"
-        done
-
-        echo "✅ Объединённый отчёт сохранён в $OUTPUT"
-
-  coverage:html:
-    desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
-    deps: [coverage:merge]
-    cmds:
-      - |
-        OUTPUT={{.COVERAGE_DIR}}/coverage.html
-        echo "🌐 Генерируем HTML-отчёт..."
-        go tool cover -html={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} -o $OUTPUT
-
-        echo "🚀 Открываем $OUTPUT"
-        if command -v open &> /dev/null; then
-          open $OUTPUT  # macOS
-        elif command -v xdg-open &> /dev/null; then
-          xdg-open $OUTPUT  # Linux
-        else
-          echo "📂 Отчёт сохранён в $OUTPUT (открой вручную)"
-        fi
-
-  up-core:
-    desc: Поднять core контейнеры
-    dir: deploy/compose/core
-    cmds:
-      - echo "[task] 🚀 Поднимаем core контейнеры"
-      - docker compose up --build --detach
-
-  down-core:
-    desc: Остановить и удалить core контейнеры
-    dir: deploy/compose/core
-    cmds:
-      - echo "[task] 🛑 Останавливаем core контейнеры"
-      - docker compose down --volumes
-
-  up-inventory:
-    desc: Поднять Inventory сервис и все его зависимости
-    dir: deploy/compose/inventory
-    cmds:
-      - echo "[task] 📦 Поднимаем Inventory с зависимостями"
-      - docker compose up --build --detach
-
-  down-inventory:
-    desc: Остановить и удалить Inventory сервис и все его зависимости
-    dir: deploy/compose/inventory
-    cmds:
-      - echo "[task] 🛑 Останавливаем Inventory с зависимостями"
-      - docker compose down --volumes
-
-  up-order:
-    desc: Поднять Order сервис и все его зависимости
-    dir: deploy/compose/order
-    cmds:
-      - echo "[task] 📦 Поднимаем Order с зависимостями"
-      - docker compose up --build --detach
-
-  down-order:
-    desc: Остановить и удалить Order сервис и все его зависимости
-    dir: deploy/compose/order
-    cmds:
-      - echo "[task] 🛑 Останавливаем Order с зависимостями"
-      - docker compose down --volumes
-
-  up-all:
-    desc: Поднять все сервисы по очереди вместе с зависимостями
-    cmds:
-      - task up-core
-      - task up-inventory
-      - task up-order
-
-  down-all:
-    desc: Остановить и удалить все сервисы по очереди вместе с зависимостями
-    cmds:
-      - task down-core
-      - task down-inventory
-      - task down-order
-
   goose:install:
     desc: "Устанавливает goose в ./bin"
     cmds:
@@ -685,63 +394,6 @@ tasks:
 
   migr:create:
     desc: "Создание миграции"
-    dir: order/migrations
+    dir: iam/migrations
     # cmd: "{{.BIN_DIR}}/goose create create_uuid_ossp_extension sql"
-    cmd: "{{.BIN_DIR}}/goose create create_orders_table sql"
-
-  env:install-envsubst:
-    desc: "Устанавливает envsubst в bin/"
-    cmds:
-      - |
-        [ -f {{.ENVSUBST}} ] || {
-          echo "📦 Устанавливаем envsubst версии {{.ENVSUBST_VERSION}}..."
-          GOBIN={{.BIN_DIR}} go install github.com/a8m/envsubst/cmd/envsubst@{{.ENVSUBST_VERSION}}
-        }
-        echo "✅ envsubst установлен: {{.ENVSUBST}}"
-
-  env:generate:
-    desc: "Генерирует .env файлы для всех сервисов из шаблонов и единого файла конфигурации"
-    deps: [env:install-envsubst]
-    cmds:
-      - |
-        ENV_FILE="{{.ENVDIR}}/.env"
-        TEMPLATE_FILE="{{.ENVDIR}}/.env.template"
-        SCRIPT="{{.ENVDIR}}/generate-env.sh"
-
-        if [ ! -f "$ENV_FILE" ]; then
-          if [ -f "$TEMPLATE_FILE" ]; then
-            echo "🔄 Файл $ENV_FILE не найден, создаем из шаблона $TEMPLATE_FILE"
-            cp "$TEMPLATE_FILE" "$ENV_FILE"
-            echo "✅ Создан файл $ENV_FILE. Проверьте и отредактируйте значения переменных при необходимости."
-          else
-            echo "❌ Шаблон $TEMPLATE_FILE не найден!"
-            exit 1
-          fi
-        fi
-
-        chmod +x "$SCRIPT"
-        # Передаем список сервисов в виде строки с разделителями-запятыми
-        export SERVICES="{{.SERVICES}}"
-        ENV_SUBST={{.ENVSUBST}} "$SCRIPT"
-
-  e2e:test:inv:
-    desc: "Запускает интеграционные тесты для Inventory сервиса"
-    dir: inventory/tests/e2e
-    cmds:
-      - echo "🚀 Запуск интеграционных тестов Inventory сервиса..."
-      - cd ../../ && go mod tidy
-      - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...
-
-  e2e:test:order:
-    desc: "Запускает интеграционные тесты для Order сервиса"
-    dir: order/tests/integration
-    cmds:
-      - echo "🚀 Запуск интеграционных тестов Order сервиса..."
-      - cd ../../ && go mod tidy
-      - TESTCONTAINERS_LOG_LEVEL=debug go test -tags=integration -v ./...
-
-  test-integration:
-    desc: "Запускает интеграционные тесты всех сервисов"
-    cmds:
-      - task e2e:test:inv
-      # - task e2e:test:order
+    cmd: "{{.BIN_DIR}}/goose create create_users_table sql"

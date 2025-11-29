@@ -1,0 +1,82 @@
+version: "3"
+
+# coverage:test
+# coverage:merge
+# coverage:html
+
+tasks:
+  test:
+    desc: "Считает тестовое покрытие сервисов"
+    cmds:
+      - |
+        echo "🧪 Запускаем расчёт покрытия..."
+        rm -rf {{.COVERAGE_DIR}}
+        mkdir -p {{.COVERAGE_DIR}}
+
+        total_coverage=0
+        module_count=0
+
+        for mod in {{.MODULES}}; do
+          if [ -d "$mod/internal" ]; then
+            echo "🧪 Модуль: $mod"
+            TARGET_PACKAGES=$(cd $mod && go list ./internal/... | grep -v "/mocks" | grep -E '/(api|service)/' | tr '\n' ',')
+            if [ -z "$TARGET_PACKAGES" ]; then
+              echo "⚠️  В модуле $mod нет пакетов для тестирования"
+              continue
+            fi
+
+            go test -v -cover -coverprofile={{.COVERAGE_DIR}}/$mod.out -coverpkg=$TARGET_PACKAGES ./$mod/...
+
+            echo "🧾 Покрытие для $mod:"
+            go tool cover -func={{.COVERAGE_DIR}}/$mod.out | tail -n1
+
+            module_count=$((module_count+1))
+          fi
+        done
+
+        echo "✅ Проверка покрытия завершена."
+
+  merge:
+    desc: "Объединяет покрытия трёх сервисов (inventory, order, payment) в один общий файл"
+    deps: [coverage:test]
+    cmds:
+      - |
+        echo "🧩 Объединяем покрытия сервисов..."
+        COVERAGE_DIR={{.COVERAGE_DIR}}
+        OUTPUT=$COVERAGE_DIR/{{.COVERAGE_FILE}}
+
+        # Проверяем, что файлы существуют
+        for f in inventory.out order.out payment.out; do
+          if [ ! -f "$COVERAGE_DIR/$f" ]; then
+            echo "❌ Не найден файл покрытия: $COVERAGE_DIR/$f"
+            exit 1
+          fi
+        done
+
+        # Берём заголовок только из первого файла
+        head -n 1 "$COVERAGE_DIR/inventory.out" > "$OUTPUT"
+
+        # Добавляем все остальные строки (кроме первой) из всех файлов
+        for f in inventory.out order.out payment.out; do
+          tail -n +2 "$COVERAGE_DIR/$f" >> "$OUTPUT"
+        done
+
+        echo "✅ Объединённый отчёт сохранён в $OUTPUT"
+
+  html:
+    desc: "Генерирует HTML-отчёт покрытия и открывает его в браузере"
+    deps: [coverage:merge]
+    cmds:
+      - |
+        OUTPUT={{.COVERAGE_DIR}}/coverage.html
+        echo "🌐 Генерируем HTML-отчёт..."
+        go tool cover -html={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} -o $OUTPUT
+
+        echo "🚀 Открываем $OUTPUT"
+        if command -v open &> /dev/null; then
+          open $OUTPUT  # macOS
+        elif command -v xdg-open &> /dev/null; then
+          xdg-open $OUTPUT  # Linux
+        else
+          echo "📂 Отчёт сохранён в $OUTPUT (открой вручную)"
+        fi

@@ -249,7 +249,7 @@ const file_events_v1_order_proto_rawDesc = "" +
 	"\x13PAYMENT_METHOD_CARD\x10\x01\x12\x16\n" +
 	"\x12PAYMENT_METHOD_SBP\x10\x02\x12\x1e\n" +
 	"\x1aPAYMENT_METHOD_CREDIT_CARD\x10\x03\x12!\n" +
-	"\x1dPAYMENT_METHOD_INVESTOR_MONEY\x10\x04B=Z;github.com/Artyom099/factory/shared/pkg/events/v1;events_v1b\x06proto3"
+	"\x1dPAYMENT_METHOD_INVESTOR_MONEY\x10\x04BCZAgithub.com/Artyom099/factory/shared/pkg/proto/events/v1;events_v1b\x06proto3"
 
 var (
 	file_events_v1_order_proto_rawDescOnce sync.Once
