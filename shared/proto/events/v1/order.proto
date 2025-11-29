@@ -4,7 +4,7 @@ package events.v1;
 
 import "validate/validate.proto";
 
-option go_package = "github.com/Artyom099/factory/shared/pkg/events/v1;events_v1";
+option go_package = "github.com/Artyom099/factory/shared/pkg/proto/events/v1;events_v1";
 
 // PaymentMethod - определение способа оплаты
 enum PaymentMethod {

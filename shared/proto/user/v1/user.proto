@@ -5,7 +5,7 @@ package user.v1;
 import "validate/validate.proto";
 import "common/v1/user.proto";
 
-option go_package = "github.com/Artyom099/factory/shared/pkg/user/v1;user_v1";
+option go_package = "github.com/Artyom099/factory/shared/pkg/proto/user/v1;user_v1";
 
 service UserService {
     rpc Register(RegisterRequest) returns (RegisterResponse) {}

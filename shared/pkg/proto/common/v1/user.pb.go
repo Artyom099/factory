@@ -221,7 +221,7 @@ const file_common_v1_user_proto_rawDesc = "" +
 	"\x14notification_methods\x18\x03 \x03(\v2\x1d.common.v1.NotificationMethodR\x13notificationMethods\"Q\n" +
 	"\x12NotificationMethod\x12#\n" +
 	"\rprovider_name\x18\x01 \x01(\tR\fproviderName\x12\x16\n" +
-	"\x06target\x18\x02 \x01(\tR\x06targetB=Z;github.com/Artyom099/factory/shared/pkg/common/v1;common_v1b\x06proto3"
+	"\x06target\x18\x02 \x01(\tR\x06targetBCZAgithub.com/Artyom099/factory/shared/pkg/proto/common/v1;common_v1b\x06proto3"
 
 var (
 	file_common_v1_user_proto_rawDescOnce sync.Once

@@ -7,7 +7,7 @@
 package user_v1
 
 import (
-	v1 "github.com/Artyom099/factory/shared/pkg/common/v1"
+	v1 "github.com/Artyom099/factory/shared/pkg/proto/common/v1"
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -269,7 +269,7 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user2\x90\x01\n" +
 	"\vUserService\x12A\n" +
 	"\bRegister\x12\x18.user.v1.RegisterRequest\x1a\x19.user.v1.RegisterResponse\"\x00\x12>\n" +
-	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x18.user.v1.GetUserResponse\"\x00B9Z7github.com/Artyom099/factory/shared/pkg/user/v1;user_v1b\x06proto3"
+	"\aGetUser\x12\x17.user.v1.GetUserRequest\x1a\x18.user.v1.GetUserResponse\"\x00B?Z=github.com/Artyom099/factory/shared/pkg/proto/user/v1;user_v1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once

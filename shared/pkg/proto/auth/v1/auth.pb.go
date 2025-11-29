@@ -7,7 +7,7 @@
 package auth_v1
 
 import (
-	v1 "github.com/Artyom099/factory/shared/pkg/common/v1"
+	v1 "github.com/Artyom099/factory/shared/pkg/proto/common/v1"
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -232,7 +232,7 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\asession\x18\x02 \x01(\v2\x12.common.v1.SessionR\asession2\x84\x01\n" +
 	"\vAuthService\x128\n" +
 	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x16.auth.v1.LoginResponse\"\x00\x12;\n" +
-	"\x06Whoami\x12\x16.auth.v1.WhoamiRequest\x1a\x17.auth.v1.WhoamiResponse\"\x00B9Z7github.com/Artyom099/factory/shared/pkg/auth/v1;auth_v1b\x06proto3"
+	"\x06Whoami\x12\x16.auth.v1.WhoamiRequest\x1a\x17.auth.v1.WhoamiResponse\"\x00B?Z=github.com/Artyom099/factory/shared/pkg/proto/auth/v1;auth_v1b\x06proto3"
 
 var (
 	file_auth_v1_auth_proto_rawDescOnce sync.Once

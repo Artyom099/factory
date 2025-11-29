@@ -103,7 +103,7 @@ const file_common_v1_session_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
 	"\n" +
-	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAtB=Z;github.com/Artyom099/factory/shared/pkg/common/v1;common_v1b\x06proto3"
+	"expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAtBCZAgithub.com/Artyom099/factory/shared/pkg/proto/common/v1;common_v1b\x06proto3"
 
 var (
 	file_common_v1_session_proto_rawDescOnce sync.Once

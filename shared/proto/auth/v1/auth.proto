@@ -6,7 +6,7 @@ import "validate/validate.proto";
 import "common/v1/user.proto";
 import "common/v1/session.proto";
 
-option go_package = "github.com/Artyom099/factory/shared/pkg/auth/v1;auth_v1";
+option go_package = "github.com/Artyom099/factory/shared/pkg/proto/auth/v1;auth_v1";
 
 service AuthService {
     rpc Login(LoginRequest) returns (LoginResponse) {}
