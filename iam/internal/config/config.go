@@ -14,6 +14,8 @@ type config struct {
 	IamGRPC  IamGRPCConfig
 	Logger   LoggerConfig
 	Postgres PostgresConfig
+	Redis    RedisConfig
+	Session  SessionConfig
 }
 
 func Load(path ...string) error {
@@ -37,25 +39,22 @@ func Load(path ...string) error {
 		return err
 	}
 
-	// kafkaCfg, err := env.NewKafkaConfig()
-	// if err != nil {
-	// 	return err
-	// }
+	redisCfg, err := env.NewRedisConfig()
+	if err != nil {
+		return err
+	}
 
-	// orderAssembledProducerCfg, err := env.NewOrderAssembledProducerConfig()
-	// if err != nil {
-	// 	return err
-	// }
-
-	// orderPaidConsumerCfg, err := env.NewOrderPaidConsumerConfig()
-	// if err != nil {
-	// 	return err
-	// }
+	sessionCfg, err := env.NewSessionConfig()
+	if err != nil {
+		return err
+	}
 
 	appConfig = &config{
 		IamGRPC:  iamGRPCCfg,
 		Logger:   loggerCfg,
 		Postgres: postgresCfg,
+		Redis:    redisCfg,
+		Session:  sessionCfg,
 	}
 
 	return nil

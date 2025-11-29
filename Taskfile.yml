@@ -394,6 +394,6 @@ tasks:
 
   migr:create:
     desc: "Создание миграции"
-    dir: order/migrations
+    dir: iam/migrations
     # cmd: "{{.BIN_DIR}}/goose create create_uuid_ossp_extension sql"
-    cmd: "{{.BIN_DIR}}/goose create create_orders_table sql"
+    cmd: "{{.BIN_DIR}}/goose create create_users_table sql"

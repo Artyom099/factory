@@ -9,7 +9,7 @@ vars:
   LINT_MODULES: inventory order payment shared platform assembly notification iam
 
 tasks:
-  lint:
+  do:
     desc: "Запускает golangci-lint для всех модулей"
     summary: |
       Запускает линтер golangci-lint для всех модулей проекта.
@@ -36,7 +36,7 @@ tasks:
         done
         exit $ERR
 
-  lint:fix:
+  fix:
     desc: "Чинит все найденные ошибки линтера"
     vars:
       MODULES: "{{.LINT_MODULES}}"
