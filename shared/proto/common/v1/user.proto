@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/Artyom099/factory/shared/pkg/common/v1;common_v1";
+
+message User {
+    string uuid = 1 [(validate.rules).string.uuid = true];
+    UserInfo info = 2;
+    google.protobuf.Timestamp created_at = 3;
+    google.protobuf.Timestamp updated_at = 4;
+}
+
+message UserInfo {
+    string login = 1;
+    string email = 2;
+    repeated NotificationMethod notification_methods = 3;
+}
+
+message NotificationMethod {
+    string provider_name = 1; // Провайдер: `telegram`, `email`, `push` и т.д.
+    string target = 2; // Адрес/идентификатор назначения (email, чат-id)
+}
