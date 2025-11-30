@@ -2,8 +2,9 @@ version: "3"
 
 includes:
   lint: ./taskfiles/lint.yml
-  tests: ./taskfiles/tests.yml
+  test: ./taskfiles/test.yml
   env: ./taskfiles/env.yml
+  run: ./taskfiles/run.yml
   proto: ./taskfiles/proto.yml
   docker: ./taskfiles/docker.yml
   coverage: ./taskfiles/coverage.yml

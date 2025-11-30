@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"os"
 
+	"github.com/jackc/pgx/v5/stdlib"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -14,6 +16,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
 	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 )
 
@@ -45,6 +48,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initCloser,
 		a.initListener,
 		a.initGRPCServer,
+		a.initMigrator,
 	}
 
 	for _, f := range inits {
@@ -117,6 +121,30 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (a *App) initMigrator(ctx context.Context) error {
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	if migrationsDir == "" {
+		return errors.New("MIGRATIONS_DIR env is not set")
+	}
+
+	if _, err := os.Stat(migrationsDir); err != nil {
+		return fmt.Errorf("migrations directory %s: %w", migrationsDir, err)
+	}
+
+	pool := a.diContainer.PostgresHandle(ctx)
+	connConfig := pool.Config().ConnConfig.Copy()
+	sqlDB := stdlib.OpenDB(*connConfig)
+
+	migratorRunner := pg.NewMigrator(sqlDB, migrationsDir)
+	if err := migratorRunner.Up(); err != nil {
+		return fmt.Errorf("apply migrations: %w", err)
+	}
+
+	logger.Info(ctx, fmt.Sprintf("✅ Миграции успешно применены из %s", migrationsDir))
 
 	return nil
 }

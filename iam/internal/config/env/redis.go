@@ -13,7 +13,6 @@ type redisEnvConfig struct {
 	ConnectionTimeout time.Duration `env:"REDIS_CONNECTION_TIMEOUT,required"`
 	MaxIdle           int           `env:"REDIS_MAX_IDLE,required"`
 	IdleTimeout       time.Duration `env:"REDIS_IDLE_TIMEOUT,required"`
-	CacheTTL          time.Duration `env:"REDIS_CACHE_TTL,required"`
 }
 
 type redisConfig struct {
@@ -44,8 +43,4 @@ func (cfg *redisConfig) MaxIdle() int {
 
 func (cfg *redisConfig) IdleTimeout() time.Duration {
 	return cfg.raw.IdleTimeout
-}
-
-func (cfg *redisConfig) CacheTTL() time.Duration {
-	return cfg.raw.CacheTTL
 }

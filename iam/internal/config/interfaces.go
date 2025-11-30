@@ -21,7 +21,6 @@ type RedisConfig interface {
 	ConnectionTimeout() time.Duration
 	MaxIdle() int
 	IdleTimeout() time.Duration
-	CacheTTL() time.Duration
 }
 
 type SessionConfig interface {

@@ -14,6 +14,6 @@ type ISessionRepository interface {
 }
 
 type IUserRepository interface {
-	Get(ctx context.Context, login string) (model.User, error)
-	Create(ctx context.Context) error
+	Get(ctx context.Context, uuidOrLogin string) (model.User, error)
+	Create(ctx context.Context, user model.User) (string, error)
 }

@@ -1,7 +1,7 @@
 version: "3"
 
 tasks:
-  test-iam:
+  iam:
     desc: "🔐 Тестирование IAM сервиса (регистрация, логин, whoami)"
     deps: [grpcurl:install]
     silent: true
@@ -15,7 +15,7 @@ tasks:
         USER_PASSWORD="SecurePassword123!"
 
         echo "📝 Тест 1: Регистрация пользователя"
-        REGISTER_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"info\":{\"info\":{\"email\":\"$USER_EMAIL\",\"login\":\"$USER_EMAIL\"},\"password\":\"$USER_PASSWORD\"}}" localhost:50053 user.v1.UserService/Register)
+        REGISTER_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"info\":{\"info\":{\"email\":\"$USER_EMAIL\",\"login\":\"$USER_EMAIL\"},\"password\":\"$USER_PASSWORD\"}}" localhost:50054 user.v1.UserService/Register)
 
         if [[ -z "$REGISTER_RESPONSE" || "$REGISTER_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось зарегистрировать пользователя."
@@ -34,7 +34,7 @@ tasks:
 
         echo
         echo "🔑 Тест 2: Логин пользователя"
-        LOGIN_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"login\":\"$USER_EMAIL\",\"password\":\"$USER_PASSWORD\"}" localhost:50053 auth.v1.AuthService/Login)
+        LOGIN_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"login\":\"$USER_EMAIL\",\"password\":\"$USER_PASSWORD\"}" localhost:50054 auth.v1.AuthService/Login)
 
         if [[ -z "$LOGIN_RESPONSE" || "$LOGIN_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось войти в систему."
@@ -53,7 +53,7 @@ tasks:
 
         echo
         echo "👤 Тест 3: Проверка whoami с session UUID"
-        WHOAMI_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"session_uuid\":\"$SESSION_UUID\"}" localhost:50053 auth.v1.AuthService/Whoami)
+        WHOAMI_RESPONSE=$({{.GRPCURL}} -plaintext -d "{\"session_uuid\":\"$SESSION_UUID\"}" localhost:50054 auth.v1.AuthService/Whoami)
 
         if [[ -z "$WHOAMI_RESPONSE" || "$WHOAMI_RESPONSE" == *"error"* ]]; then
           echo "❌ Не удалось получить информацию о текущем пользователе."

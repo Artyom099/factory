@@ -12,7 +12,7 @@ func ToApiLogin(sessionUuid string) *authV1.LoginResponse {
 	}
 }
 
-func ToApiWhoami(user model.User) *authV1.WhoamiResponse {
+func ToApiWhoami(user model.User, session model.Session) *authV1.WhoamiResponse {
 	// todo
 	apiUser := &commonV1.User{
 		Uuid: user.ID,

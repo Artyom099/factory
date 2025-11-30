@@ -13,11 +13,17 @@ import (
 )
 
 func (a *api) Whoami(ctx context.Context, req *authV1.WhoamiRequest) (*authV1.WhoamiResponse, error) {
-	user, err := a.authServise.Whoami(ctx, req.GetSessionUuid())
+	err := req.Validate()
+	if err != nil {
+		logger.Error(ctx, "validation error", zap.String("session_uuid", req.GetSessionUuid()))
+		return &authV1.WhoamiResponse{}, status.Errorf(codes.InvalidArgument, "validation error")
+	}
+
+	user, session, err := a.authServise.Whoami(ctx, req.GetSessionUuid())
 	if err != nil {
 		logger.Error(ctx, "internal server error", zap.Error(err))
 		return &authV1.WhoamiResponse{}, status.Errorf(codes.Internal, "internal server error")
 	}
 
-	return converter.ToApiWhoami(user), nil
+	return converter.ToApiWhoami(user, session), nil
 }

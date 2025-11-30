@@ -4,18 +4,18 @@ tasks:
   up-all:
     desc: Поднять все сервисы по очереди вместе с зависимостями
     cmds:
-      - task up-core
-      - task up-inventory
-      - task up-order
-      - task up-iam
+      - task docker:up-core
+      - task docker:up-inventory
+      - task docker:up-order
+      - task docker:up-iam
 
   down-all:
     desc: Остановить и удалить все сервисы по очереди вместе с зависимостями
     cmds:
-      - task down-core
-      - task down-inventory
-      - task down-order
-      - task down-iam
+      - task docker:down-core
+      - task docker:down-inventory
+      - task docker:down-order
+      - task docker:down-iam
 
   up-core:
     desc: Поднять core контейнеры
