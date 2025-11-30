@@ -53,7 +53,7 @@ jobs:
       - name: 🧪 Run integration tests via Taskfile
         env:
           MODULES: ${{ inputs.modules }}
-        run: task test-integration
+        run: task test:integr
 
       - name: 🧹 Cleanup Docker containers
         if: always()

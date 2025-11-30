@@ -7,7 +7,7 @@ mockname: "{{.InterfaceName}}"
 resolve-type-alias: False
 issue-845-fix: True
 
-# команда для генерации моков - task mockery:gen
+# команда для генерации моков - task test:mockery:gen
 
 packages:
   # payment
@@ -76,5 +76,18 @@ packages:
       include-regex: ".*Service"
 
   github.com/Artyom099/factory/notification/internal/repository:
+    config:
+      include-regex: ".*Repository"
+
+  # iam
+  github.com/Artyom099/factory/iam/internal/config:
+    config:
+      include-regex: ".*Config"
+
+  github.com/Artyom099/factory/iam/internal/service:
+    config:
+      include-regex: ".*Service"
+
+  github.com/Artyom099/factory/iam/internal/repository:
     config:
       include-regex: ".*Repository"

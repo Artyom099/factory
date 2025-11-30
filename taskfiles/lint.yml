@@ -1,13 +1,5 @@
 version: "3"
 
-vars:
-  GOLANGCI_LINT_VERSION: "v2.1.5"
-
-  BIN_DIR: "{{.ROOT_DIR}}/bin"
-  GOLANGCI_LINT: "{{.BIN_DIR}}/golangci-lint"
-
-  LINT_MODULES: inventory order payment shared platform assembly notification iam
-
 tasks:
   do:
     desc: "Запускает golangci-lint для всех модулей"

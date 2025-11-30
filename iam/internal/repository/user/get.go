@@ -34,11 +34,11 @@ func (r *repository) Get(ctx context.Context, uuidOrLogin string) (model.User, e
 
 func getUser(ctx context.Context, pool *pgxpool.Pool, uuidOrLogin string) (repoModel.RepoUser, error) {
 	builderUser := sq.
-		Select("id", "login", "email", "created_at", "updated_at").
+		Select("id", "login", "email", "hash", "created_at", "updated_at").
 		From("users").
 		Where(
 			sq.Or{
-				sq.Eq{"id": uuidOrLogin},
+				sq.Eq{"id": uuidOrLogin}, // todo - здесь ошибка - invalid input syntax for type uuid - задать вопрос в чате
 				sq.Eq{"login": uuidOrLogin},
 			},
 		).

@@ -33,10 +33,9 @@ type diContainer struct {
 	userService    service.IUserService
 	userRepository repository.IUserRepository
 
-	sessionTTL *time.Duration
-
 	postgresHandle *pgxpool.Pool
 
+	sessionTTL  *time.Duration
 	redisPool   *redigo.Pool
 	redisClient cache.RedisClient
 }

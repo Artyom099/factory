@@ -11,7 +11,6 @@ import (
 )
 
 func (s *service) Login(ctx context.Context, login, password string) (string, error) {
-	// Получаем пользователя из репозитория/бд
 	user, err := s.userRepository.Get(ctx, login)
 	if err != nil {
 		return "", err
