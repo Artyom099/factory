@@ -14,11 +14,13 @@ import (
 func (s *service) Register(ctx context.Context, user model.User) (string, error) {
 	// Проверяем, что пользователь с таким email не существует
 	_, err := s.userRepository.Get(ctx, user.Email)
-	if err != nil && !errors.Is(err, model.ErrUserNotFound) {
-		if errors.Is(err, model.ErrUserNotFound) {
-			return "", model.ErrUserNotFound
-		}
 
+	// Если вернулся пользователь — он уже существует
+	if err == nil {
+		return "", model.ErrUserAlreadyExists
+	}
+	// Если это НЕ ошибка "не найден" — вернуть ошибку
+	if !errors.Is(err, model.ErrUserNotFound) {
 		return "", fmt.Errorf("failed to check existing user: %w", err)
 	}
 

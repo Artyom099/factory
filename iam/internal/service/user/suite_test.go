@@ -1,4 +1,4 @@
-package payment
+package user
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/Artyom099/factory/payment/internal/repository/mocks"
+	"github.com/Artyom099/factory/iam/internal/repository/mocks"
 )
 
 type ServiceSuite struct {
@@ -14,7 +14,7 @@ type ServiceSuite struct {
 
 	ctx context.Context // nolint:containedctx
 
-	paymentRepository *mocks.IPaymentRepository
+	userRepository *mocks.IUserRepository
 
 	service *service
 }
@@ -22,16 +22,16 @@ type ServiceSuite struct {
 func (s *ServiceSuite) SetupTest() {
 	s.ctx = context.Background()
 
-	s.paymentRepository = mocks.NewIPaymentRepository(s.T())
+	s.userRepository = mocks.NewIUserRepository(s.T())
 
 	s.service = NewService(
-		s.paymentRepository,
+		s.userRepository,
 	)
 }
 
 func (s *ServiceSuite) TearDownTest() {
 }
 
-func TestUnitPaymentService(t *testing.T) {
+func TestUnitUserService(t *testing.T) {
 	suite.Run(t, new(ServiceSuite))
 }

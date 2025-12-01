@@ -14,7 +14,7 @@ type config struct {
 	Logger        LoggerConfig
 	InventoryGRPC InventoryGRPCConfig
 	Mongo         MongoConfig
-	IamCLient     IamCLientConfig
+	IamCLient     IamClientConfig
 }
 
 func Load(path ...string) error {

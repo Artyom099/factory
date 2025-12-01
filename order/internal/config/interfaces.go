@@ -39,6 +39,6 @@ type OrderAssembledConsumerConfig interface {
 	Config() *sarama.Config
 }
 
-type IamCLientConfig interface {
+type IamClientConfig interface {
 	Address() string
 }

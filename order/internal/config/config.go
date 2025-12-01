@@ -20,7 +20,7 @@ type config struct {
 	Kafka                  KafkaConfig
 	OrderPaidProducer      OrderPaidProducerConfig
 	OrderAssembledConsumer OrderAssembledConsumerConfig
-	IamCLient              IamCLientConfig
+	IamCLient              IamClientConfig
 }
 
 func Load(path ...string) error {

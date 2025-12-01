@@ -14,6 +14,6 @@ type MongoConfig interface {
 	DatabaseName() string
 }
 
-type IamCLientConfig interface {
+type IamClientConfig interface {
 	Address() string
 }
