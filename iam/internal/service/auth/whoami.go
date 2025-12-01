@@ -12,7 +12,7 @@ func (s *service) Whoami(ctx context.Context, sessionUuid string) (model.User, m
 		return model.User{}, model.Session{}, err
 	}
 
-	user, err := s.userRepository.Get(ctx, session.UserID)
+	user, err := s.userRepository.Get(ctx, session.Login)
 	if err != nil {
 		return model.User{}, model.Session{}, err
 	}

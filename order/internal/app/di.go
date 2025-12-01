@@ -76,7 +76,6 @@ func (d *diContainer) OrderService(ctx context.Context) service.IOrderService {
 			d.InventoryRepository(ctx),
 			d.PaymentClient(ctx),
 			d.OrderProducerService(),
-			d.OrderConsumerService(ctx),
 		)
 	}
 

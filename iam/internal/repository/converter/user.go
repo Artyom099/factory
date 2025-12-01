@@ -19,6 +19,7 @@ func ToModelUser(u repoModel.RepoUser) model.User {
 		ID:                  u.ID,
 		Login:               u.Login,
 		Email:               u.Email,
+		Hash:                u.Hash,
 		NotificationMethods: methods,
 		CreatedAt:           u.CreatedAt,
 		UpdatedAt:           u.UpdatedAt,

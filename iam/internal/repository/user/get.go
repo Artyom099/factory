@@ -13,8 +13,8 @@ import (
 	repoModel "github.com/Artyom099/factory/iam/internal/repository/model"
 )
 
-func (r *repository) Get(ctx context.Context, uuidOrLogin string) (model.User, error) {
-	dbUser, err := getUser(ctx, r.pool, uuidOrLogin)
+func (r *repository) Get(ctx context.Context, login string) (model.User, error) {
+	dbUser, err := getUser(ctx, r.pool, login)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.User{}, model.ErrUserNotFound
@@ -32,16 +32,11 @@ func (r *repository) Get(ctx context.Context, uuidOrLogin string) (model.User, e
 	return converter.ToModelUser(dbUser), nil
 }
 
-func getUser(ctx context.Context, pool *pgxpool.Pool, uuidOrLogin string) (repoModel.RepoUser, error) {
+func getUser(ctx context.Context, pool *pgxpool.Pool, login string) (repoModel.RepoUser, error) {
 	builderUser := sq.
 		Select("id", "login", "email", "hash", "created_at", "updated_at").
 		From("users").
-		Where(
-			sq.Or{
-				sq.Eq{"id": uuidOrLogin}, // todo - здесь ошибка - invalid input syntax for type uuid - задать вопрос в чате
-				sq.Eq{"login": uuidOrLogin},
-			},
-		).
+		Where(sq.Eq{"login": login}).
 		PlaceholderFormat(sq.Dollar)
 
 	queryUser, argsUser, err := builderUser.ToSql()

@@ -32,5 +32,5 @@ func (r *repository) Get(ctx context.Context, sessionUUID string) (model.Session
 		return model.Session{}, err
 	}
 
-	return converter.SessionFromRedisView(sessionRedisView), nil
+	return converter.ToModelSession(sessionRedisView), nil
 }

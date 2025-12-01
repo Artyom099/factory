@@ -11,7 +11,7 @@ import (
 func (r *repository) Create(ctx context.Context, session model.Session, ttl time.Duration) error {
 	cacheKey := r.getCacheKey(session.ID)
 
-	redisView := converter.SessionToRedisView(session)
+	redisView := converter.ToRedisViewSession(session)
 
 	err := r.cache.HashSet(ctx, cacheKey, redisView)
 	if err != nil {

@@ -13,5 +13,5 @@ type IAuthService interface {
 
 type IUserService interface {
 	Get(ctx context.Context, uuid string) (model.User, error)
-	Register(ctx context.Context, user model.User) error
+	Register(ctx context.Context, user model.User) (string, error)
 }

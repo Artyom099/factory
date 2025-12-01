@@ -55,12 +55,10 @@ vars:
   COVERAGE_DIR: "{{.ROOT_DIR}}/coverage"
   COVERAGE_FILE: total.out
 
-  # ORDER_MIGRATIONS_DIR: "./order/migrations"
-  # POSTGRES_DSN: "postgres://order-service-user:order-service-password@localhost:5432/order-service?sslmode=disable"
   GIST_ID: "8f1426178499e4bfc15735575c432973"
 
   SERVICES: order,inventory,payment,assembly,notification,core,iam
-  MODULES: inventory order payment
+  MODULES: inventory order payment iam
   LINT_MODULES: inventory order payment shared platform assembly notification iam
 
 tasks:

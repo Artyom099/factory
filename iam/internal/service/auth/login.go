@@ -25,7 +25,9 @@ func (s *service) Login(ctx context.Context, login, password string) (string, er
 	session := model.Session{
 		ID:        sessionID,
 		UserID:    user.ID,
+		Login:     user.Login,
 		CreatedAt: time.Now(),
+		ExpiredAt: time.Now().Add(*s.sessionTTL),
 	}
 
 	// Сохраняем сессию в Redis

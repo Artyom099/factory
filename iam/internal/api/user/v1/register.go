@@ -19,11 +19,11 @@ func (a *api) Register(ctx context.Context, req *userV1.RegisterRequest) (*userV
 		return &userV1.RegisterResponse{}, status.Errorf(codes.InvalidArgument, "validation error")
 	}
 
-	err = a.userServise.Register(ctx, converter.ToModelRegUser(req))
+	userUUID, err := a.userServise.Register(ctx, converter.ToModelRegUser(req))
 	if err != nil {
 		logger.Error(ctx, "internal server error", zap.Error(err))
 		return &userV1.RegisterResponse{}, status.Errorf(codes.Internal, "internal server error")
 	}
 
-	return nil, nil
+	return &userV1.RegisterResponse{UserUuid: userUUID}, nil
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
 	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
+	userV1 "github.com/Artyom099/factory/shared/pkg/proto/user/v1"
 )
 
 type App struct {
@@ -110,6 +111,7 @@ func (a *App) initGRPCServer(ctx context.Context) error {
 	health.RegisterService(a.grpcServer)
 
 	authV1.RegisterAuthServiceServer(a.grpcServer, a.diContainer.AuthV1API(ctx))
+	userV1.RegisterUserServiceServer(a.grpcServer, a.diContainer.UserV1API(ctx))
 
 	return nil
 }
