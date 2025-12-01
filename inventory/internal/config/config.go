@@ -14,6 +14,7 @@ type config struct {
 	Logger        LoggerConfig
 	InventoryGRPC InventoryGRPCConfig
 	Mongo         MongoConfig
+	IamCLient     IamCLientConfig
 }
 
 func Load(path ...string) error {
@@ -37,10 +38,16 @@ func Load(path ...string) error {
 		return err
 	}
 
+	iamCLientCfg, err := env.NewIamClientConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:        loggerCfg,
 		InventoryGRPC: inventoryGRPCCfg,
 		Mongo:         mongoCfg,
+		IamCLient:     iamCLientCfg,
 	}
 
 	return nil

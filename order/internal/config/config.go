@@ -20,6 +20,7 @@ type config struct {
 	Kafka                  KafkaConfig
 	OrderPaidProducer      OrderPaidProducerConfig
 	OrderAssembledConsumer OrderAssembledConsumerConfig
+	IamCLient              IamCLientConfig
 }
 
 func Load(path ...string) error {
@@ -90,6 +91,11 @@ func Load(path ...string) error {
 		return err
 	}
 
+	iamCLientCfg, err := env.NewIamClientConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:                 loggerCfg,
 		OrderHTTP:              orderHTTPCfg,
@@ -99,6 +105,7 @@ func Load(path ...string) error {
 		Kafka:                  kafkaCfg,
 		OrderPaidProducer:      orderPaidProducerCfg,
 		OrderAssembledConsumer: orderAssembledConsumerCfg,
+		IamCLient:              iamCLientCfg,
 	}
 
 	return nil

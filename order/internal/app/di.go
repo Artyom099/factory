@@ -28,17 +28,17 @@ import (
 	wrappedKafkaConsumer "github.com/Artyom099/factory/platform/pkg/kafka/consumer"
 	wrappedKafkaProducer "github.com/Artyom099/factory/platform/pkg/kafka/producer"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	httpAuth "github.com/Artyom099/factory/platform/pkg/middleware/http"
 	kafkaMiddleware "github.com/Artyom099/factory/platform/pkg/middleware/kafka"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
+	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
 type diContainer struct {
-	orderV1API orderV1.Handler
-
-	orderService service.IOrderService
-
+	orderV1API      orderV1.Handler
+	orderService    service.IOrderService
 	orderRepository repository.IOrderRepository
 
 	paymentClient   clientGrpc.IPaymentClient
@@ -55,6 +55,9 @@ type diContainer struct {
 
 	syncProducer      sarama.SyncProducer
 	orderPaidProducer wrappedKafka.IProducer
+
+	iamClient      authV1.AuthServiceClient
+	authMiddleware *httpAuth.AuthMiddleware
 }
 
 func NewDiContainer() *diContainer {
@@ -238,4 +241,27 @@ func (d *diContainer) OrderPaidProducer() wrappedKafka.IProducer {
 	}
 
 	return d.orderPaidProducer
+}
+
+func (d *diContainer) IAMClient(ctx context.Context) authV1.AuthServiceClient {
+	if d.iamClient == nil {
+		conn, err := grpc.NewClient(
+			config.AppConfig().IamCLient.Address(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		if err != nil {
+			log.Fatalf("failed to connect IAM service: %v", err)
+		}
+		d.iamClient = authV1.NewAuthServiceClient(conn)
+	}
+
+	return d.iamClient
+}
+
+func (d *diContainer) AuthMiddleware(ctx context.Context) *httpAuth.AuthMiddleware {
+	if d.authMiddleware == nil {
+		d.authMiddleware = httpAuth.NewAuthMiddleware(d.IAMClient(ctx))
+	}
+
+	return d.authMiddleware
 }
