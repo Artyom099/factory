@@ -2,7 +2,7 @@ version: "3"
 
 tasks:
   up-all:
-    desc: Поднять все сервисы по очереди вместе с зависимостями
+    desc: Поднять контейнеры с инфраструктурой всех сервисов по очереди
     cmds:
       - task docker:up-core
       - task docker:up-inventory
@@ -10,7 +10,7 @@ tasks:
       - task docker:up-iam
 
   down-all:
-    desc: Остановить и удалить все сервисы по очереди вместе с зависимостями
+    desc: Остановить и удалить контейнеры с инфраструктурой всех сервисов по очереди
     cmds:
       - task docker:down-core
       - task docker:down-inventory

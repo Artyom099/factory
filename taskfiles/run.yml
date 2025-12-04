@@ -3,15 +3,14 @@ version: "3"
 tasks:
   all:
     desc: Запуск всех сервисов
-    dir: iam
     cmds:
       - echo "[task] Запуск всех сервисов"
-      - task test:iam
-      - task test:assembly
-      - task test:inventory
-      - task test:order
-      - task test:payment
-      - task test:notification
+      # - task test:iam
+      # - task test:assembly
+      # - task test:inventory
+      # - task test:order
+      # - task test:payment
+      # - task test:notification
 
   iam:
     desc: Запуск iam сервиса

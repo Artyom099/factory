@@ -18,6 +18,7 @@ import (
 	"github.com/Artyom099/factory/inventory/internal/service"
 	partService "github.com/Artyom099/factory/inventory/internal/service/part"
 	"github.com/Artyom099/factory/platform/pkg/closer"
+	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
 	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
@@ -32,7 +33,7 @@ type diContainer struct {
 	mongoDBClient *mongo.Client
 	mongoDBHandle *mongo.Database
 
-	iamClient authV1.AuthServiceClient
+	iamClient grpcAuth.IAMClient
 }
 
 func NewDiContainer() *diContainer {
@@ -93,7 +94,7 @@ func (d *diContainer) MongoDBHandle(ctx context.Context) *mongo.Database {
 	return d.mongoDBHandle
 }
 
-func (d *diContainer) IAMClient(ctx context.Context) authV1.AuthServiceClient {
+func (d *diContainer) IAMClient(ctx context.Context) grpcAuth.IAMClient {
 	if d.iamClient == nil {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IamCLient.Address(),

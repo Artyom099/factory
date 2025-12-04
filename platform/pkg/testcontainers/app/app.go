@@ -75,8 +75,6 @@ func NewContainer(ctx context.Context, opts ...Option) (*Container, error) {
 		HostConfigModifier: DefaultHostConfig(),
 	}
 
-	// logger.Info(ctx, "------ ContainerRequest -------", zap.Reflect("", req))
-	// здесь падает контейнер при старте
 	genericContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,

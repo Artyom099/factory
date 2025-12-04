@@ -56,7 +56,7 @@ type diContainer struct {
 	syncProducer      sarama.SyncProducer
 	orderPaidProducer wrappedKafka.IProducer
 
-	iamClient      authV1.AuthServiceClient
+	iamClient      httpAuth.IAMClient
 	authMiddleware *httpAuth.AuthMiddleware
 }
 
@@ -243,7 +243,7 @@ func (d *diContainer) OrderPaidProducer() wrappedKafka.IProducer {
 	return d.orderPaidProducer
 }
 
-func (d *diContainer) IAMClient(ctx context.Context) authV1.AuthServiceClient {
+func (d *diContainer) IAMClient(ctx context.Context) httpAuth.IAMClient {
 	if d.iamClient == nil {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IamCLient.Address(),
