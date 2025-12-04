@@ -45,7 +45,7 @@ jobs:
         run: |
           # Генерируем все .env файлы для сервисов
           echo "Генерация .env файлов для всех сервисов..."
-          task env:generate
+          task env:gen
 
           # Проверяем результат
           echo "✅ Файлы .env для сервисов созданы"
@@ -53,7 +53,7 @@ jobs:
       - name: 🧪 Run integration tests via Taskfile
         env:
           MODULES: ${{ inputs.modules }}
-        run: task test-integration
+        run: task test:integr
 
       - name: 🧹 Cleanup Docker containers
         if: always()

@@ -20,6 +20,9 @@ COPY shared/go.mod shared/go.sum ./shared/
 COPY order/go.mod order/go.sum ./order/
 COPY inventory/go.mod inventory/go.sum ./inventory/
 COPY payment/go.mod payment/go.sum ./payment/
+COPY assembly/go.mod assembly/go.sum ./assembly/
+COPY notification/go.mod notification/go.sum ./notification/
+COPY iam/go.mod iam/go.sum ./iam/
 
 # Загружаем все зависимости, указанные в модульных файлах
 RUN go mod download
@@ -28,8 +31,8 @@ RUN go mod download
 COPY platform ./platform
 COPY shared ./shared
 COPY inventory ./inventory
-COPY payment ./payment
-COPY order ./order
+# COPY payment ./payment
+# COPY order ./order
 
 # Устанавливаем curl для healthcheck
 RUN apk add --no-cache curl

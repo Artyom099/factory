@@ -1,0 +1,58 @@
+version: "3"
+
+tasks:
+  do:
+    desc: "Запускает golangci-lint для всех модулей"
+    summary: |
+      Запускает линтер golangci-lint для всех модулей проекта.
+      Линтер проверяет код на соответствие стандартам качества и лучшим практикам.
+      Проверка включает проверку безопасности через gosec (встроенный в golangci-lint).
+
+      Зависимости:
+        - install-golangci-lint: автоматически устанавливает линтер
+        - format: форматирует код перед проверкой
+    deps: [install-golangci-lint]
+    vars:
+      LINT_MODULES: "{{.LINT_MODULES}}"
+      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
+    cmds:
+      - |
+        set -e
+        ERR=0
+        echo "🔍 Линтим модули {{.LINT_MODULES}} ..."
+        for mod in {{.LINT_MODULES}}; do
+          if [ -d "$mod" ]; then
+            echo "🔍 Линтим $mod module"
+            {{.GOLANGCI_LINT}} run $mod/... --config=.golangci.yml || ERR=1
+          fi
+        done
+        exit $ERR
+
+  fix:
+    desc: "Чинит все найденные ошибки линтера"
+    vars:
+      MODULES: "{{.LINT_MODULES}}"
+      GOLANGCI_LINT: "{{.GOLANGCI_LINT}}"
+    cmds:
+      - |
+        for mod in {{.LINT_MODULES}}; do \
+          echo "🔍 Fixing lint errors in $mod"; \
+          (cd $mod && {{.GOLANGCI_LINT}} run --fix); \
+        done
+
+  install-golangci-lint:
+    desc: "Устанавливает golangci-lint в каталог bin"
+    summary: |
+      Проверяет наличие golangci-lint в директории bin.
+      Если инструмент не найден, автоматически устанавливает его через go install.
+
+      Устанавливаемая версия: {{.GOLANGCI_LINT_VERSION}}
+    cmds:
+      - |
+        [ -f {{.GOLANGCI_LINT}} ] || {
+          mkdir -p {{.BIN_DIR}}
+          echo "📦 Устанавливаем golangci-lint {{.GOLANGCI_LINT_VERSION}}..."
+          GOBIN={{.BIN_DIR}} go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+        }
+    status:
+      - test -x {{.GOLANGCI_LINT}}

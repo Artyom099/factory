@@ -1,0 +1,19 @@
+version: "3"
+
+tasks:
+  goose:install:
+    desc: "Устанавливает goose в ./bin"
+    cmds:
+      - |
+        [ -f {{.GOOSE}} ] || {
+          echo '📦 Installing goose...'
+          GOBIN={{.BIN_DIR}} go install github.com/pressly/goose/v3/cmd/goose@{{.GOOSE_VERSION}}
+        }
+    status:
+      - test -x {{.GOOSE}}
+
+  create:
+    desc: "Создание миграции"
+    dir: iam/migrations
+    cmd: "{{.BIN_DIR}}/goose create create_uuid_ossp_extension sql"
+    # cmd: "{{.BIN_DIR}}/goose create create_users_table sql"

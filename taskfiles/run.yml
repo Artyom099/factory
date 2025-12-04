@@ -1,0 +1,55 @@
+version: "3"
+
+tasks:
+  all:
+    desc: Запуск всех сервисов
+    cmds:
+      - echo "[task] Запуск всех сервисов"
+      # - task test:iam
+      # - task test:assembly
+      # - task test:inventory
+      # - task test:order
+      # - task test:payment
+      # - task test:notification
+
+  iam:
+    desc: Запуск iam сервиса
+    dir: iam
+    cmds:
+      - echo "[task] Запуск iam сервиса"
+      - go run cmd/main.go
+
+  assembly:
+    desc: Запуск assembly сервиса
+    dir: assembly
+    cmds:
+      - echo "[task] Запуск assembly сервиса"
+      - go run cmd/main.go
+
+  inventory:
+    desc: Запуск inventory сервиса
+    dir: inventory
+    cmds:
+      - echo "[task] Запуск inventory сервиса"
+      - go run cmd/main.go
+
+  order:
+    desc: Запуск order сервиса
+    dir: order
+    cmds:
+      - echo "[task] Запуск order сервиса"
+      - go run cmd/main.go
+
+  payment:
+    desc: Запуск payment сервиса
+    dir: payment
+    cmds:
+      - echo "[task] Запуск payment сервиса"
+      - go run cmd/main.go
+
+  notification:
+    desc: Запуск notification сервиса
+    dir: notification
+    cmds:
+      - echo "[task] Запуск notification сервиса"
+      - go run cmd/main.go

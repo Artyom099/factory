@@ -20,7 +20,6 @@ type ServiceSuite struct {
 	inventoryClient      *clientMocks.IInventoryClient
 	paymentClient        *clientMocks.IPaymentClient
 	orderProducerService *serviceMocks.IOrderProducerService
-	orderConsumerService *serviceMocks.IOrderConsumerService
 
 	service *service
 }
@@ -32,20 +31,18 @@ func (s *ServiceSuite) SetupTest() {
 	s.inventoryClient = clientMocks.NewIInventoryClient(s.T())
 	s.paymentClient = clientMocks.NewIPaymentClient(s.T())
 	s.orderProducerService = serviceMocks.NewIOrderProducerService(s.T())
-	s.orderConsumerService = serviceMocks.NewIOrderConsumerService(s.T())
 
 	s.service = NewService(
 		s.orderRepository,
 		s.inventoryClient,
 		s.paymentClient,
 		s.orderProducerService,
-		s.orderConsumerService,
 	)
 }
 
 func (s *ServiceSuite) TearDownTest() {
 }
 
-func TestServiceIntegration(t *testing.T) {
+func TestUnitOrderService(t *testing.T) {
 	suite.Run(t, new(ServiceSuite))
 }

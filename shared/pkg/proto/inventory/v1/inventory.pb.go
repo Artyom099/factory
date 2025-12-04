@@ -956,7 +956,7 @@ const file_inventory_v1_inventory_proto_rawDesc = "" +
 	"\aGetPart\x12\x1c.inventory.v1.GetPartRequest\x1a\x1d.inventory.v1.GetPartResponse\"\x00\x12N\n" +
 	"\tListParts\x12\x1e.inventory.v1.ListPartsRequest\x1a\x1f.inventory.v1.ListPartsResponse\"\x00\x12Q\n" +
 	"\n" +
-	"CreatePart\x12\x1f.inventory.v1.CreatePartRequest\x1a .inventory.v1.CreatePartResponse\"\x00BCZAgithub.com/Artyom099/factory/shared/pkg/inventory/v1;inventory_v1b\x06proto3"
+	"CreatePart\x12\x1f.inventory.v1.CreatePartRequest\x1a .inventory.v1.CreatePartResponse\"\x00BIZGgithub.com/Artyom099/factory/shared/pkg/proto/inventory/v1;inventory_v1b\x06proto3"
 
 var (
 	file_inventory_v1_inventory_proto_rawDescOnce sync.Once

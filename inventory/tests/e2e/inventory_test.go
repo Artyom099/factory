@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
@@ -20,6 +21,9 @@ var _ = Describe("InventoryService", Ordered, func() {
 
 	BeforeEach(func() {
 		ctx, cancel = context.WithCancel(suiteCtx)
+
+		md := metadata.Pairs("session-uuid", "test-session")
+		ctx = metadata.NewOutgoingContext(ctx, md)
 
 		conn, err := grpc.NewClient(
 			env.App.Address(),

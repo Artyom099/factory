@@ -3,10 +3,13 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	partApiV1 "github.com/Artyom099/factory/inventory/internal/api/part/v1"
 	"github.com/Artyom099/factory/inventory/internal/config"
@@ -15,6 +18,8 @@ import (
 	"github.com/Artyom099/factory/inventory/internal/service"
 	partService "github.com/Artyom099/factory/inventory/internal/service/part"
 	"github.com/Artyom099/factory/platform/pkg/closer"
+	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
+	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -27,6 +32,8 @@ type diContainer struct {
 
 	mongoDBClient *mongo.Client
 	mongoDBHandle *mongo.Database
+
+	iamClient grpcAuth.IAMClient
 }
 
 func NewDiContainer() *diContainer {
@@ -85,4 +92,19 @@ func (d *diContainer) MongoDBHandle(ctx context.Context) *mongo.Database {
 	}
 
 	return d.mongoDBHandle
+}
+
+func (d *diContainer) IAMClient(ctx context.Context) grpcAuth.IAMClient {
+	if d.iamClient == nil {
+		conn, err := grpc.NewClient(
+			config.AppConfig().IamCLient.Address(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		if err != nil {
+			log.Fatalf("failed to connect IAM service: %v", err)
+		}
+		d.iamClient = authV1.NewAuthServiceClient(conn)
+	}
+
+	return d.iamClient
 }
