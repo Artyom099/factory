@@ -21,6 +21,7 @@ type config struct {
 	OrderPaidProducer      OrderPaidProducerConfig
 	OrderAssembledConsumer OrderAssembledConsumerConfig
 	IamCLient              IamClientConfig
+	Tracing                TracingConfig
 }
 
 func Load(path ...string) error {
@@ -96,6 +97,11 @@ func Load(path ...string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:                 loggerCfg,
 		OrderHTTP:              orderHTTPCfg,
@@ -106,6 +112,7 @@ func Load(path ...string) error {
 		OrderPaidProducer:      orderPaidProducerCfg,
 		OrderAssembledConsumer: orderAssembledConsumerCfg,
 		IamCLient:              iamCLientCfg,
+		Tracing:                tracingCfg,
 	}
 
 	return nil

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
+	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
 	paymentV1 "github.com/Artyom099/factory/shared/pkg/proto/payment/v1"
 )
 
@@ -12,6 +13,8 @@ func (c *client) PayOrder(
 	paymentMethod model.OrderPaymentMethod,
 	orderUUID, userUUID string,
 ) (string, error) {
+	ctx = grpcAuth.ForwardSessionUUIDToGRPC(ctx)
+
 	res, err := c.generatedClient.PayOrder(ctx, &paymentV1.PayOrderRequest{
 		OrderUuid:     orderUUID,
 		UserUuid:      userUUID,

@@ -15,6 +15,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
+	"github.com/Artyom099/factory/platform/pkg/tracing"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -46,6 +47,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initCloser,
 		a.initListener,
 		a.initGRPCServer,
+		a.initTracing,
 	}
 
 	for _, f := range inits {
@@ -126,6 +128,17 @@ func (a *App) runGRPCServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	err := tracing.InitTracer(ctx, config.AppConfig().Tracing)
+	if err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracing.ShutdownTracer)
 
 	return nil
 }

@@ -16,6 +16,7 @@ type config struct {
 	Kafka                  KafkaConfig
 	OrderAssembledProducer OrderAssembledProducerConfig
 	OrderPaidConsumer      OrderPaidConsumerConfig
+	Tracing                TracingConfig
 }
 
 func Load(path ...string) error {
@@ -49,12 +50,18 @@ func Load(path ...string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		AssemblyGRPC:           assemblyGRPCCfg,
 		Logger:                 loggerCfg,
 		Kafka:                  kafkaCfg,
 		OrderAssembledProducer: orderAssembledProducerCfg,
 		OrderPaidConsumer:      orderPaidConsumerCfg,
+		Tracing:                tracingCfg,
 	}
 
 	return nil

@@ -17,3 +17,10 @@ type MongoConfig interface {
 type IamClientConfig interface {
 	Address() string
 }
+
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceName() string
+	Environment() string
+	ServiceVersion() string
+}

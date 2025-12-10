@@ -30,6 +30,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	httpAuth "github.com/Artyom099/factory/platform/pkg/middleware/http"
 	kafkaMiddleware "github.com/Artyom099/factory/platform/pkg/middleware/kafka"
+	"github.com/Artyom099/factory/platform/pkg/tracing"
 	orderV1 "github.com/Artyom099/factory/shared/pkg/openapi/order/v1"
 	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
@@ -76,7 +77,7 @@ func (d *diContainer) OrderService(ctx context.Context) service.IOrderService {
 	if d.orderService == nil {
 		d.orderService = orderService.NewService(
 			d.OrderRepository(ctx),
-			d.InventoryRepository(ctx),
+			d.InventoryClient(ctx),
 			d.PaymentClient(ctx),
 			d.OrderProducerService(),
 		)
@@ -98,6 +99,7 @@ func (d *diContainer) PaymentClient(ctx context.Context) clientGrpc.IPaymentClie
 		paymentConn, err := grpc.NewClient(
 			config.AppConfig().Payment.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracing.UnaryClientInterceptor("payment-service")),
 		)
 		if err != nil {
 			log.Fatalf("failed to connect payment service: %v", err)
@@ -111,11 +113,12 @@ func (d *diContainer) PaymentClient(ctx context.Context) clientGrpc.IPaymentClie
 	return d.paymentClient
 }
 
-func (d *diContainer) InventoryRepository(ctx context.Context) clientGrpc.IInventoryClient {
+func (d *diContainer) InventoryClient(ctx context.Context) clientGrpc.IInventoryClient {
 	if d.inventoryClient == nil {
 		inventoryConn, err := grpc.NewClient(
 			config.AppConfig().Inventory.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracing.UnaryClientInterceptor("inventory-service")),
 		)
 		if err != nil {
 			log.Fatalf("failed to connect inventory service: %v", err)
@@ -248,6 +251,7 @@ func (d *diContainer) IAMClient(ctx context.Context) httpAuth.IAMClient {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IamCLient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracing.UnaryClientInterceptor("iam-service")),
 		)
 		if err != nil {
 			log.Fatalf("failed to connect IAM service: %v", err)

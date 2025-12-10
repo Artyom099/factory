@@ -17,6 +17,7 @@ type config struct {
 	OrderPaidConsumer      OrderPaidConsumerConfig
 	OrderAssembledConsumer OrderAssembledConsumerConfig
 	Telegram               TelegramConfig
+	Tracing                TracingConfig
 }
 
 func Load(path ...string) error {
@@ -55,6 +56,11 @@ func Load(path ...string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		// NotificationGRPC:  notificationGRPCCfg,
 		Logger:                 loggerCfg,
@@ -62,6 +68,7 @@ func Load(path ...string) error {
 		OrderPaidConsumer:      orderPaidConsumerCfg,
 		OrderAssembledConsumer: orderAssembledConsumerCfg,
 		Telegram:               telegramCfg,
+		Tracing:                tracingCfg,
 	}
 
 	return nil

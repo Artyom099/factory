@@ -26,3 +26,10 @@ type RedisConfig interface {
 type SessionConfig interface {
 	TTL() string
 }
+
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceName() string
+	Environment() string
+	ServiceVersion() string
+}

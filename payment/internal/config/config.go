@@ -13,6 +13,8 @@ var appConfig *config
 type config struct {
 	Logger      LoggerConfig
 	PaymentGRPC PaymentGRPCConfig
+	IamCLient   IamClientConfig
+	Tracing     TracingConfig
 }
 
 func Load(path ...string) error {
@@ -31,9 +33,21 @@ func Load(path ...string) error {
 		return err
 	}
 
+	iamCLientCfg, err := env.NewIamClientConfig()
+	if err != nil {
+		return err
+	}
+
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:      loggerCfg,
 		PaymentGRPC: paymentGRPCCfg,
+		IamCLient:   iamCLientCfg,
+		Tracing:     tracingCfg,
 	}
 
 	return nil

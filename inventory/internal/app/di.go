@@ -19,6 +19,7 @@ import (
 	partService "github.com/Artyom099/factory/inventory/internal/service/part"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
+	"github.com/Artyom099/factory/platform/pkg/tracing"
 	authV1 "github.com/Artyom099/factory/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
@@ -99,6 +100,7 @@ func (d *diContainer) IAMClient(ctx context.Context) grpcAuth.IAMClient {
 		conn, err := grpc.NewClient(
 			config.AppConfig().IamCLient.Address(),
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithUnaryInterceptor(tracing.UnaryClientInterceptor("iam-service")),
 		)
 		if err != nil {
 			log.Fatalf("failed to connect IAM service: %v", err)

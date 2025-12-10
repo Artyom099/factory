@@ -16,6 +16,7 @@ type config struct {
 	Postgres PostgresConfig
 	Redis    RedisConfig
 	Session  SessionConfig
+	Tracing  TracingConfig
 }
 
 func Load(path ...string) error {
@@ -49,12 +50,18 @@ func Load(path ...string) error {
 		return err
 	}
 
+	tracingCfg, err := env.NewTracingConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		IamGRPC:  iamGRPCCfg,
 		Logger:   loggerCfg,
 		Postgres: postgresCfg,
 		Redis:    redisCfg,
 		Session:  sessionCfg,
+		Tracing:  tracingCfg,
 	}
 
 	return nil

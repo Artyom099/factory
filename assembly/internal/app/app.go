@@ -14,6 +14,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	"github.com/Artyom099/factory/platform/pkg/tracing"
 )
 
 type App struct {
@@ -76,6 +77,7 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initLogger,
 		a.initCloser,
 		a.initGRPCServer,
+		a.initTracing,
 	}
 
 	for _, f := range inits {
@@ -139,6 +141,17 @@ func (a *App) runConsumer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (a *App) initTracing(ctx context.Context) error {
+	err := tracing.InitTracer(ctx, config.AppConfig().Tracing)
+	if err != nil {
+		return err
+	}
+
+	closer.AddNamed("tracer", tracing.ShutdownTracer)
 
 	return nil
 }

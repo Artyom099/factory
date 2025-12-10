@@ -31,3 +31,10 @@ type TelegramConfig interface {
 	Token() string
 	ChatID() int64
 }
+
+type TracingConfig interface {
+	CollectorEndpoint() string
+	ServiceName() string
+	Environment() string
+	ServiceVersion() string
+}

@@ -34,7 +34,7 @@ func NewService(
 func (s *service) RunConsumer(ctx context.Context) error {
 	logger.Info(ctx, "Starting orderPaidConsumer service")
 
-	err := s.orderPaidConsumer.Consume(ctx, s.OrderHandler)
+	err := s.orderPaidConsumer.Consume(ctx, s.OrderPaidHandler)
 	if err != nil {
 		logger.Error(ctx, "Consume from order.paid topic error", zap.Error(err))
 		return err
