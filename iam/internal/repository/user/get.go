@@ -63,7 +63,7 @@ func getUser(ctx context.Context, pool *pgxpool.Pool, login string) (repoModel.R
 
 func getNotificationMethods(ctx context.Context, pool *pgxpool.Pool, userID string) ([]repoModel.RepoNotificationMethod, error) {
 	builderMethods := sq.
-		Select("id", "user_id", "provider_name", "target").
+		Select("user_id", "provider_name", "target").
 		From("notification_methods").
 		Where(sq.Eq{"user_id": userID}).
 		PlaceholderFormat(sq.Dollar)

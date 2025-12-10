@@ -3,7 +3,6 @@ package model
 import "time"
 
 type RepoNotificationMethod struct {
-	ID           string `db:"id"`
 	UserID       string `db:"user_id"`
 	ProviderName string `db:"provider_name"`
 	Target       string `db:"target"`

@@ -6,16 +6,20 @@ CREATE TABLE users (
     email       TEXT                        NOT NULL,
     hash        TEXT                        NOT NULL,
     created_at  TIMESTAMP WITH TIME ZONE    NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMP WITH TIME ZONE
+    updated_at  TIMESTAMP WITH TIME ZONE,
+
+    CONSTRAINT users_login_u UNIQUE (login),
+    CONSTRAINT users_email_u UNIQUE (email)
 );
 
 CREATE UNIQUE INDEX idx_users_login ON users(login);
 
 CREATE TABLE notification_methods (
-    id            UUID PRIMARY KEY  DEFAULT uuid_generate_v4(),
-    user_id       UUID              NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    provider_name TEXT              NOT NULL,
-    target        TEXT              NOT NULL
+    user_id       UUID  NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider_name TEXT  NOT NULL,
+    target        TEXT  NOT NULL,
+
+    PRIMARY KEY (user_id, provider_name)
 );
 
 CREATE INDEX idx_notification_methods_user_id ON notification_methods(user_id);
