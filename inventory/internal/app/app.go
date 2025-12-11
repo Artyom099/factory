@@ -14,6 +14,7 @@ import (
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
+	grpcAuth "github.com/Artyom099/factory/platform/pkg/middleware/grpc"
 	inventoryV1 "github.com/Artyom099/factory/shared/pkg/proto/inventory/v1"
 )
 
@@ -94,7 +95,15 @@ func (a *App) initListener(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	authInterceptor := grpcAuth.NewAuthInterceptor(
+		a.diContainer.IAMClient(ctx),
+	)
+
+	a.grpcServer = grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(authInterceptor.Unary()),
+	)
+
 	closer.AddNamed("gRPC server", func(ctx context.Context) error {
 		a.grpcServer.GracefulStop()
 		return nil

@@ -32,6 +32,6 @@ func (a *APISuite) SetupTest() {
 func (s *APISuite) TearDownTest() {
 }
 
-func TestAPIIntegration(t *testing.T) {
+func TestUnitPaymentApi(t *testing.T) {
 	suite.Run(t, new(APISuite))
 }

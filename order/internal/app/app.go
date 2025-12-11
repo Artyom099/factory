@@ -138,6 +138,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	}
 
 	r := chi.NewRouter()
+	r.Use(a.diContainer.AuthMiddleware(ctx).Handle)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Mount("/", orderServer)
 

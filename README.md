@@ -32,3 +32,21 @@ flowchart LR
     Kafka -->|order assembled| Notification[Notification Service]
     Notification -->|HTTP| Telegram[Telegram]
 ```
+
+
+## Commands
+
+- Run unit-tests:
+```
+task test:unit
+```
+
+- Run integration-tests:
+```
+task test:integr
+```
+
+- See test's coverage:
+```
+task coverage:html
+```
