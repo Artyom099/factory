@@ -117,7 +117,10 @@ func (a *App) initCloser(_ context.Context) error {
 }
 
 func (a *App) initGRPCServer(ctx context.Context) error {
-	a.grpcServer = grpc.NewServer(grpc.Creds(insecure.NewCredentials()))
+	a.grpcServer = grpc.NewServer(
+		grpc.Creds(insecure.NewCredentials()),
+		grpc.UnaryInterceptor(tracing.UnaryServerInterceptor("notification-service")),
+	)
 
 	reflection.Register(a.grpcServer)
 
