@@ -5,6 +5,7 @@ import "time"
 type LoggerConfig interface {
 	Level() string
 	AsJson() bool
+	EnableOTLP() bool
 }
 
 type IamGRPCConfig interface {

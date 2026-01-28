@@ -95,17 +95,80 @@ func Init(logLevel string, asJSON bool, enableOTLP bool) error {
 	return nil
 }
 
-// func InitForBenchmark() {
-// 	core := zapcore.NewNopCore()
+// Key — типизированный ключ для enrich полей в context.Context.
+// Используется только если вызывающий код явно кладёт значения в context.
+type Key string
 
-// 	globalLogger = &logger{
-// 		zapLogger: zap.New(core),
-// 	}
-// }
+const (
+	traceIDKey Key = "trace_id"
+	userIDKey  Key = "user_id"
+)
 
-// logger возвращает глобальный enrich-aware логгер
-func Logger() *zap.Logger {
-	return global
+// ctxLogger — тонкая обёртка над zap.Logger, совместимая с интерфейсами вида:
+// Info(ctx, msg, ...fields) / Error(ctx, msg, ...fields).
+// Контекст используется только для enrich полей (trace_id/user_id), если они есть.
+type ctxLogger struct {
+	base *zap.Logger
+}
+
+// Logger возвращает глобальный контекстный логгер (подходит для closer/redis/kafka/etc).
+func Logger() *ctxLogger {
+	if global == nil {
+		return &ctxLogger{base: zap.NewNop()}
+	}
+	return &ctxLogger{base: global}
+}
+
+// With возвращает новый логгер с дополнительными полями.
+func With(fields ...zap.Field) *ctxLogger {
+	l := Logger()
+	return &ctxLogger{base: l.base.With(fields...)}
+}
+
+// WithContext возвращает логгер, обогащённый полями из ctx.
+func WithContext(ctx context.Context) *ctxLogger {
+	return With(fieldsFromContext(ctx)...)
+}
+
+func (l *ctxLogger) Debug(ctx context.Context, msg string, fields ...zap.Field) {
+	if l == nil || l.base == nil {
+		return
+	}
+	allFields := append(fieldsFromContext(ctx), fields...)
+	l.base.Debug(msg, allFields...)
+}
+
+func (l *ctxLogger) Info(ctx context.Context, msg string, fields ...zap.Field) {
+	if l == nil || l.base == nil {
+		return
+	}
+	allFields := append(fieldsFromContext(ctx), fields...)
+	l.base.Info(msg, allFields...)
+}
+
+func (l *ctxLogger) Warn(ctx context.Context, msg string, fields ...zap.Field) {
+	if l == nil || l.base == nil {
+		return
+	}
+	allFields := append(fieldsFromContext(ctx), fields...)
+	l.base.Warn(msg, allFields...)
+}
+
+func (l *ctxLogger) Error(ctx context.Context, msg string, fields ...zap.Field) {
+	if l == nil || l.base == nil {
+		return
+	}
+	allFields := append(fieldsFromContext(ctx), fields...)
+	l.base.Error(msg, allFields...)
+}
+
+func (l *ctxLogger) Fatal(ctx context.Context, msg string, fields ...zap.Field) {
+	if l == nil || l.base == nil {
+		zap.NewNop().Fatal(msg, fields...)
+		return
+	}
+	allFields := append(fieldsFromContext(ctx), fields...)
+	l.base.Fatal(msg, allFields...)
 }
 
 // buildCores создает слайс cores для zapcore.Tee.
@@ -215,11 +278,35 @@ func Info(_ context.Context, msg string, fields ...zap.Field) {
 	}
 }
 
+// Debug записывает лог уровня DEBUG.
+// Отправляется одновременно в stdout и OTLP коллектор (если включен).
+func Debug(_ context.Context, msg string, fields ...zap.Field) {
+	if global != nil {
+		global.Debug(msg, fields...)
+	}
+}
+
+// Warn записывает лог уровня WARN.
+// Отправляется одновременно в stdout и OTLP коллектор (если включен).
+func Warn(_ context.Context, msg string, fields ...zap.Field) {
+	if global != nil {
+		global.Warn(msg, fields...)
+	}
+}
+
 // Error записывает лог уровня ERROR.
 // Отправляется одновременно в stdout и OTLP коллектор (если включен).
 func Error(_ context.Context, msg string, fields ...zap.Field) {
 	if global != nil {
 		global.Error(msg, fields...)
+	}
+}
+
+// Fatal записывает лог уровня FATAL и завершает процесс (os.Exit(1) внутри zap).
+// Отправляется одновременно в stdout и OTLP коллектор (если включен).
+func Fatal(_ context.Context, msg string, fields ...zap.Field) {
+	if global != nil {
+		global.Fatal(msg, fields...)
 	}
 }
 
@@ -257,4 +344,20 @@ func parseLevel(levelStr string) zapcore.Level {
 	default:
 		return zapcore.InfoLevel
 	}
+}
+
+func fieldsFromContext(ctx context.Context) []zap.Field {
+	if ctx == nil {
+		return nil
+	}
+
+	fields := make([]zap.Field, 0, 2)
+	if traceID, ok := ctx.Value(traceIDKey).(string); ok && traceID != "" {
+		fields = append(fields, zap.String(string(traceIDKey), traceID))
+	}
+	if userID, ok := ctx.Value(userIDKey).(string); ok && userID != "" {
+		fields = append(fields, zap.String(string(userIDKey), userID))
+	}
+
+	return fields
 }
