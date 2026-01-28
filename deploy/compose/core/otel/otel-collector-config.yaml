@@ -131,3 +131,47 @@ service:
       receivers: [otlp] # принимаем от OTLP gRPC
       processors: [resource, batch] # обогащаем метаданными, группируем в батчи
       exporters: [elasticsearch] # отправляем в Elasticsearch
+
+
+      # FLOW ДИАГРАММА:
+      # Go App (OTLP gRPC)
+      #       ↓
+      # OTLP Receiver (port 4317)
+      #       ↓
+      # Resource Processor (add service.name, deployment.environment)
+      #       ↓
+      # Batch Processor (group 1000 records, max 5s)
+      #       ↓
+      # Elasticsearch Exporter (send to easy-logs index)
+      #
+# ===================================================================
+# ДОПОЛНИТЕЛЬНЫЕ ВОЗМОЖНОСТИ КОНФИГУРАЦИИ
+# ===================================================================
+#
+# Примеры расширенной конфигурации для production:
+#
+# processors:
+#   memory_limiter:                # ограничение памяти
+#     limit_percentage: 80
+#     spike_limit_percentage: 25
+#
+#   attributes:                    # манипуляции с атрибутами
+#     actions:
+#       - key: environment
+#         value: production
+#         action: upsert
+#       - key: sensitive_field
+#         action: delete           # удалить чувствительные данные
+#
+# exporters:
+#   jaeger:                        # дополнительный экспортер трасс
+#     endpoint: jaeger:14250
+#     tls:
+#       insecure: true
+#
+# service:
+#   pipelines:
+#     traces:                      # pipeline для трасс
+#       receivers: [otlp]
+#       processors: [memory_limiter, resource, batch]
+#       exporters: [jaeger]

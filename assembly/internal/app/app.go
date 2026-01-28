@@ -99,6 +99,7 @@ func (a *App) initLogger(_ context.Context) error {
 	return logger.Init(
 		config.AppConfig().Logger.Level(),
 		config.AppConfig().Logger.AsJson(),
+		config.AppConfig().Logger.EnableOTLP(),
 	)
 }
 

@@ -1,5 +1,3 @@
-package logger
-
 // Package logger предоставляет dual-write логгер с использованием zapcore.Tee архитектуры
 //
 // АРХИТЕКТУРА ЛОГГЕРА:
@@ -37,6 +35,7 @@ package logger
 // - Метрики: отслеживание sent/dropped записей для мониторинга
 // - Батчирование: OTLP SDK автоматически группирует записи для эффективной отправки
 // - Таймауты: 500ms лимит для предотвращения блокировки приложения
+package logger
 
 import (
 	"context"
@@ -58,7 +57,7 @@ import (
 // Глобальные переменные пакета
 var (
 	global       *zap.Logger                // глобальный экземпляр логгера
-	initOnce2    sync.Once                  // обеспечивает единократную инициализацию
+	initOnce     sync.Once                  // обеспечивает единократную инициализацию
 	level        zap.AtomicLevel            // уровень логирования (может изменяться динамически)
 	otelProvider *otelLogSdk.LoggerProvider // OTLP provider для graceful shutdown
 )
@@ -66,7 +65,7 @@ var (
 // Константы конфигурации OTLP
 const (
 	otlpEndpoint       = "localhost:4317" // адрес OTLP коллектора
-	serviceName        = "note-service"   // имя сервиса в телеметрии
+	serviceName        = "logger-service" // имя сервиса в телеметрии
 	serviceEnvironment = "dev"            // окружение для фильтрации логов
 )
 
@@ -82,7 +81,7 @@ const (
 //   - logLevel: уровень логирования ("debug", "info", "warn", "error")
 //   - asJSON: формат вывода (true - JSON, false - консольный)
 //   - enableOTLP: включение отправки в OpenTelemetry коллектор
-func Init2(logLevel string, asJSON, enableOTLP bool) error {
+func Init(logLevel string, asJSON bool, enableOTLP bool) error {
 	initOnce.Do(func() {
 		level = zap.NewAtomicLevelAt(parseLevel(logLevel))
 		cores := buildCores(asJSON, enableOTLP)
@@ -96,9 +95,22 @@ func Init2(logLevel string, asJSON, enableOTLP bool) error {
 	return nil
 }
 
+// func InitForBenchmark() {
+// 	core := zapcore.NewNopCore()
+
+// 	globalLogger = &logger{
+// 		zapLogger: zap.New(core),
+// 	}
+// }
+
+// logger возвращает глобальный enrich-aware логгер
+func Logger() *zap.Logger {
+	return global
+}
+
 // buildCores создает слайс cores для zapcore.Tee.
 // Всегда включает stdout core, опционально добавляет OTLP core.
-func buildCores(asJSON, enableOTLP bool) []zapcore.Core {
+func buildCores(asJSON bool, enableOTLP bool) []zapcore.Core {
 	cores := []zapcore.Core{
 		createStdoutCore(asJSON),
 	}
@@ -197,7 +209,7 @@ func buildEncoderConfig() zapcore.EncoderConfig {
 
 // Info записывает лог уровня INFO.
 // Отправляется одновременно в stdout и OTLP коллектор (если включен).
-func Info2(_ context.Context, msg string, fields ...zap.Field) {
+func Info(_ context.Context, msg string, fields ...zap.Field) {
 	if global != nil {
 		global.Info(msg, fields...)
 	}
@@ -205,7 +217,7 @@ func Info2(_ context.Context, msg string, fields ...zap.Field) {
 
 // Error записывает лог уровня ERROR.
 // Отправляется одновременно в stdout и OTLP коллектор (если включен).
-func Error2(_ context.Context, msg string, fields ...zap.Field) {
+func Error(_ context.Context, msg string, fields ...zap.Field) {
 	if global != nil {
 		global.Error(msg, fields...)
 	}
@@ -213,7 +225,7 @@ func Error2(_ context.Context, msg string, fields ...zap.Field) {
 
 // Sync принудительно сбрасывает все буферизованные логи.
 // Вызывает sync для всех cores (stdout + OTLP).
-func Sync2() error {
+func Sync() error {
 	if global != nil {
 		return global.Sync()
 	}
@@ -234,7 +246,7 @@ func Close() error {
 }
 
 // parseLevel преобразует строковое значение в zapcore.Level
-func parseLevel2(levelStr string) zapcore.Level {
+func parseLevel(levelStr string) zapcore.Level {
 	switch levelStr {
 	case "debug":
 		return zapcore.DebugLevel

@@ -9,7 +9,7 @@ import (
 
 func init() {
 	// Инициализируем логгер на "мусорный" writer, чтобы не засорять консоль и не тормозить бенчи
-	InitForBenchmark()
+	// InitForBenchmark()
 }
 
 func BenchmarkGlobalLogger(b *testing.B) {
