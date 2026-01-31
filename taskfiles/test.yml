@@ -613,6 +613,7 @@ tasks:
 
   integr:order:
     desc: "Запускает интеграционные тесты для Order сервиса"
+    todo: Пока не готов, надо доделать
     dir: order/tests/integration
     cmds:
       - echo "🚀 Запуск интеграционных тестов Order сервиса..."
