@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/iam/internal/model"
 )
@@ -24,12 +25,12 @@ func (s *ServiceSuite) TestWhoamiSuccess() {
 	}
 
 	s.sessionRepository.
-		On("Get", s.ctx, sessionUUID).
+		On("Get", mock.Anything, sessionUUID).
 		Return(session, nil).
 		Once()
 
 	s.userRepository.
-		On("Get", s.ctx, session.Login).
+		On("Get", mock.Anything, session.Login).
 		Return(user, nil).
 		Once()
 
@@ -49,7 +50,7 @@ func (s *ServiceSuite) TestWhoamiSessionNotFound() {
 	errSession := errors.New("session not found")
 
 	s.sessionRepository.
-		On("Get", s.ctx, sessionUUID).
+		On("Get", mock.Anything, sessionUUID).
 		Return(model.Session{}, errSession).
 		Once()
 
@@ -73,12 +74,12 @@ func (s *ServiceSuite) TestWhoamiUserNotFound() {
 	errUser := errors.New("user not found")
 
 	s.sessionRepository.
-		On("Get", s.ctx, sessionUUID).
+		On("Get", mock.Anything, sessionUUID).
 		Return(session, nil).
 		Once()
 
 	s.userRepository.
-		On("Get", s.ctx, session.Login).
+		On("Get", mock.Anything, session.Login).
 		Return(model.User{}, errUser).
 		Once()
 

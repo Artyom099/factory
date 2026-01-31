@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
@@ -21,7 +22,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(serviceResponseDto, nil)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(serviceResponseDto, nil)
 
 	res, err := s.service.Get(s.ctx, orderUUID)
 	s.Require().NoError(err)
@@ -34,7 +35,7 @@ func (s *ServiceSuite) TestGetRepoError() {
 		orderUUID = gofakeit.UUID()
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(model.Order{}, repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(model.Order{}, repoErr)
 
 	res, err := s.service.Get(s.ctx, orderUUID)
 	s.Require().Error(err)

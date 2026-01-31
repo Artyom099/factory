@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Artyom099/factory/iam/internal/model"
+	"github.com/Artyom099/factory/platform/pkg/logger"
 	"github.com/Artyom099/factory/platform/pkg/tracing"
 )
 
@@ -38,6 +39,7 @@ func (s *service) Login(ctx context.Context, login, password string) (string, er
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(password)); err != nil {
 		createSessionSpan.RecordError(err)
+		logger.Error(ctx, err.Error())
 		return "", model.ErrInvalidPassword
 	}
 

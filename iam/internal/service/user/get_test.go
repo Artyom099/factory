@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/iam/internal/model"
 )
@@ -30,7 +31,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 		}
 	)
 
-	s.userRepository.On("Get", s.ctx, userUUID).Return(modelUser, nil)
+	s.userRepository.On("Get", mock.Anything, userUUID).Return(modelUser, nil)
 
 	res, err := s.service.Get(s.ctx, userUUID)
 	s.Require().NoError(err)
@@ -56,7 +57,7 @@ func (s *ServiceSuite) TestGetError() {
 	)
 
 	s.userRepository.
-		On("Get", s.ctx, userUUID).
+		On("Get", mock.Anything, userUUID).
 		Return(model.User{}, repoErr).
 		Once()
 

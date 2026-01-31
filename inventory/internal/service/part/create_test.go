@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
@@ -53,7 +54,7 @@ func (s *ServiceSuite) TestCreateSuccess() {
 		}
 	)
 
-	s.partRepository.On("Create", s.ctx, serviceRequestDto).Return(partUUID, nil)
+	s.partRepository.On("Create", mock.Anything, serviceRequestDto).Return(partUUID, nil)
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -105,7 +106,7 @@ func (s *ServiceSuite) TestCreateRepoError() {
 		}
 	)
 
-	s.partRepository.On("Create", s.ctx, serviceRequestDto).Return("", repoErr)
+	s.partRepository.On("Create", mock.Anything, serviceRequestDto).Return("", repoErr)
 
 	uuid, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

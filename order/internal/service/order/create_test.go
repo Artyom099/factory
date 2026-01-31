@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
@@ -38,8 +39,8 @@ func (s *ServiceSuite) TestCreateSuccess() {
 		}
 	)
 
-	s.orderRepository.On("Create", s.ctx, repoRequestDto).Return(orderUuid, nil)
-	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return(listPartsResponseDto, nil)
+	s.orderRepository.On("Create", mock.Anything, repoRequestDto).Return(orderUuid, nil)
+	s.inventoryClient.On("ListParts", mock.Anything, listPartsRequestDto).Return(listPartsResponseDto, nil)
 
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -73,8 +74,8 @@ func (s *ServiceSuite) TestCreateRepoError() {
 		}
 	)
 
-	s.orderRepository.On("Create", s.ctx, repoRequestDto).Return("", repoErr)
-	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return(listPartsResponseDto, nil)
+	s.orderRepository.On("Create", mock.Anything, repoRequestDto).Return("", repoErr)
+	s.inventoryClient.On("ListParts", mock.Anything, listPartsRequestDto).Return(listPartsResponseDto, nil)
 
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
@@ -101,7 +102,7 @@ func (s *ServiceSuite) TestCreateINotAllPartsExistInInventoryServiceError() {
 		}
 	)
 
-	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return(listPartsResponseDto, nil)
+	s.inventoryClient.On("ListParts", mock.Anything, listPartsRequestDto).Return(listPartsResponseDto, nil)
 
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)
@@ -126,7 +127,7 @@ func (s *ServiceSuite) TestCreateInventoryServiceInternalError() {
 		}
 	)
 
-	s.inventoryClient.On("ListParts", s.ctx, listPartsRequestDto).Return([]model.Part{}, inventoryServiceErr)
+	s.inventoryClient.On("ListParts", mock.Anything, listPartsRequestDto).Return([]model.Part{}, inventoryServiceErr)
 
 	res, err := s.service.Create(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

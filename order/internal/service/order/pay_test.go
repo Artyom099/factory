@@ -30,10 +30,10 @@ func (s *ServiceSuite) TestPaySuccess() {
 	updateRepoRequestDto.TransactionUUID = transactionUUID
 	updateRepoRequestDto.PaymentMethod = model.OrderPaymentMethodSBP
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
-	s.paymentClient.On("PayOrder", s.ctx, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
-	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(nil)
-	s.orderProducerService.On("ProduceOrderPaid", s.ctx, mock.AnythingOfType("model.OrderPaidOutEvent")).Return(nil)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(getRepoRequestDto, nil)
+	s.paymentClient.On("PayOrder", mock.Anything, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
+	s.orderRepository.On("Update", mock.Anything, updateRepoRequestDto).Return(nil)
+	s.orderProducerService.On("ProduceOrderPaid", mock.Anything, mock.AnythingOfType("model.OrderPaidOutEvent")).Return(nil)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().NoError(err)
@@ -64,9 +64,9 @@ func (s *ServiceSuite) TestPayRepoUpdateError() {
 	updateRepoRequestDto.TransactionUUID = transactionUUID
 	updateRepoRequestDto.PaymentMethod = model.OrderPaymentMethodSBP
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
-	s.paymentClient.On("PayOrder", s.ctx, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
-	s.orderRepository.On("Update", s.ctx, updateRepoRequestDto).Return(repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(getRepoRequestDto, nil)
+	s.paymentClient.On("PayOrder", mock.Anything, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, nil)
+	s.orderRepository.On("Update", mock.Anything, updateRepoRequestDto).Return(repoErr)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
@@ -81,7 +81,7 @@ func (s *ServiceSuite) TestPayRepoGetError() {
 		paymentMethod = model.OrderPaymentMethodSBP
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(model.Order{}, repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(model.Order{}, repoErr)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
@@ -107,8 +107,8 @@ func (s *ServiceSuite) TestPayPaymentClientError() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
-	s.paymentClient.On("PayOrder", s.ctx, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(getRepoRequestDto, nil)
+	s.paymentClient.On("PayOrder", mock.Anything, paymentMethod, orderUuid, getRepoRequestDto.UserUUID).Return(transactionUUID, repoErr)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
@@ -132,7 +132,7 @@ func (s *ServiceSuite) TestPayInvalidStatusPaidError() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(getRepoRequestDto, nil)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)
@@ -156,7 +156,7 @@ func (s *ServiceSuite) TestPayInvalidStatusCancelledError() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUuid).Return(getRepoRequestDto, nil)
+	s.orderRepository.On("Get", mock.Anything, orderUuid).Return(getRepoRequestDto, nil)
 
 	res, err := s.service.Pay(s.ctx, orderUuid, paymentMethod)
 	s.Require().Error(err)

@@ -28,7 +28,7 @@ func (s *ServiceSuite) TestLoginSuccess() {
 	}
 
 	s.userRepository.
-		On("Get", s.ctx, login).
+		On("Get", mock.Anything, login).
 		Return(user, nil).
 		Once()
 
@@ -36,12 +36,12 @@ func (s *ServiceSuite) TestLoginSuccess() {
 	s.service.sessionTTL = &ttl
 
 	s.sessionRepository.
-		On("Create", s.ctx, mock.AnythingOfType("model.Session"), ttl).
+		On("Create", mock.Anything, mock.AnythingOfType("model.Session"), ttl).
 		Return(nil).
 		Once()
 
 	s.sessionRepository.
-		On("AddSessionToUserSet", s.ctx, userID, mock.AnythingOfType("string")).
+		On("AddSessionToUserSet", mock.Anything, userID, mock.AnythingOfType("string")).
 		Return(nil).
 		Once()
 
@@ -61,7 +61,7 @@ func (s *ServiceSuite) TestLoginUserNotFound() {
 	)
 
 	s.userRepository.
-		On("Get", s.ctx, login).
+		On("Get", mock.Anything, login).
 		Return(model.User{}, model.ErrUserNotFound).
 		Once()
 
@@ -89,7 +89,7 @@ func (s *ServiceSuite) TestLoginInvalidPassword() {
 	}
 
 	s.userRepository.
-		On("Get", s.ctx, login).
+		On("Get", mock.Anything, login).
 		Return(user, nil).
 		Once()
 
@@ -117,7 +117,7 @@ func (s *ServiceSuite) TestLoginSessionCreateError() {
 	}
 
 	s.userRepository.
-		On("Get", s.ctx, login).
+		On("Get", mock.Anything, login).
 		Return(user, nil).
 		Once()
 
@@ -127,7 +127,7 @@ func (s *ServiceSuite) TestLoginSessionCreateError() {
 	createErr := errors.New("redis unavailable")
 
 	s.sessionRepository.
-		On("Create", s.ctx, mock.AnythingOfType("model.Session"), ttl).
+		On("Create", mock.Anything, mock.AnythingOfType("model.Session"), ttl).
 		Return(createErr).
 		Once()
 
@@ -156,7 +156,7 @@ func (s *ServiceSuite) TestLoginAddSessionToUserSetError() {
 	}
 
 	s.userRepository.
-		On("Get", s.ctx, login).
+		On("Get", mock.Anything, login).
 		Return(user, nil).
 		Once()
 
@@ -164,14 +164,14 @@ func (s *ServiceSuite) TestLoginAddSessionToUserSetError() {
 	s.service.sessionTTL = &ttl
 
 	s.sessionRepository.
-		On("Create", s.ctx, mock.AnythingOfType("model.Session"), ttl).
+		On("Create", mock.Anything, mock.AnythingOfType("model.Session"), ttl).
 		Return(nil).
 		Once()
 
 	addErr := errors.New("redis set error")
 
 	s.sessionRepository.
-		On("AddSessionToUserSet", s.ctx, userID, mock.AnythingOfType("string")).
+		On("AddSessionToUserSet", mock.Anything, userID, mock.AnythingOfType("string")).
 		Return(addErr).
 		Once()
 

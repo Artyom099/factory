@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
@@ -54,7 +55,7 @@ func (s *ServiceSuite) TestGetSuccess() {
 		}
 	)
 
-	s.partRepository.On("Get", s.ctx, partUUID).Return(modelPart, nil)
+	s.partRepository.On("Get", mock.Anything, partUUID).Return(modelPart, nil)
 
 	res, err := s.service.Get(s.ctx, partUUID)
 	s.Require().NoError(err)

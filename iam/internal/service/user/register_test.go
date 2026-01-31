@@ -22,12 +22,12 @@ func (s *ServiceSuite) TestRegisterSuccess() {
 	)
 
 	s.userRepository.
-		On("Get", s.ctx, email).
+		On("Get", mock.Anything, email).
 		Return(model.User{}, model.ErrUserNotFound).
 		Once()
 
 	s.userRepository.
-		On("Create", s.ctx, mock.AnythingOfType("model.User")).
+		On("Create", mock.Anything, mock.AnythingOfType("model.User")).
 		Return(userID, nil).
 		Once()
 
@@ -48,7 +48,7 @@ func (s *ServiceSuite) TestRegisterUserAlreadyExists() {
 	}
 
 	s.userRepository.
-		On("Get", s.ctx, email).
+		On("Get", mock.Anything, email).
 		Return(existing, nil).
 		Once()
 
@@ -67,7 +67,7 @@ func (s *ServiceSuite) TestRegisterGetUnexpectedError() {
 	)
 
 	s.userRepository.
-		On("Get", s.ctx, email).
+		On("Get", mock.Anything, email).
 		Return(model.User{}, getErr).
 		Once()
 
@@ -91,12 +91,12 @@ func (s *ServiceSuite) TestRegisterCreateError() {
 	)
 
 	s.userRepository.
-		On("Get", s.ctx, email).
+		On("Get", mock.Anything, email).
 		Return(model.User{}, model.ErrUserNotFound).
 		Once()
 
 	s.userRepository.
-		On("Create", s.ctx, mock.AnythingOfType("model.User")).
+		On("Create", mock.Anything, mock.AnythingOfType("model.User")).
 		Return("", createErr).
 		Once()
 

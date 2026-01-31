@@ -2,6 +2,7 @@ package order
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/order/internal/service/model"
 )
@@ -21,8 +22,8 @@ func (s *ServiceSuite) TestCancelSuccess() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
-	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(nil)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(getRepoResponseDto, nil)
+	s.orderRepository.On("Cancel", mock.Anything, orderUUID).Return(nil)
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().NoError(err)
@@ -44,8 +45,8 @@ func (s *ServiceSuite) TestCancelRepoCancelError() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
-	s.orderRepository.On("Cancel", s.ctx, orderUUID).Return(repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(getRepoResponseDto, nil)
+	s.orderRepository.On("Cancel", mock.Anything, orderUUID).Return(repoErr)
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
@@ -67,7 +68,7 @@ func (s *ServiceSuite) TestCancelConflictError() {
 		}
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(getRepoResponseDto, nil)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(getRepoResponseDto, nil)
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)
@@ -80,7 +81,7 @@ func (s *ServiceSuite) TestCancelRepoGetError() {
 		repoErr   = gofakeit.Error()
 	)
 
-	s.orderRepository.On("Get", s.ctx, orderUUID).Return(model.Order{}, repoErr)
+	s.orderRepository.On("Get", mock.Anything, orderUUID).Return(model.Order{}, repoErr)
 
 	err := s.service.Cancel(s.ctx, orderUUID)
 	s.Require().Error(err)

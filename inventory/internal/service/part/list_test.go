@@ -2,6 +2,7 @@ package part
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/inventory/internal/service/model"
 )
@@ -31,7 +32,7 @@ func (s *ServiceSuite) TestListSuccess() {
 		}
 	)
 
-	s.partRepository.On("List", s.ctx, serviceRequestDto).Return(repoResponseDto, nil)
+	s.partRepository.On("List", mock.Anything, serviceRequestDto).Return(repoResponseDto, nil)
 
 	res, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -53,7 +54,7 @@ func (s *ServiceSuite) TestListRepoError() {
 		}
 	)
 
-	s.partRepository.On("List", s.ctx, serviceRequestDto).Return([]model.Part{}, repoErr)
+	s.partRepository.On("List", mock.Anything, serviceRequestDto).Return([]model.Part{}, repoErr)
 
 	_, err := s.service.List(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

@@ -2,6 +2,7 @@ package payment
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/Artyom099/factory/payment/internal/service/model"
 )
@@ -20,7 +21,7 @@ func (s *ServiceSuite) TestPayOrderSuccess() {
 		}
 	)
 
-	s.paymentRepository.On("PayOrder", s.ctx, serviceRequestDto).Return(transactionUUID, nil)
+	s.paymentRepository.On("PayOrder", mock.Anything, serviceRequestDto).Return(transactionUUID, nil)
 
 	uuid, err := s.service.PayOrder(s.ctx, serviceRequestDto)
 	s.Require().NoError(err)
@@ -41,7 +42,7 @@ func (s *ServiceSuite) TestPayOrderRepoError() {
 		}
 	)
 
-	s.paymentRepository.On("PayOrder", s.ctx, serviceRequestDto).Return("", repoErr)
+	s.paymentRepository.On("PayOrder", mock.Anything, serviceRequestDto).Return("", repoErr)
 
 	uuid, err := s.service.PayOrder(s.ctx, serviceRequestDto)
 	s.Require().Error(err)

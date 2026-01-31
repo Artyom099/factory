@@ -1,7 +1,9 @@
 version: "3"
 
 tasks:
-  iam:
+  # test:console
+
+  console:iam:
     desc: "🔐 Тестирование IAM сервиса (регистрация, логин, whoami)"
     deps: [grpcurl:install]
     silent: true
@@ -78,7 +80,7 @@ tasks:
         echo "🎉 Все тесты IAM выполнены успешно!"
         echo "📄 Данные аутентификации сохранены в /tmp/test_auth_data.sh"
 
-  api-auth-rejection:
+  console:api-auth-rejection:
     desc: "🔒 Тестирование корректности отклонения неавторизованных запросов"
     silent: true
     cmds:
@@ -129,7 +131,7 @@ tasks:
         echo
         echo "🎉 Все тесты отклонения неавторизованных запросов завершены!"
 
-  api-with-auth:
+  console:api-with-auth:
     desc: "✅ Тестирование API микросервисов с корректной аутентификацией"
     silent: true
     cmds:
@@ -375,7 +377,7 @@ tasks:
           echo "🎉 Все тесты API с аутентификацией выполнены успешно!"
         fi
 
-  all-api:
+  console:all-api:
     desc: "🚀 Полное тестирование API: проверка аутентификации + функциональные тесты"
     deps: [grpcurl:install, iam]
     silent: true
@@ -391,7 +393,7 @@ tasks:
         echo
         echo "🔐 Все основные сценарии API работают корректно!"
 
-  api-old:
+  console:api-old:
     desc: "🧪 Запуск тестов для проверки API микросервисов"
     deps: [grpcurl:install]
     cmds:
