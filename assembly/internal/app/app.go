@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Artyom099/factory/assembly/internal/config"
+	"github.com/Artyom099/factory/assembly/internal/interceptor"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/grpc/health"
 	"github.com/Artyom099/factory/platform/pkg/logger"
@@ -112,7 +113,10 @@ func (a *App) initCloser(_ context.Context) error {
 func (a *App) initGRPCServer(ctx context.Context) error {
 	a.grpcServer = grpc.NewServer(
 		grpc.Creds(insecure.NewCredentials()),
-		grpc.UnaryInterceptor(tracing.UnaryServerInterceptor("assembly-service")),
+		grpc.ChainUnaryInterceptor(
+			tracing.UnaryServerInterceptor("assembly-service"),
+			interceptor.MetricsInterceptor(), // интерцептор сбора метрик
+		),
 	)
 
 	reflection.Register(a.grpcServer)

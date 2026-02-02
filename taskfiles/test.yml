@@ -72,13 +72,14 @@ tasks:
         echo "✅ Whoami работает корректно. UUID пользователя: $WHOAMI_UUID"
 
         # Сохраняем данные для использования в других тестах
-        echo "export TEST_USER_UUID=\"$USER_UUID\"" > /tmp/test_auth_data.sh
-        echo "export TEST_SESSION_UUID=\"$SESSION_UUID\"" >> /tmp/test_auth_data.sh
-        echo "export TEST_USER_EMAIL=\"$USER_EMAIL\"" >> /tmp/test_auth_data.sh
+        mkdir -p ./tmp
+        echo "export TEST_USER_UUID=\"$USER_UUID\"" > ./tmp/test_auth_data.sh
+        echo "export TEST_SESSION_UUID=\"$SESSION_UUID\"" >> ./tmp/test_auth_data.sh
+        echo "export TEST_USER_EMAIL=\"$USER_EMAIL\"" >> ./tmp/test_auth_data.sh
 
         echo
         echo "🎉 Все тесты IAM выполнены успешно!"
-        echo "📄 Данные аутентификации сохранены в /tmp/test_auth_data.sh"
+        echo "📄 Данные аутентификации сохранены в ./tmp/test_auth_data.sh"
 
   console:api-auth-rejection:
     desc: "🔒 Тестирование корректности отклонения неавторизованных запросов"
@@ -88,8 +89,8 @@ tasks:
         echo "🔒 Тестирование корректности отклонения неавторизованных запросов"
 
         # Загружаем данные аутентификации из IAM теста
-        if [ -f /tmp/test_auth_data.sh ]; then
-          source /tmp/test_auth_data.sh
+        if [ -f ./tmp/test_auth_data.sh ]; then
+          source ./tmp/test_auth_data.sh
           echo "📋 Используем данные аутентификации для получения тестовых данных:"
           echo "   - User UUID: $TEST_USER_UUID"
           echo "   - Session UUID: $TEST_SESSION_UUID"
@@ -139,8 +140,8 @@ tasks:
         echo "✅ Тестирование API микросервисов с корректной аутентификацией"
 
         # Загружаем данные аутентификации из IAM теста
-        if [ -f /tmp/test_auth_data.sh ]; then
-          source /tmp/test_auth_data.sh
+        if [ -f ./tmp/test_auth_data.sh ]; then
+          source ./tmp/test_auth_data.sh
           echo "📋 Используем данные аутентификации:"
           echo "   - User UUID: $TEST_USER_UUID"
           echo "   - Session UUID: $TEST_SESSION_UUID"
@@ -204,7 +205,7 @@ tasks:
             echo "🎉 Основные тесты API выполнены! (Межсервисная аутентификация требует настройки)"
 
             # Очищаем временные файлы
-            rm -f /tmp/test_auth_data.sh
+            rm -f ./tmp/test_auth_data.sh
           else
             echo "❌ Не удалось создать заказ."
             echo "🔍 Ответ сервера: $ORDER_RESPONSE"
@@ -371,7 +372,7 @@ tasks:
           echo "✅ Статус второго заказа после отмены: $ORDER2_STATUS"
 
           # Очищаем временные файлы
-          rm -f /tmp/test_auth_data.sh
+          rm -f ./tmp/test_auth_data.sh
 
           echo
           echo "🎉 Все тесты API с аутентификацией выполнены успешно!"

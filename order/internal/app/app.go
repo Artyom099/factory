@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/order/internal/config"
+	"github.com/Artyom099/factory/order/internal/interceptor"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
@@ -144,6 +145,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	r := chi.NewRouter()
 	r.Use(a.diContainer.AuthMiddleware(ctx).Handle)
 	r.Use(tracing.HTTPHandlerMiddleware("order-service"))
+	r.Use(interceptor.MetricsInterceptor()) // интерцептор сбора метрик
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Mount("/", orderServer)
 

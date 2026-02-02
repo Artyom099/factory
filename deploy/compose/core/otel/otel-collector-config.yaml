@@ -100,6 +100,11 @@ exporters:
     # timeout: 90s                  # таймаут HTTP запроса
     # compression: gzip             # сжатие данных
 
+  prometheusremotewrite:
+    # URL endpoint Prometheus для приема метрик
+    # Prometheus автоматически предоставляет этот endpoint
+    endpoint: http://prometheus:9090/api/v1/write
+
 extensions:
   # HEALTH CHECK: эндпоинт проверки здоровья коллектора - Полезно для мониторинга в Kubernetes/Docker
   health_check:
@@ -132,6 +137,12 @@ service:
       processors: [resource, batch] # обогащаем метаданными, группируем в батчи
       exporters: [elasticsearch] # отправляем в Elasticsearch
 
+    # Пайплайн для метрик - Обрабатывает только метрики (счетчики, гистограммы, gauge)
+    metrics:
+      receivers: [otlp]
+      processors: [batch] # группируем в батчи для эффективности отправки
+      exporters: [prometheusremotewrite] # Отправляем обработанные метрики в Prometheus
+
 
       # FLOW ДИАГРАММА:
       # Go App (OTLP gRPC)
@@ -144,6 +155,7 @@ service:
       #       ↓
       # Elasticsearch Exporter (send to easy-logs index)
       #
+#
 # ===================================================================
 # ДОПОЛНИТЕЛЬНЫЕ ВОЗМОЖНОСТИ КОНФИГУРАЦИИ
 # ===================================================================
