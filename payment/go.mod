@@ -1,6 +1,6 @@
 module github.com/Artyom099/factory/payment
 
-go 1.24.0
+go 1.25.7
 
 replace github.com/Artyom099/factory/shared => ../shared
 

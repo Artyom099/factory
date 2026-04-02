@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Artyom099/factory/order/internal/config"
+	"github.com/Artyom099/factory/order/internal/metrics"
 	"github.com/Artyom099/factory/platform/pkg/closer"
 	"github.com/Artyom099/factory/platform/pkg/logger"
 	"github.com/Artyom099/factory/platform/pkg/migrator/pg"
@@ -81,7 +82,8 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initDI,
 		a.initLogger,
 		a.initCloser,
-		// a.initTracing,
+		// a.initTracing, //todo - надо подключить как в примере
+		a.initMetrics,
 		a.initListener,
 		a.initHTTPServer,
 		a.initMigrator,
@@ -142,19 +144,19 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		return err
 	}
 
-	r := chi.NewRouter()
-	r.Use(a.diContainer.AuthMiddleware(ctx).Handle)
-	r.Use(tracing.HTTPHandlerMiddleware("order-service"))
-	// r.Use(interceptor.MetricsInterceptor()) // интерцептор сбора метрик todo - если раскомментить, падает с паникой
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Mount("/", orderServer)
+	mux := chi.NewRouter()
+	mux.Use(a.diContainer.AuthMiddleware(ctx).Handle)
+	mux.Use(tracing.HTTPHandlerMiddleware("order-service"))
+	mux.Use(render.SetContentType(render.ContentTypeJSON))
+	mux.Mount("/", orderServer)
 
 	readHeaderTimeout := 5 * time.Second
 
 	a.httpServer = &http.Server{
-		Addr:              config.AppConfig().OrderHTTP.Address(),
-		Handler:           r,
+		Addr: config.AppConfig().OrderHTTP.Address(),
+		// todo - в конфиг
 		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки
+		Handler:           mux,
 	}
 
 	closer.AddNamed("HTTP server", func(ctx context.Context) error {
@@ -218,5 +220,14 @@ func (a *App) initTracing(ctx context.Context) error {
 
 	closer.AddNamed("tracer", tracing.ShutdownTracer)
 
+	return nil
+}
+
+func (a *App) initMetrics(ctx context.Context) error {
+	err := metrics.InitMetrics(ctx, config.AppConfig().MetricServer)
+	if err != nil {
+		return err
+	}
+	closer.AddNamed("metrics", metrics.ShutdownMetrics)
 	return nil
 }

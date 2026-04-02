@@ -22,9 +22,11 @@ type config struct {
 	OrderAssembledConsumer OrderAssembledConsumerConfig
 	IamCLient              IamClientConfig
 	Tracing                TracingConfig
+	MetricServer           MetricServerConfig
 }
 
 func Load(path ...string) error {
+	// todo - заменить на то, что ниже закомменчено
 	dotenvDirs := make([]string, 0, len(path))
 	for _, p := range path {
 		if p == "" {
@@ -42,6 +44,10 @@ func Load(path ...string) error {
 
 		dotenvDirs = append(dotenvDirs, filepath.Dir(absPath))
 	}
+	// err := godotenv.Load(path...)
+	// if err != nil && !os.IsNotExist(err) {
+	// 	return err
+	// }
 
 	err := godotenv.Load(path...)
 	if err != nil && !os.IsNotExist(err) {
@@ -102,6 +108,11 @@ func Load(path ...string) error {
 		return err
 	}
 
+	metricServerCfg, err := env.NewMetricServerConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:                 loggerCfg,
 		OrderHTTP:              orderHTTPCfg,
@@ -113,6 +124,7 @@ func Load(path ...string) error {
 		OrderAssembledConsumer: orderAssembledConsumerCfg,
 		IamCLient:              iamCLientCfg,
 		Tracing:                tracingCfg,
+		MetricServer:           metricServerCfg,
 	}
 
 	return nil

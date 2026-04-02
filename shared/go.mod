@@ -1,6 +1,6 @@
 module github.com/Artyom099/factory/shared
 
-go 1.24.0
+go 1.25.7
 
 require (
 	github.com/envoyproxy/protoc-gen-validate v1.2.1

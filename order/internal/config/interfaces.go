@@ -1,6 +1,10 @@
 package config
 
-import "github.com/IBM/sarama"
+import (
+	"time"
+
+	"github.com/IBM/sarama"
+)
 
 type LoggerConfig interface {
 	Level() string
@@ -49,4 +53,9 @@ type TracingConfig interface {
 	ServiceName() string
 	Environment() string
 	ServiceVersion() string
+}
+
+type MetricServerConfig interface {
+	CollectorEndpoint() string
+	CollectorInterval() time.Duration
 }

@@ -380,11 +380,11 @@ tasks:
 
   console:all-api:
     desc: "🚀 Полное тестирование API: проверка аутентификации + функциональные тесты"
-    deps: [grpcurl:install, iam]
+    deps: [grpcurl:install, console:iam]
     silent: true
     cmds:
-      - task: api-auth-rejection
-      - task: api-with-auth
+      - task: console:api-auth-rejection
+      - task: console:api-with-auth
       - |
         echo
         echo "🎉🎉🎉 ПОЛНОЕ ТЕСТИРОВАНИЕ API ЗАВЕРШЕНО УСПЕШНО! 🎉🎉🎉"

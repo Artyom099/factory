@@ -1,5 +1,5 @@
 {
-  "id": null,
+  "id": 1,
   "title": "Assembly Service Overview",
   "description": "Основные метрики Assembly gRPC сервиса",
   "tags": ["assembly", "grpc", "microservice"],
@@ -29,7 +29,20 @@
   "links": [],
   "liveNow": false,
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
   },
   "templating": {
     "list": []
